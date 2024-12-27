@@ -1,5 +1,5 @@
 #pragma once
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 #include "InventoryItem.h"
 #include "InventoryContainerDI.h"
 

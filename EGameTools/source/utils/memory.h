@@ -8,6 +8,29 @@ namespace Utils {
 		static const BYTE SigScanWildCard = 0xAA;
 		static const std::string_view SigScanWildCardStr = "AA";
 
+		class SafeExecution {
+		private:
+			static int fail(unsigned int code, struct _EXCEPTION_POINTERS* ep);
+		public:
+			template<typename T = void*, typename R = void*, typename... Args>
+			static T Execute(uint64_t ptr, R ret, Args... args) {
+				__try {
+					return reinterpret_cast<T(__stdcall*)(Args...)>(ptr)(args...);
+				} __except (fail(GetExceptionCode(), GetExceptionInformation())) {
+					return ret;
+				}
+			}
+
+			template<typename... Args>
+			static void ExecuteVoid(uint64_t ptr, Args... args) {
+				__try {
+					return reinterpret_cast<void(__stdcall*)(Args...)>(ptr)(args...);
+				} __except (fail(GetExceptionCode(), GetExceptionInformation())) {
+
+				}
+			}
+		};
+
 		extern const MODULEINFO GetModuleInfo(const char* szModule);
 		extern const FARPROC GetProcAddr(const std::string_view& module, const std::string_view& funcName);
 

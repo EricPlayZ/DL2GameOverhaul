@@ -51,7 +51,7 @@ namespace Utils {
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						spdlog::error("Failed hooking \"{}\" after 120 seconds", name);
+						SPDLOG_ERROR("Failed hooking \"{}\" after 120 seconds", name);
 						isHooking = false;
 						return false;
 					}
@@ -138,7 +138,7 @@ namespace Utils {
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						spdlog::error("Failed hooking function \"{}\" after 120 seconds", name);
+						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", name);
 						isHooking = false;
 						return false;
 					}
@@ -182,7 +182,7 @@ namespace Utils {
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						spdlog::error("Failed hooking function \"{}\" after 120 seconds", name);
+						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", name);
 						isHooking = false;
 						return false;
 					}

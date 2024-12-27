@@ -1,9 +1,12 @@
 #include <pch.h>
 
 namespace Core {
+    extern void EnableConsole();
     extern void DisableConsole();
 
     extern std::counting_semaphore<4> maxHookThreads;
+
+    extern void InitLogger();
 
     extern DWORD64 WINAPI MainThread(HMODULE hModule);
     extern void Cleanup();
@@ -18,36 +21,50 @@ namespace Engine {
     }
 }
 
-static HANDLE hMainThread{};
+static HANDLE mainThreadHandle{};
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD64 ul_reason_for_call, LPVOID lpReserved) {
-    switch (ul_reason_for_call) {
+BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, LPVOID lpReserved) {
+    switch (reasonForCall) {
     case DLL_PROCESS_ATTACH: {
+        Core::EnableConsole();
+        Core::InitLogger();
+
+        SPDLOG_INFO("DLL_PROCESS_ATTACH");
         MH_Initialize();
 
+        SPDLOG_INFO("Initializing hooks");
         Engine::Hooks::MountDataPaksHook.HookLoop();
         Engine::Hooks::AuthenticateDataAddNewFileHook.HookLoop();
         Engine::Hooks::FsCheckZipCrcHook.HookLoop();
         Engine::Hooks::FsOpenHook.HookLoop();
 
-        DisableThreadLibraryCalls(hModule);
-        hMainThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)Core::MainThread, hModule, 0, nullptr);
+        SPDLOG_INFO("Disabling thread library calls");
+        DisableThreadLibraryCalls(moduleHandle);
 
-        if (!hMainThread)
+        SPDLOG_INFO("Creating main thread");
+        mainThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)Core::MainThread, moduleHandle, 0, nullptr);
+
+        if (!mainThreadHandle) {
+            SPDLOG_ERROR("Failed to create main thread");
             return FALSE;
+        }
         break;
     }
-    case DLL_PROCESS_DETACH:
+    case DLL_PROCESS_DETACH: {
+        SPDLOG_INFO("DLL_PROCESS_DETACH");
         Core::Cleanup();
         Core::DisableConsole();
 
-        if (hMainThread)
-            CloseHandle(hMainThread);
-        FreeLibraryAndExitThread(hModule, 0);
+        if (mainThreadHandle) {
+            SPDLOG_INFO("Closing main thread handle");
+            CloseHandle(mainThreadHandle);
+        }
+        SPDLOG_INFO("Freeing library and exiting thread");
+        FreeLibraryAndExitThread(moduleHandle, 0);
         break;
+    }
     default:
         return FALSE;
     }
     return TRUE;
 }
-

@@ -46,6 +46,7 @@
 #include <d3d12.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog\spdlog.h>
 #include <spdlog\sinks\rotating_file_sink.h>
 #include <backends\imgui_impl_dx11.h>
@@ -72,7 +73,7 @@
 #include "..\source\config\ini.h"
 #include "..\source\game\Engine\GameSpeedHandler.h"
 #include "..\source\game\Vector3.h"
-#include "..\source\game\buffer.h"
+#include "..\source\game\ClassHelpers.h"
 #include "..\source\utils\files.h"
 #include "..\source\utils\hook.h"
 #include "..\source\utils\memory.h"

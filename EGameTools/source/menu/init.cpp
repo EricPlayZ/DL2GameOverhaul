@@ -31,7 +31,7 @@ namespace Menu {
                 outFile.close();
             }
         } catch (const std::exception& e) {
-            spdlog::error("Exception thrown while trying to create changelog file: {}", e.what());
+            SPDLOG_ERROR("Exception thrown while trying to create changelog file: {}", e.what());
         }
     }
     static bool DoesChangelogFileExist() {
@@ -279,8 +279,8 @@ namespace Menu {
         io.FontDefault = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRudaBold, sizeof(g_FontRudaBold), 12.0f + 6.0f, &fontConfig);
         io.Fonts->Build();
 
-        spdlog::warn("Loading EGameTools logo texture");
+        SPDLOG_WARN("Loading EGameTools logo texture");
         EGTLogoTexture = Utils::Texture::LoadImGuiTexture(g_EGTWhiteLogo, sizeof(g_EGTWhiteLogo));
-        spdlog::info("Loaded EGameTools logo");
+        SPDLOG_INFO("Loaded EGameTools logo");
     }
 }

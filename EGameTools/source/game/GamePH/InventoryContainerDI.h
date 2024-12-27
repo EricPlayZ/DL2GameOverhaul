@@ -1,5 +1,5 @@
 #pragma once
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 #include "InventoryMoney.h"
 
 namespace GamePH {

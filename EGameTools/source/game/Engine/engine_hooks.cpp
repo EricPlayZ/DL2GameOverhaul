@@ -73,7 +73,7 @@ namespace Engine {
 		static std::vector<std::string> cachedUserModDirs{};
 		static Utils::Time::Timer timeSinceCache{ 0 };
 		static void CacheUserModDirs() {
-			spdlog::warn("Recaching user mod directories");
+			SPDLOG_WARN("Recaching user mod directories");
 
 			if (!cachedUserModDirs.empty())
 				cachedUserModDirs.clear();
@@ -88,7 +88,7 @@ namespace Engine {
 					cachedUserModDirs.push_back(entry->path().string());
 				}
 			} catch (const std::exception& e) {
-				spdlog::error("Exception thrown while caching user mod directories: {}", e.what());
+				SPDLOG_ERROR("Exception thrown while caching user mod directories: {}", e.what());
 			}
 		}
 
@@ -120,7 +120,7 @@ namespace Engine {
 					
 					finalPath.erase(0, userModFilesFullPath.size() + 1); // erase entire path until mod folder
 					const char* filePath2 = finalPath.c_str();
-					spdlog::warn("Loading user mod file \"{}\"", finalPath.c_str());
+					SPDLOG_WARN("Loading user mod file \"{}\"", finalPath.c_str());
 
 					DWORD64 finalAddr = reinterpret_cast<DWORD64>(filePath2);
 					if (firstByte != 0x0)
@@ -128,13 +128,13 @@ namespace Engine {
 
 					const DWORD64 result = FsOpenHook.pOriginal(finalAddr, a2, a3);
 					if (!result) {
-						spdlog::error("fs::open returned 0! Something went wrong with loading user mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters!", finalPath.c_str());
+						SPDLOG_ERROR("fs::open returned 0! Something went wrong with loading user mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters!", finalPath.c_str());
 						return FsOpenHook.pOriginal(file, a2, a3);
 					}
 					return result;
 				}
 			} catch (const std::exception& e) {
-				spdlog::error("Exception thrown while loading user mod file \"{}\": {}", finalPath.c_str(), e.what());
+				SPDLOG_ERROR("Exception thrown while loading user mod file \"{}\": {}", finalPath.c_str(), e.what());
 			}
 			return FsOpenHook.pOriginal(file, a2, a3);
 		}
@@ -188,12 +188,12 @@ namespace Engine {
 					pathPtr.pakPath = pakPath.c_str();
 					pathPtr.fullPakPath = fullPakPath.c_str();
 
-					spdlog::warn("Loading user PAK mod file \"{}\"", pakPath.c_str());
+					SPDLOG_WARN("Loading user PAK mod file \"{}\"", pakPath.c_str());
 					if (!fs::mount(&pathPtr, 1, nullptr))
-						spdlog::error("fs::mount returned 0! Something went wrong with loading user PAK mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters, and make sure the file is valid!", pakPath.c_str());
+						SPDLOG_ERROR("fs::mount returned 0! Something went wrong with loading user PAK mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters, and make sure the file is valid!", pakPath.c_str());
 				}
 			} catch (const std::exception& e) {
-				spdlog::error("Exception thrown while iterating over user mod directories for PAK loading: {}", e.what());
+				SPDLOG_ERROR("Exception thrown while iterating over user mod directories for PAK loading: {}", e.what());
 			}
 
 			return CResourceLoadingRuntimeCreateHook.pOriginal(noTexStreaming);

@@ -151,9 +151,6 @@
     <ClCompile Include="source\game\GamePH\PlayerHealthModule.cpp">
       <Filter>game\GamePH</Filter>
     </ClCompile>
-    <ClCompile Include="source\game\GamePH\PlayerObjProperties.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
     <ClCompile Include="source\game\GamePH\PlayerState.cpp">
       <Filter>game\GamePH</Filter>
     </ClCompile>
@@ -316,7 +313,7 @@
     <ClInclude Include="source\ImGui\ImGuiFileDialog\ImGuiFileDialogConfig.h">
       <Filter>ImGui\ImGuiFileDialog</Filter>
     </ClInclude>
-    <ClInclude Include="source\game\buffer.h">
+    <ClInclude Include="source\game\ClassHelpers.h">
       <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="source\game\Vector3.h">
@@ -380,9 +377,6 @@
       <Filter>game\GamePH</Filter>
     </ClInclude>
     <ClInclude Include="source\game\GamePH\PlayerHealthModule.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\PlayerObjProperties.h">
       <Filter>game\GamePH</Filter>
     </ClInclude>
     <ClInclude Include="source\game\GamePH\PlayerState.h">

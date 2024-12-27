@@ -2,7 +2,7 @@
 #include <WTypesbase.h>
 #include <any>
 #include <vector>
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 #include "..\core.h"
 #include "..\utils\values.h"
 
@@ -22,7 +22,7 @@ namespace GamePH {
 		static bool gotPlayerVars;
 
 		static void GetPlayerVars();
-		static void SortPlayerVars();
+		static bool SortPlayerVars();
 
 		template <typename T> static T getDefaultValue() {
 			if constexpr (std::is_same<T, std::string>::value)

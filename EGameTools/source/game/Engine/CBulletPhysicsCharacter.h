@@ -1,6 +1,6 @@
 #pragma once
 #include "..\Vector3.h"
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 
 namespace Engine {
 	class CBulletPhysicsCharacter {

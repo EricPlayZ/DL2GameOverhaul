@@ -1,6 +1,6 @@
 #pragma once
 #include <WTypesbase.h>
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 #include "..\utils\time.h"
 
 namespace GamePH {

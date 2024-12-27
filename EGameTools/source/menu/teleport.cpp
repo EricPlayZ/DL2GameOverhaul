@@ -55,7 +55,7 @@ namespace Menu {
 							coordValues.push_back(std::stof(coordItem));
 						} catch (const std::invalid_argument& e) {
 							UNREFERENCED_PARAMETER(e);
-							spdlog::error("ParseTeleportLocations: Invalid coordinate value: {}, for location: {}", coordItem, tpLocName);
+							SPDLOG_ERROR("ParseTeleportLocations: Invalid coordinate value: {}, for location: {}", coordItem, tpLocName);
 							break;
 						}
 					}
@@ -67,15 +67,15 @@ namespace Menu {
 						tpLocPos.Z = coordValues[2];
 						teleportLocations.push_back({ tpLocName, tpLocPos });
 					} else
-						spdlog::error("ParseTeleportLocations: Invalid number of coordinates ({}) for location: {}", coordValues.size(), tpLocName);
+						SPDLOG_ERROR("ParseTeleportLocations: Invalid number of coordinates ({}) for location: {}", coordValues.size(), tpLocName);
 				} else
-					spdlog::error("ParseTeleportLocations: Invalid format for TP location: {}", item);
+					SPDLOG_ERROR("ParseTeleportLocations: Invalid format for TP location: {}", item);
 			}
 
-			spdlog::info("Successfully parsed teleport locations:");
+			SPDLOG_INFO("Successfully parsed teleport locations:");
 			int tpLocIndex = 1;
 			for (const auto& loc : teleportLocations) {
-				spdlog::info("{}. \"{}\" (X: {}, Y: {}, Z: {})", tpLocIndex, loc.name, loc.pos.X, loc.pos.Y, loc.pos.Z);
+				SPDLOG_INFO("{}. \"{}\" (X: {}, Y: {}, Z: {})", tpLocIndex, loc.name, loc.pos.X, loc.pos.Y, loc.pos.Z);
 				tpLocIndex++;
 			}
 

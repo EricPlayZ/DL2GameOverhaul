@@ -6,7 +6,7 @@
 static retType Get_## name () {\
 	static retType name = NULL;\
 	static int i = 0;\
-	if (Utils::Memory::IsValidPtr(name) || !GetModuleHandleA(moduleName) || i >= 10) return name;\
+	if (Utils::Memory::IsValidPtr(name) || !GetModuleHandleA(moduleName) || i >= 50) return name;\
 	i++;\
 	return name=reinterpret_cast<retType>(Utils::SigScan::PatternScanner::FindPattern(moduleName, {pattern, type}));\
 } 
@@ -27,7 +27,7 @@ static DWORD64 Get_## name () {\
 static retType GetVT_## name () {\
 	static retType VT_## name = NULL;\
 	static int i = 0;\
-	if (Utils::Memory::IsValidPtr(VT_## name)|| !GetModuleHandleA(moduleName) || i >= 10) return VT_## name;\
+	if (Utils::Memory::IsValidPtr(VT_## name)|| !GetModuleHandleA(moduleName) || i >= 50) return VT_## name;\
 	i++;\
 	return VT_## name=reinterpret_cast<retType>(Utils::RTTI::GetVTablePtr(moduleName, rttiName));\
 } 

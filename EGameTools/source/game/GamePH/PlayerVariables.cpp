@@ -57,7 +57,7 @@ namespace GamePH {
 					offset += 1;
 			}
 		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			spdlog::error("Failed to process player variable: {}", var.first);
+			SPDLOG_ERROR("Failed to process player variable: {}", var.first);
 		}
 	}
 
@@ -170,7 +170,7 @@ namespace GamePH {
 		return playerVarType;
 	}
 
-	void PlayerVariables::SortPlayerVars() {
+	bool PlayerVariables::SortPlayerVars() {
 		DWORD64 startOfFunc = 0;
 		while (!startOfFunc)
 			startOfFunc = reinterpret_cast<DWORD64>(Offsets::Get_LoadPlayerVars());
@@ -203,6 +203,7 @@ namespace GamePH {
 		}
 
 		sortedPlayerVars = true;
+		return true;
 	}
 #pragma endregion
 

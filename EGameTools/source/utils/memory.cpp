@@ -2,6 +2,13 @@
 
 namespace Utils {
 	namespace Memory {
+		int SafeExecution::fail(unsigned int code, struct _EXCEPTION_POINTERS* ep) {
+			if (code == EXCEPTION_ACCESS_VIOLATION)
+				return EXCEPTION_EXECUTE_HANDLER;
+			else
+				return EXCEPTION_CONTINUE_SEARCH;
+		}
+
 		const MODULEINFO GetModuleInfo(const char* szModule) {
 			if (!szModule)
 				return MODULEINFO();

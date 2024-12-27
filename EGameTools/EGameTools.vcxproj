@@ -127,7 +127,7 @@
     <ClInclude Include="source\config\config.h" />
     <ClInclude Include="source\config\ini.h" />
     <ClInclude Include="source\core.h" />
-    <ClInclude Include="source\game\buffer.h" />
+    <ClInclude Include="source\game\ClassHelpers.h" />
     <ClInclude Include="source\game\Engine\CBaseCamera.h" />
     <ClInclude Include="source\game\Engine\CBulletPhysicsCharacter.h" />
     <ClInclude Include="source\game\Engine\CGame.h" />

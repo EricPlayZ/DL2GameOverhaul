@@ -4,7 +4,9 @@
 
 namespace Engine {
 	CLobbySteam* CLobbySteam::Get() {
-		__try {
+		return SafeGetter<CLobbySteam>(Offsets::Get_CLobbySteam, "engine_x64_rwdi.dll");
+
+		/*__try {
 			if (!Offsets::Get_CLobbySteam())
 				return nullptr;
 
@@ -17,6 +19,6 @@ namespace Engine {
 			return ptr;
 		} __except (EXCEPTION_EXECUTE_HANDLER) {
 			return nullptr;
-		}
+		}*/
 	}
 }

@@ -151,9 +151,9 @@ namespace impl {
 
 					break;
 				} catch (const std::exception& e) {
-					spdlog::error("Exception thrown rendering ImGui in DX12: {}", e.what());
+					SPDLOG_ERROR("Exception thrown rendering ImGui in DX12: {}", e.what());
 					if (retries >= 6) {
-						spdlog::error("Retried rendering ImGui in DX12 6 times, game will exit now.");
+						SPDLOG_ERROR("Retried rendering ImGui in DX12 6 times, game will exit now.");
 						IM_ASSERT(retries < 6 && "Retried rendering ImGui in DX12 6 times, game will exit now.");
 					}
 				}

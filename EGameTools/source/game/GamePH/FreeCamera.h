@@ -1,6 +1,6 @@
 #pragma once
 #include "..\Engine\CBaseCamera.h"
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 
 namespace GamePH {
 	class CoBaseCameraProxy;

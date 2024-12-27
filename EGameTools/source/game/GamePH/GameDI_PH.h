@@ -1,6 +1,6 @@
 #pragma once
 #include <basetsd.h>
-#include "..\buffer.h"
+#include "..\ClassHelpers.h"
 
 namespace GamePH {
 	class SessionCooperativeDI;
