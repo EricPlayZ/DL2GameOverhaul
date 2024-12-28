@@ -5,25 +5,16 @@
 #include "TPPCameraDI.h"
 
 namespace GamePH {
-	TPPCameraDI* TPPCameraDI::Get() {
-		__try {
-			FreeCamera* pFreeCam = FreeCamera::Get();
-			if (!pFreeCam)
-				return nullptr;
-
-			CoBaseCameraProxy* pCoBaseCameraProxy = pFreeCam->pCoBaseCameraProxy;
-			if (!pCoBaseCameraProxy)
-				return nullptr;
-
-			TPPCameraDI* ptr = pCoBaseCameraProxy->pTPPCameraDI;
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_TPPCameraDI())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
+	static TPPCameraDI* GetOffset_TPPCameraDI() {
+		FreeCamera* pFreeCam = FreeCamera::Get();
+		if (!pFreeCam)
 			return nullptr;
-		}
+
+		CoBaseCameraProxy* pCoBaseCameraProxy = pFreeCam->pCoBaseCameraProxy;
+		if (!pCoBaseCameraProxy)
+			return nullptr;
+
+		return pCoBaseCameraProxy->pTPPCameraDI;
 	}
+	SafeGetterDepCustomVT(TPPCameraDI, GetOffset_TPPCameraDI, false, "gamedll_ph_x64_rwdi.dll")
 }

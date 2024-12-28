@@ -6,52 +6,19 @@
 #include "PlayerDI_PH.h"
 
 namespace GamePH {
-	PlayerDI_PH* PlayerDI_PH::Get() {
-		__try {
-			LocalClientDI* localClient = LocalClientDI::Get();
-			if (!localClient)
-				return nullptr;
-
-			PlayerDI_PH* ptr = localClient->pPlayerDI_PH;
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_PlayerDI_PH())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
+	static InventoryItem* GetOffset_CurrentWeapon(PlayerDI_PH* pPlayerDI_PH, UINT indexMaybe) {
+		return _SafeCallFunctionOffset<InventoryItem*>(Offsets::Get_PlayerGetCurrentWeapon, nullptr, pPlayerDI_PH, indexMaybe);
+	}
+	InventoryItem* PlayerDI_PH::GetCurrentWeapon(UINT indexMaybe) {
+		return _SafeGetter<InventoryItem>(GetOffset_CurrentWeapon, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryItem, this, indexMaybe);
 	}
 
-	InventoryItem* PlayerDI_PH::GetCurrentWeapon(UINT indexMaybe) {
-		__try {
-			LPVOID(*pPlayerGetCurrentWeapon)(LPVOID pPlayerDI_PH, UINT indexMaybe) = (decltype(pPlayerGetCurrentWeapon))Offsets::Get_PlayerGetCurrentWeapon();
-			if (!pPlayerGetCurrentWeapon)
-				return nullptr;
-
-			InventoryItem* ptr = reinterpret_cast<InventoryItem*>(pPlayerGetCurrentWeapon(this, indexMaybe));
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_InventoryItem())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
+	static InventoryContainerDI* GetOffset_InventoryContainer(PlayerDI_PH* pPlayerDI_PH) {
+		return reinterpret_cast<InventoryContainerDI*>(*reinterpret_cast<DWORD64*>(reinterpret_cast<DWORD64>(pPlayerDI_PH) + 0x470));
 	}
 	InventoryContainerDI* PlayerDI_PH::GetInventoryContainer() {
-		__try {
-			InventoryContainerDI* ptr = reinterpret_cast<InventoryContainerDI*>(*reinterpret_cast<DWORD64*>(reinterpret_cast<DWORD64>(this) + 0x470));
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_InventoryContainerDI())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
+		return _SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainer, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryContainerDI, this);
 	}
+
+	SafeGetterDepVT(PlayerDI_PH, LocalClientDI, "gamedll_ph_x64_rwdi.dll")
 }

@@ -6,9 +6,9 @@ namespace Engine {
 	class CBulletPhysicsCharacter {
 	public:
 		union {
-			buffer<0xA08, Vector3> playerPos2;
-			buffer<0xA20, Vector3> playerPos;
-			buffer<0xDA0, float> playerDownwardVelocity;
+			buffer<0xCB8, Vector3> playerPos2;
+			buffer<0xCD0, Vector3> playerPos;
+			buffer<0x1050, float> playerDownwardVelocity;
 		};
 
 		static Vector3 posBeforeFreeze;

@@ -12,7 +12,7 @@ namespace Utils {
 		private:
 			static int fail(unsigned int code, struct _EXCEPTION_POINTERS* ep);
 		public:
-			template<typename T = void*, typename R = void*, typename... Args>
+			template<typename T = void*, typename R = T, typename... Args>
 			static T Execute(uint64_t ptr, R ret, Args... args) {
 				__try {
 					return reinterpret_cast<T(__stdcall*)(Args...)>(ptr)(args...);

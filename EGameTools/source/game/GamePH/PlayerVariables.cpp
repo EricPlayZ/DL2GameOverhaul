@@ -88,7 +88,8 @@ namespace GamePH {
 	};
 
 	bool isRetInstruction(BYTE* address) {
-		return address[0] == 0xC3 && address[1] == 0xCC;
+		//return address[0] == 0xC3 && address[1] == 0xCC;
+		return address[0] == 0x00 && address[1] == 0x00 && address[2] == 0xC3 && address[3] == 0xCC;
 	}
 	bool isLeaInstruction(BYTE* address, BYTE REX, BYTE ModRM) {
 		return address[0] == REX && address[1] == 0x8D && address[2] == ModRM;
@@ -210,19 +211,5 @@ namespace GamePH {
 	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
 	std::unordered_map<std::string, bool> PlayerVariables::prevOptionValueMap{};
 
-	PlayerVariables* PlayerVariables::Get() {
-		__try {
-			PlayerState* pPlayerState = PlayerState::Get();
-			if (!pPlayerState)
-				return nullptr;
-
-			PlayerVariables* ptr = pPlayerState->playerVars;
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
-	}
+	SafeGetterDep(PlayerVariables, PlayerState, "gamedll_ph_x64_rwdi.dll")
 }

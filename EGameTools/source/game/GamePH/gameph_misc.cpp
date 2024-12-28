@@ -43,11 +43,14 @@ namespace GamePH {
 	}
 	
 	static DWORD64 ShowTPPModelFunc2(GameDI_PH* pGameDI_PH) {
-		DWORD64(*pShowTPPModelFunc2)(LPVOID pGameDI_PH) = (decltype(pShowTPPModelFunc2))Offsets::Get_ShowTPPModelFunc2();
-		if (!pShowTPPModelFunc2)
-			return 0;
+		return _SafeCallFunctionOffset<DWORD64>(Offsets::Get_ShowTPPModelFunc2, 0, pGameDI_PH);
+	}
+	static void ShowTPPModelFunc3(DWORD64 tppFunc2Addr, bool showTPPModel) {
+		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
+		if (!pPlayerDI_PH)
+			return;
 
-		return pShowTPPModelFunc2(pGameDI_PH);
+		_SafeCallFunctionOffsetVoid(Offsets::Get_ShowTPPModelFunc3, tppFunc2Addr, showTPPModel);
 	}
 	void ShowTPPModel(bool showTPPModel) {
 		GameDI_PH* pGameDI_PH = GameDI_PH::Get();
@@ -56,20 +59,10 @@ namespace GamePH {
 		DWORD64 tppFunc2Addr = ShowTPPModelFunc2(pGameDI_PH);
 		if (!tppFunc2Addr)
 			return;
-		void(*pShowTPPModelFunc3)(DWORD64 tppFunc2Addr, bool showTPPModel) = (decltype(pShowTPPModelFunc3))Offsets::Get_ShowTPPModelFunc3();
-		if (!pShowTPPModelFunc3)
-			return;
-		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
-		if (!pPlayerDI_PH)
-			return;
 
-		pShowTPPModelFunc3(tppFunc2Addr, showTPPModel);
+		ShowTPPModelFunc3(tppFunc2Addr, showTPPModel);
 	}
 	bool ReloadJumps() {
-		bool(*pReloadJumps)() = (decltype(pReloadJumps))Offsets::Get_ReloadJumps();
-		if (!pReloadJumps)
-			return false;
-
-		return pReloadJumps();
+		return _SafeCallFunctionOffset<bool>(Offsets::Get_ReloadJumps, false);
 	}
 }

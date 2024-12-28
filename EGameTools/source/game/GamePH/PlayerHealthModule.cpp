@@ -6,20 +6,14 @@ namespace GamePH {
 	static PlayerHealthModule* pPlayerHealthModule = nullptr;
 	std::vector<PlayerHealthModule*> PlayerHealthModule::playerHealthModulePtrList{};
 
-	PlayerHealthModule* PlayerHealthModule::Get() {
-		__try {
-			if (!pPlayerHealthModule)
-				return nullptr;
-			if (!*reinterpret_cast<LPVOID*>(pPlayerHealthModule))
-				return nullptr;
-
-			return pPlayerHealthModule;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			pPlayerHealthModule = nullptr;
-			playerHealthModulePtrList.clear();
+	static PlayerHealthModule* GetOffset_PlayerHealthModule() {
+		if (!pPlayerHealthModule)
 			return nullptr;
-		}
+		if (!*reinterpret_cast<LPVOID*>(pPlayerHealthModule))
+			return nullptr;
+		return pPlayerHealthModule;
 	}
+	SafeGetterDepCustom(PlayerHealthModule, GetOffset_PlayerHealthModule, false, nullptr)
 	void PlayerHealthModule::Set(LPVOID instance) { pPlayerHealthModule = reinterpret_cast<PlayerHealthModule*>(instance); }
 
 	void PlayerHealthModule::UpdateClassAddr() {

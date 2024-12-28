@@ -10,6 +10,7 @@
 #include "..\game\GamePH\LogicalPlayer.h"
 #include "..\game\GamePH\PlayerDI_PH.h"
 #include "..\game\GamePH\PlayerHealthModule.h"
+#include "..\game\GamePH\PlayerInfectionModule.h"
 #include "..\game\GamePH\PlayerState.h"
 #include "..\game\GamePH\PlayerVariables.h"
 #include "..\game\GamePH\SessionCooperativeDI.h"
@@ -40,6 +41,7 @@ namespace Menu {
 			{ "LogicalPlayer", reinterpret_cast<LPVOID(*)()>(&GamePH::LogicalPlayer::Get) },
 			{ "PlayerDI_PH", reinterpret_cast<LPVOID(*)()>(&GamePH::PlayerDI_PH::Get) },
 			{ "PlayerHealthModule", reinterpret_cast<LPVOID(*)()>(&GamePH::PlayerHealthModule::Get) },
+			{ "PlayerInfectionModule", reinterpret_cast<LPVOID(*)()>(&GamePH::PlayerInfectionModule::Get) },
 			{ "PlayerState", reinterpret_cast<LPVOID(*)()>(&GamePH::PlayerState::Get) },
 			{ "PlayerVariables", reinterpret_cast<LPVOID(*)()>(&GamePH::PlayerVariables::Get) },
 			{ "SessionCooperativeDI", reinterpret_cast<LPVOID(*)()>(&GamePH::SessionCooperativeDI::Get) },

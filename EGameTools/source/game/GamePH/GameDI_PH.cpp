@@ -5,43 +5,11 @@
 
 namespace GamePH {
 	float GameDI_PH::GetGameTimeDelta() {
-		__try {
-			float(*pGetGameTimeDelta)(LPVOID pGameDI_PH) = (decltype(pGetGameTimeDelta))Utils::Memory::GetProcAddr("engine_x64_rwdi.dll", "?GetGameTimeDelta@IGame@@QEBAMXZ");
-			if (!pGetGameTimeDelta)
-				return -1.0f;
-
-			return pGetGameTimeDelta(this);
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return -1.0f;
-		}
+		return _SafeCallFunction<int>("engine_x64_rwdi.dll", "?GetGameTimeDelta@IGame@@QEBAMXZ", -1.0f, this);
 	}
 	void GameDI_PH::TogglePhotoMode(bool doNothing, bool setAsOptionalCamera) {
-		__try {
-			void(*pTogglePhotoMode)(LPVOID pGameDI_PH, bool doNothing, bool setAsOptionalCamera) = (decltype(pTogglePhotoMode))Offsets::Get_TogglePhotoMode2();
-			if (!pTogglePhotoMode)
-				return;
-
-			pTogglePhotoMode(this, doNothing, setAsOptionalCamera);
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return;
-		}
+		_SafeCallFunctionOffsetVoid(Offsets::Get_TogglePhotoMode2, this, doNothing, setAsOptionalCamera);
 	}
 
-	GameDI_PH* GameDI_PH::Get() {
-		__try {
-			Engine::CGame* pCGame = Engine::CGame::Get();
-			if (!pCGame)
-				return nullptr;
-
-			GameDI_PH* ptr = pCGame->pGameDI_PH;
-			if (!Utils::Memory::IsValidPtrMod(ptr, "gamedll_ph_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_GameDI_PH())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
-	}
+	SafeGetterDepVT(GameDI_PH, Engine::CGame, "gamedll_ph_x64_rwdi.dll")
 }

@@ -9,7 +9,7 @@ namespace GamePH {
 	public:
 		union {
 			buffer<0x130, SessionCooperativeDI*> pSessionCooperativeDI;
-			buffer<0x908, bool> blockPauseGameOnPlayerAfk;
+			buffer<0x910, bool> blockPauseGameOnPlayerAfk;
 		};
 
 		float GetGameTimeDelta();

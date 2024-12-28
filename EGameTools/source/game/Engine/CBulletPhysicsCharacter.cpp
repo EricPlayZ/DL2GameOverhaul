@@ -15,21 +15,5 @@ namespace Engine {
 		playerPos2 = pos;
 	}
 
-	CBulletPhysicsCharacter* CBulletPhysicsCharacter::Get() {
-		__try {
-			CoPhysicsProperty* pCoPhysicsProperty = CoPhysicsProperty::Get();
-			if (!pCoPhysicsProperty)
-				return nullptr;
-
-			CBulletPhysicsCharacter* ptr = pCoPhysicsProperty->pCBulletPhysicsCharacter;
-			if (!Utils::Memory::IsValidPtrMod(ptr, "engine_x64_rwdi.dll"))
-				return nullptr;
-			if (*reinterpret_cast<DWORD64**>(ptr) != Offsets::GetVT_CBulletPhysicsCharacter())
-				return nullptr;
-
-			return ptr;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			return nullptr;
-		}
-	}
+	SafeGetterDepVT(CBulletPhysicsCharacter, CoPhysicsProperty, "engine_x64_rwdi.dll")
 }

@@ -7,7 +7,7 @@ namespace GamePH {
 	class PlayerState {
 	public:
 		union {
-			buffer<0x300, PlayerVariables*> playerVars;
+			buffer<0x300, PlayerVariables*> pPlayerVariables;
 		};
 
 		static PlayerState* Get();

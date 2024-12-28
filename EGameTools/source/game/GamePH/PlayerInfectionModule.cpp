@@ -6,20 +6,14 @@ namespace GamePH {
 	static PlayerInfectionModule* pPlayerInfectionModule = nullptr;
 	std::vector<PlayerInfectionModule*> PlayerInfectionModule::playerInfectionModulePtrList{};
 
-	PlayerInfectionModule* PlayerInfectionModule::Get() {
-		__try {
-			if (!pPlayerInfectionModule)
-				return nullptr;
-			if (!*reinterpret_cast<LPVOID*>(pPlayerInfectionModule))
-				return nullptr;
-
-			return pPlayerInfectionModule;
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			pPlayerInfectionModule = nullptr;
-			playerInfectionModulePtrList.clear();
+	static PlayerInfectionModule* GetOffset_PlayerInfectionModule() {
+		if (!pPlayerInfectionModule)
 			return nullptr;
-		}
+		if (!*reinterpret_cast<LPVOID*>(pPlayerInfectionModule))
+			return nullptr;
+		return pPlayerInfectionModule;
 	}
+	SafeGetterDepCustom(PlayerInfectionModule, GetOffset_PlayerInfectionModule, false, nullptr)
 	void PlayerInfectionModule::Set(LPVOID instance) { pPlayerInfectionModule = reinterpret_cast<PlayerInfectionModule*>(instance); }
 
 	void PlayerInfectionModule::UpdateClassAddr() {
