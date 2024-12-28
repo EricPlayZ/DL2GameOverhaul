@@ -11,5 +11,11 @@ namespace GamePH {
 		_SafeCallFunctionOffsetVoid(Offsets::Get_TogglePhotoMode2, this, doNothing, setAsOptionalCamera);
 	}
 
-	SafeGetterDepVT(GameDI_PH, Engine::CGame, "gamedll_ph_x64_rwdi.dll")
+	static GameDI_PH* GetOffset_GameDI_PH() {
+		Engine::CGame* pCGame = Engine::CGame::Get();
+		return pCGame ? pCGame->pGameDI_PH : nullptr;
+	}
+	GameDI_PH* GameDI_PH::Get() {
+		return _SafeGetter<GameDI_PH>(GetOffset_GameDI_PH, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_GameDI_PH);
+	}
 }

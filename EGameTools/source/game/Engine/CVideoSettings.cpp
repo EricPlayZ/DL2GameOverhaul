@@ -4,5 +4,11 @@
 #include "CVideoSettings.h"
 
 namespace Engine {
-	SafeGetterDepVT(CVideoSettings, CGame, "engine_x64_rwdi.dll")
+    static CVideoSettings* GetOffset_CVideoSettings() {
+        CGame* pCGame = CGame::Get();
+        return pCGame ? pCGame->pCVideoSettings : nullptr;
+    }
+    CVideoSettings* CVideoSettings::Get() {
+        return _SafeGetter<CVideoSettings>(GetOffset_CVideoSettings, "engine_x64_rwdi.dll", false, Offsets::GetVT_CVideoSettings);
+    }
 }

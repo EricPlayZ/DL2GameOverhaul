@@ -4,5 +4,11 @@
 #include "CLevel.h"
 
 namespace Engine {
-	SafeGetterDepVT(CLevel, CGame, "engine_x64_rwdi.dll")
+    static CLevel* GetOffset_CLevel() {
+        CGame* pCGame = CGame::Get();
+        return pCGame ? pCGame->pCLevel : nullptr;
+    }
+    CLevel* CLevel::Get() {
+        return _SafeGetter<CLevel>(GetOffset_CLevel, "engine_x64_rwdi.dll", false, Offsets::GetVT_CLevel);
+    }
 }

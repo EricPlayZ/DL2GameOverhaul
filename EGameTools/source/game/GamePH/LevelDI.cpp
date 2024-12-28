@@ -64,7 +64,10 @@ namespace GamePH {
 		return _SafeCallFunction<TimeWeather::CSystem*>("engine_x64_rwdi.dll", "?GetTimeWeatherSystem@ILevel@@QEBAPEAVCSystem@TimeWeather@@XZ", nullptr, this);
 	}
 
-	SAFE_DEPENDENT_OFFSET_GETTER(LevelDI, Engine::CLevel)
+	static LevelDI* GetOffset_LevelDI() {
+		Engine::CLevel* pCLevel = Engine::CLevel::Get();
+		return pCLevel ? pCLevel->pLevelDI : nullptr;
+	}
 	LevelDI* LevelDI::Get() {
 		LevelDI* ptr = _SafeGetter<LevelDI>(GetOffset_LevelDI, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_LevelDI);
 		if (!ptr)

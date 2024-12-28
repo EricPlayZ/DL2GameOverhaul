@@ -13,7 +13,9 @@ namespace GamePH {
 			return nullptr;
 		return pPlayerHealthModule;
 	}
-	SafeGetterDepCustom(PlayerHealthModule, GetOffset_PlayerHealthModule, false, nullptr)
+	PlayerHealthModule* PlayerHealthModule::Get() {
+		return _SafeGetter<PlayerHealthModule>(GetOffset_PlayerHealthModule, nullptr, false, nullptr);
+	}
 	void PlayerHealthModule::Set(LPVOID instance) { pPlayerHealthModule = reinterpret_cast<PlayerHealthModule*>(instance); }
 
 	void PlayerHealthModule::UpdateClassAddr() {

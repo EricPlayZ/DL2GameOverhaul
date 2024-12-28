@@ -7,5 +7,7 @@ namespace GamePH {
 		_SafeCallFunctionOffsetVoid(Offsets::Get_AllowCameraMovement, this, mode);
 	}
 
-	SafeGetterVT(FreeCamera, "gamedll_ph_x64_rwdi.dll")
+	FreeCamera* FreeCamera::Get() {
+		return _SafeGetter<FreeCamera>(Offsets::Get_FreeCamera, "gamedll_ph_x64_rwdi.dll", true, Offsets::GetVT_FreeCamera);
+	}
 }

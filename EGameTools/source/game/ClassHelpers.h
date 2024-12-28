@@ -94,10 +94,10 @@ static void _SafeCallFunctionOffsetVoid(GetOffsetFunc getOffset, Args... args) {
 	return Utils::Memory::SafeExecution::ExecuteVoid(reinterpret_cast<uint64_t>(function), args...);
 }
 
-#define SAFE_DEPENDENT_OFFSET_GETTER(ClassName, DependentClass) \
+/*#define SAFE_DEPENDENT_OFFSET_GETTER(ClassName, DependentClass) \
     static ClassName* GetOffset_##ClassName() { \
-		DependentClass* dependentInstance = DependentClass::Get(); \
-		return dependentInstance ? dependentInstance->p##ClassName : nullptr; \
+		DependentClass* p##DependentClass = DependentClass::Get(); \
+		return p##DependentClass ? p##DependentClass->p##ClassName : nullptr; \
     }
 
 #define SafeGetter(ClassName, ModuleName) \
@@ -127,4 +127,4 @@ static void _SafeCallFunctionOffsetVoid(GetOffsetFunc getOffset, Args... args) {
 #define SafeGetterDepCustomVT(ClassName, OffsetGetter, IsDoublePtr, ModuleName) \
 	ClassName* ClassName::Get() { \
 		return _SafeGetter<ClassName>(OffsetGetter, ModuleName, IsDoublePtr, Offsets::GetVT_##ClassName); \
-	}
+	}*/

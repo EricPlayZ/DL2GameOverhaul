@@ -3,5 +3,11 @@
 #include "CLobbySteam.h"
 
 namespace Engine {
-	SafeGetterDep(CGame, CLobbySteam, "engine_x64_rwdi.dll")
+    static CGame* GetOffset_CGame() {
+        CLobbySteam* pCLobbySteam = CLobbySteam::Get();
+        return pCLobbySteam ? pCLobbySteam->pCGame : nullptr;
+    }
+    CGame* CGame::Get() {
+        return _SafeGetter<CGame>(GetOffset_CGame, "engine_x64_rwdi.dll", false, nullptr);
+    }
 }

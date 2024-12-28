@@ -15,5 +15,11 @@ namespace Engine {
 		playerPos2 = pos;
 	}
 
-	SafeGetterDepVT(CBulletPhysicsCharacter, CoPhysicsProperty, "engine_x64_rwdi.dll")
+	static CBulletPhysicsCharacter* GetOffset_CBulletPhysicsCharacter() {
+		CoPhysicsProperty* pCoPhysicsProperty = CoPhysicsProperty::Get();
+		return pCoPhysicsProperty ? pCoPhysicsProperty->pCBulletPhysicsCharacter : nullptr;
+	}
+	CBulletPhysicsCharacter* CBulletPhysicsCharacter::Get() {
+		return _SafeGetter<CBulletPhysicsCharacter>(GetOffset_CBulletPhysicsCharacter, "engine_x64_rwdi.dll", false, Offsets::GetVT_CBulletPhysicsCharacter);
+	}
 }

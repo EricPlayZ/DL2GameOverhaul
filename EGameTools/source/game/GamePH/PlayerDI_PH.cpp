@@ -20,5 +20,11 @@ namespace GamePH {
 		return _SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainer, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryContainerDI, this);
 	}
 
-	SafeGetterDepVT(PlayerDI_PH, LocalClientDI, "gamedll_ph_x64_rwdi.dll")
+	static PlayerDI_PH* GetOffset_PlayerDI_PH() {
+		LocalClientDI* pLocalClientDI = LocalClientDI::Get();
+		return pLocalClientDI ? pLocalClientDI->pPlayerDI_PH : nullptr;
+	}
+	PlayerDI_PH* PlayerDI_PH::Get() {
+		return _SafeGetter<PlayerDI_PH>(GetOffset_PlayerDI_PH, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_PlayerDI_PH);
+	}
 }

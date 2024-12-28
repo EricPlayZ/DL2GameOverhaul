@@ -16,5 +16,7 @@ namespace GamePH {
 
 		return pCoBaseCameraProxy->pTPPCameraDI;
 	}
-	SafeGetterDepCustomVT(TPPCameraDI, GetOffset_TPPCameraDI, false, "gamedll_ph_x64_rwdi.dll")
+	TPPCameraDI* TPPCameraDI::Get() {
+		return _SafeGetter<TPPCameraDI>(GetOffset_TPPCameraDI, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_TPPCameraDI);
+	}
 }

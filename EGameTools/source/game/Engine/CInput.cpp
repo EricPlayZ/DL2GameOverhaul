@@ -10,5 +10,7 @@ namespace Engine {
 		Utils::Memory::CallVT<1>(this);
 	}
 
-	SafeGetterVT(CInput, "engine_x64_rwdi.dll")
+	CInput* CInput::Get() {
+		return _SafeGetter<CInput>(Offsets::Get_CInput, "engine_x64_rwdi.dll", true, Offsets::GetVT_CInput);
+	}
 }

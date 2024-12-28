@@ -211,5 +211,11 @@ namespace GamePH {
 	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
 	std::unordered_map<std::string, bool> PlayerVariables::prevOptionValueMap{};
 
-	SafeGetterDep(PlayerVariables, PlayerState, "gamedll_ph_x64_rwdi.dll")
+	static PlayerVariables* GetOffset_PlayerVariables() {
+		PlayerState* pPlayerState = PlayerState::Get();
+		return pPlayerState ? pPlayerState->pPlayerVariables : nullptr;
+	}
+	PlayerVariables* PlayerVariables::Get() {
+		return _SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, "gamedll_ph_x64_rwdi.dll", false, nullptr);
+	}
 }
