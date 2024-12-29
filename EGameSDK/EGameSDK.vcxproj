@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="deps\memscan\memscan.c" />
+    <ClCompile Include="deps\memscan\util\util.c" />
+    <ClCompile Include="src\Core\Core.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\Engine\CBaseCamera.cpp" />
+    <ClCompile Include="src\Engine\CBulletPhysicsCharacter.cpp" />
+    <ClCompile Include="src\Engine\CGame.cpp" />
+    <ClCompile Include="src\Engine\CGSObject.cpp" />
+    <ClCompile Include="src\Engine\CGSObject2.cpp" />
+    <ClCompile Include="src\Engine\CInput.cpp" />
+    <ClCompile Include="src\Engine\CLevel.cpp" />
+    <ClCompile Include="src\Engine\CLevel2.cpp" />
+    <ClCompile Include="src\Engine\CLobbySteam.cpp" />
+    <ClCompile Include="src\Engine\CoPhysicsProperty.cpp" />
+    <ClCompile Include="src\Engine\CVideoSettings.cpp" />
+    <ClCompile Include="src\Engine\Engine_Hooks.cpp" />
+    <ClCompile Include="src\Engine\Engine_Misc.cpp" />
+    <ClCompile Include="src\GamePH\DayNightCycle.cpp" />
+    <ClCompile Include="src\GamePH\FreeCamera.cpp" />
+    <ClCompile Include="src\GamePH\GameDI_PH.cpp" />
+    <ClCompile Include="src\GamePH\GameDI_PH2.cpp" />
+    <ClCompile Include="src\GamePH\GamePH_Hooks.cpp" />
+    <ClCompile Include="src\GamePH\GamePH_Misc.cpp" />
+    <ClCompile Include="src\GamePH\InventoryContainerDI.cpp" />
+    <ClCompile Include="src\GamePH\InventoryItem.cpp" />
+    <ClCompile Include="src\GamePH\LevelDI.cpp" />
+    <ClCompile Include="src\GamePH\LocalClientDI.cpp" />
+    <ClCompile Include="src\GamePH\LogicalPlayer.cpp" />
+    <ClCompile Include="src\GamePH\PlayerDI_PH.cpp" />
+    <ClCompile Include="src\GamePH\PlayerHealthModule.cpp" />
+    <ClCompile Include="src\GamePH\PlayerInfectionModule.cpp" />
+    <ClCompile Include="src\GamePH\PlayerState.cpp" />
+    <ClCompile Include="src\GamePH\PlayerVariables.cpp" />
+    <ClCompile Include="src\GamePH\SessionCooperativeDI.cpp" />
+    <ClCompile Include="src\GamePH\TimeWeather\CSystem.cpp" />
+    <ClCompile Include="src\GamePH\TPPCameraDI.cpp" />
+    <ClCompile Include="src\Utils\Files.cpp" />
+    <ClCompile Include="src\Utils\Hook.cpp" />
+    <ClCompile Include="src\Utils\Memory.cpp" />
+    <ClCompile Include="src\Utils\RTTI.cpp" />
+    <ClCompile Include="src\Utils\Sigscan.cpp" />
+    <ClCompile Include="src\Utils\Time.cpp" />
+    <ClCompile Include="src\Utils\Values.cpp" />
+    <ClCompile Include="src\Utils\Windows.cpp" />
+    <ClCompile Include="src\Vector3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\EGSDK\ClassHelpers.h" />
+    <ClInclude Include="include\EGSDK\Core\Core.h" />
+    <ClInclude Include="include\EGSDK\Engine\CBaseCamera.h" />
+    <ClInclude Include="include\EGSDK\Engine\CBulletPhysicsCharacter.h" />
+    <ClInclude Include="include\EGSDK\Engine\CGame.h" />
+    <ClInclude Include="include\EGSDK\Engine\CGSObject.h" />
+    <ClInclude Include="include\EGSDK\Engine\CGSObject2.h" />
+    <ClInclude Include="include\EGSDK\Engine\CInput.h" />
+    <ClInclude Include="include\EGSDK\Engine\CLevel.h" />
+    <ClInclude Include="include\EGSDK\Engine\CLevel2.h" />
+    <ClInclude Include="include\EGSDK\Engine\CLobbySteam.h" />
+    <ClInclude Include="include\EGSDK\Engine\CoPhysicsProperty.h" />
+    <ClInclude Include="include\EGSDK\Engine\CVideoSettings.h" />
+    <ClInclude Include="include\EGSDK\Engine\Engine_Hooks.h" />
+    <ClInclude Include="include\EGSDK\Engine\Engine_Misc.h" />
+    <ClInclude Include="include\EGSDK\Exports.h" />
+    <ClInclude Include="include\EGSDK\GamePH\CoBaseCameraProxy.h" />
+    <ClInclude Include="include\EGSDK\GamePH\DayNightCycle.h" />
+    <ClInclude Include="include\EGSDK\GamePH\FreeCamera.h" />
+    <ClInclude Include="include\EGSDK\GamePH\GameDI_PH.h" />
+    <ClInclude Include="include\EGSDK\GamePH\GameDI_PH2.h" />
+    <ClInclude Include="include\EGSDK\GamePH\GamePH_Hooks.h" />
+    <ClInclude Include="include\EGSDK\GamePH\GamePH_Misc.h" />
+    <ClInclude Include="include\EGSDK\GamePH\InventoryContainerDI.h" />
+    <ClInclude Include="include\EGSDK\GamePH\InventoryItem.h" />
+    <ClInclude Include="include\EGSDK\GamePH\InventoryMoney.h" />
+    <ClInclude Include="include\EGSDK\GamePH\ItemDescWithContext.h" />
+    <ClInclude Include="include\EGSDK\GamePH\LevelDI.h" />
+    <ClInclude Include="include\EGSDK\GamePH\LocalClientDI.h" />
+    <ClInclude Include="include\EGSDK\GamePH\LogicalPlayer.h" />
+    <ClInclude Include="include\EGSDK\GamePH\PlayerDI_PH.h" />
+    <ClInclude Include="include\EGSDK\GamePH\PlayerHealthModule.h" />
+    <ClInclude Include="include\EGSDK\GamePH\PlayerInfectionModule.h" />
+    <ClInclude Include="include\EGSDK\GamePH\PlayerState.h" />
+    <ClInclude Include="include\EGSDK\GamePH\PlayerVariables.h" />
+    <ClInclude Include="include\EGSDK\GamePH\SessionCooperativeDI.h" />
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\CSystem.h" />
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\EWeather.h" />
+    <ClInclude Include="include\EGSDK\GamePH\TPPCameraDI.h" />
+    <ClInclude Include="include\EGSDK\Offsets.h" />
+    <ClInclude Include="include\EGSDK\Utils\Files.h" />
+    <ClInclude Include="include\EGSDK\Utils\Hook.h" />
+    <ClInclude Include="include\EGSDK\Utils\Memory.h" />
+    <ClInclude Include="include\EGSDK\Utils\RTTI.h" />
+    <ClInclude Include="include\EGSDK\Utils\Sigscan.h" />
+    <ClInclude Include="include\EGSDK\Utils\Time.h" />
+    <ClInclude Include="include\EGSDK\Utils\Values.h" />
+    <ClInclude Include="include\EGSDK\Utils\Windows.h" />
+    <ClInclude Include="include\EGSDK\Vector3.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{152BCFEC-E42D-4370-AEDD-36F044085C0C}</ProjectGuid>
+    <RootNamespace>EGameSDK</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>EGameSDK</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.dll</TargetExt>
+    <TargetName>EGameSDK</TargetName>
+    <GenerateManifest>true</GenerateManifest>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>EGameSDK</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <Optimization>
+      </Optimization>
+      <IntrinsicFunctions>
+      </IntrinsicFunctions>
+      <AdditionalIncludeDirectories>include;deps\memscan;deps\MinHook;deps\spdlog\include;</AdditionalIncludeDirectories>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(PlatformTarget).pch</PrecompiledHeaderOutputFile>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mtd.lib;spdlog-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>deps\MinHook\lib;deps\spdlog\lib;</AdditionalLibraryDirectories>
+      <AssemblyDebug>true</AssemblyDebug>
+      <ImportLibrary />
+      <FixedBaseAddress>
+      </FixedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>include;deps\memscan;deps\MinHook;deps\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(PlatformTarget).pch</PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>deps\MinHook\lib;deps\spdlog\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mtd.lib;spdlog-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary />
+      <AdditionalOptions>/NOIMPLIB /NOEXP %(AdditionalOptions)</AdditionalOptions>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

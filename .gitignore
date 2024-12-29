@@ -6,9 +6,10 @@
 /x64
 /EGameTools/x64
 /EGameTools/EGameTools.vcxproj.user
-/Tools/ExtractPlayerVarsFromDecompiledFunc/bin
-/Tools/ExtractPlayerVarsFromDecompiledFunc/.vs
-/Tools/ExtractPlayerVarsFromDecompiledFunc/ExtractPlayerVarsFromDecompiledFunc/bin
-/Tools/ExtractPlayerVarsFromDecompiledFunc/ExtractPlayerVarsFromDecompiledFunc/obj
-/Tools/ExtractPlayerVarsFromDecompiledFunc/ExtractPlayerVarsFromDecompiledFunc/ExtractPlayerVarsFromDecompiledFunc.csproj.user
+
+/.vs/EGameSDK
+/x64
+/EGameSDK/x64
+/EGameSDK/EGameSDK.vcxproj.user
+
 /enc_temp_folder

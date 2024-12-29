@@ -1,0 +1,336 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="deps\memscan\memscan.c">
+      <Filter>deps\memscan</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\memscan\util\util.c">
+      <Filter>deps\memscan\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Core.cpp">
+      <Filter>src\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CGSObject.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CGSObject2.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CInput.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CLevel.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CLevel2.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CLobbySteam.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CoPhysicsProperty.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CVideoSettings.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Engine_Hooks.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Engine_Misc.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CBaseCamera.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CBulletPhysicsCharacter.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\CGame.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\DayNightCycle.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\FreeCamera.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\GameDI_PH.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\GameDI_PH2.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\GamePH_Hooks.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\GamePH_Misc.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\InventoryContainerDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\InventoryItem.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\LevelDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\LocalClientDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\LogicalPlayer.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerDI_PH.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerHealthModule.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerInfectionModule.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerState.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerVariables.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\SessionCooperativeDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\TPPCameraDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\TimeWeather\CSystem.cpp">
+      <Filter>src\GamePH\TimeWeather</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Hook.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Memory.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\RTTI.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Sigscan.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Time.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Values.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Windows.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Files.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Vector3.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{240d20d1-1840-4efd-a681-fac101427937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{218d6c51-9cf3-40d0-bf4d-bf541b5a1087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps">
+      <UniqueIdentifier>{12e04078-a701-4cf3-91c0-213a9d89f946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\memscan">
+      <UniqueIdentifier>{3dc097d2-c84a-4a44-ac24-7baa23de9450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\memscan\util">
+      <UniqueIdentifier>{8f001c65-e2d0-41a7-843f-c6f83948525f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Core">
+      <UniqueIdentifier>{075c0a95-cc22-4a85-88a7-af8dcc522167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Engine">
+      <UniqueIdentifier>{d6e14061-d739-4cb4-95cd-131086b5365a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GamePH">
+      <UniqueIdentifier>{ad009156-fe7a-4150-a5e2-74bd330276bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Utils">
+      <UniqueIdentifier>{5b9dd038-d0bd-4c39-ab73-8eefb4caa7a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GamePH\TimeWeather">
+      <UniqueIdentifier>{b57ade37-61c4-4b2e-aa2f-2bb3539e310c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Core">
+      <UniqueIdentifier>{f93cdab4-4b15-4043-a202-b954c2ff0428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Engine">
+      <UniqueIdentifier>{76ff4605-50c3-4fee-a531-b478f29261f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GamePH">
+      <UniqueIdentifier>{b920b792-6899-486d-85ad-d8415004ab4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utils">
+      <UniqueIdentifier>{6b391f0c-15fb-4b15-93b0-3f4b6863e684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GamePH\TimeWeather">
+      <UniqueIdentifier>{5af79ed5-d275-484f-b7b0-0f23aef9f33d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\EGSDK\ClassHelpers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Exports.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Offsets.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Vector3.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Hook.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Memory.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\RTTI.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Sigscan.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Time.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Values.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Windows.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\Files.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\CoBaseCameraProxy.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\DayNightCycle.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\FreeCamera.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\GameDI_PH.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\GameDI_PH2.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\GamePH_Misc.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\InventoryContainerDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\InventoryItem.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\InventoryMoney.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\ItemDescWithContext.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\LevelDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\LocalClientDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\LogicalPlayer.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerDI_PH.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerHealthModule.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerInfectionModule.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerState.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerVariables.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\SessionCooperativeDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\TPPCameraDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\EWeather.h">
+      <Filter>include\GamePH\TimeWeather</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\CSystem.h">
+      <Filter>include\GamePH\TimeWeather</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CGSObject.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CGSObject2.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CInput.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CLevel.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CLevel2.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CLobbySteam.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CoPhysicsProperty.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CVideoSettings.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\Engine_Hooks.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\Engine_Misc.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CBaseCamera.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CBulletPhysicsCharacter.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\CGame.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Core\Core.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\GamePH_Hooks.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

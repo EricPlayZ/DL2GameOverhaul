@@ -33,6 +33,8 @@ BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReser
         EGT::Core::EnableConsole();
         EGT::Core::InitLogger();
 
+        MH_Initialize();
+
         SPDLOG_INFO("Initializing hooks");
         EGT::Engine::Hooks::MountDataPaksHook.HookLoop();
         EGT::Engine::Hooks::AuthenticateDataAddNewFileHook.HookLoop();

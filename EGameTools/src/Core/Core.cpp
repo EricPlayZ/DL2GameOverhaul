@@ -75,15 +75,15 @@ namespace EGT::Core {
 
 			switch (kiero::getRenderType()) {
 			case kiero::RenderType::D3D11:
-				SPDLOG_INFO("Initializing D3D11");
+				SPDLOG_INFO("Initializing D3D11 ImGui implementation");
 				EGT::ImGui_impl::D3D11::Init();
 				break;
 			case kiero::RenderType::D3D12:
-				SPDLOG_INFO("Initializing D3D12");
+				SPDLOG_INFO("Initializing D3D12 ImGui implementation");
 				EGT::ImGui_impl::D3D12::Init();
 				break;
 			default:
-				SPDLOG_WARN("Unknown render type");
+				SPDLOG_WARN("Unknown renderer type");
 				break;
 			}
 
@@ -211,17 +211,14 @@ namespace EGT::Core {
 	}
 
 	void InitLogger() {
-		constexpr size_t maxSize = static_cast<size_t>(1048576) * 100;
-		constexpr size_t maxFiles = 3;
-
 		try {
 			static std::vector<spdlog::sink_ptr> sinks{};
-			sinks.push_back(EGSDK::Core::spdlogSink);
-			sinks.push_back(std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>());
+			//sinks.push_back(EGSDK::Core::spdlogSink);
+			EGSDK::Core::spdlogSinks.push_back(std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>());
 
-			std::shared_ptr<spdlog::logger> logger = std::make_shared<spdlog::logger>("EGameTools", std::begin(sinks), std::end(sinks));
+			std::shared_ptr<spdlog::logger> logger = std::make_shared<spdlog::logger>("EGameTools", std::begin(EGSDK::Core::spdlogSinks), std::end(EGSDK::Core::spdlogSinks));
 
-			spdlog::initialize_logger(logger);
+			EGSDK::Core::SetDefaultLoggerSettings(logger);
 			spdlog::set_default_logger(logger);
 		} catch (const std::exception& e) {
 			UNREFERENCED_PARAMETER(e);
@@ -358,6 +355,7 @@ namespace EGT::Core {
 
 		SPDLOG_WARN("Unhooking everything");
 		MH_DisableHook(MH_ALL_HOOKS);
+		MH_Uninitialize();
 		SPDLOG_INFO("Unhooked everything");
 
 		SetEvent(keepAliveEvent);
