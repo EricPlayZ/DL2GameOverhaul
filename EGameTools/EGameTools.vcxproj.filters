@@ -1,507 +1,219 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="source\core.cpp" />
-    <ClCompile Include="source\dllmain.cpp" />
-    <ClCompile Include="source\kiero.cpp" />
-    <ClCompile Include="source\ImGui\imgui.cpp">
-      <Filter>ImGui</Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{f4198f95-30ff-4a21-9f95-580079972d1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{6b6bc991-618b-4963-a637-2177b1d66e2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps">
+      <UniqueIdentifier>{f7e45d58-8da2-4206-ac28-0f5b99c33ce1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\ImGui">
+      <UniqueIdentifier>{18e11fbe-2cef-41f5-8fa9-ddafde4655f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\ImGui\misc">
+      <UniqueIdentifier>{6f73cda3-8efb-43f6-bdb6-eb823087389f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\ImGui\misc\freetype">
+      <UniqueIdentifier>{9d04c0a6-2b1f-4158-8dc8-66833e8a721a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\ImGui\backends">
+      <UniqueIdentifier>{f24b42fd-6fcd-4b40-ab60-e4b32283e7a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\ImGuiFileDialog">
+      <UniqueIdentifier>{f9c9cfae-e9e2-4dd2-a0f2-a0aae15b29a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\kiero">
+      <UniqueIdentifier>{f4f927c4-b16a-4275-a856-f709a6d55e46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Config">
+      <UniqueIdentifier>{0b8f854c-e9f9-4b97-adce-cf664f97f6a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ImGui_impl">
+      <UniqueIdentifier>{040a2d01-800a-4d65-bd9c-d0df18d0519c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Menu">
+      <UniqueIdentifier>{af3ed6c9-39d1-4c2f-a7e1-ee48bec53af0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Utils">
+      <UniqueIdentifier>{d04d59f5-7fca-4592-b96b-f16a046d5609}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Engine">
+      <UniqueIdentifier>{39730c2f-430d-4d6a-93b9-97981fd5b61e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Config">
+      <UniqueIdentifier>{60a13ee4-5e1c-4c9e-8890-f8dbe5993919}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Core">
+      <UniqueIdentifier>{97c31016-45aa-4212-a674-bdd01d50f727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Core">
+      <UniqueIdentifier>{4a22eca2-c72a-49ae-b578-02a2ad124f15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Engine">
+      <UniqueIdentifier>{16826615-b0a8-425b-bf5f-392e039e19ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GamePH">
+      <UniqueIdentifier>{bf079516-8a79-42da-b44b-fcbbe7cb17c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ImGui_impl">
+      <UniqueIdentifier>{ef13253f-45b7-4ef7-bac8-f3694d60f290}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Menu">
+      <UniqueIdentifier>{6e739624-b26c-4f4e-b911-ab5a9c6ee1fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utils">
+      <UniqueIdentifier>{7170f228-254a-4cb7-8784-59baf69789d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="deps\ImGui\imgui_hotkey.cpp">
+      <Filter>deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_tables.cpp">
+      <Filter>deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_widgets.cpp">
+      <Filter>deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui.cpp">
+      <Filter>deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_draw.cpp">
+      <Filter>deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\misc\freetype\imgui_freetype.cpp">
+      <Filter>deps\ImGui\misc\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\backends\imgui_impl_dx11.cpp">
+      <Filter>deps\ImGui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\backends\imgui_impl_dx12.cpp">
+      <Filter>deps\ImGui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>deps\ImGui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>deps\ImGuiFileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\kiero\kiero.cpp">
+      <Filter>deps\kiero</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="src\Config\Config.cpp">
+      <Filter>src\Config</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="src\Core\Core.cpp">
+      <Filter>src\Core</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
+    <ClCompile Include="src\Engine\Engine_Hooks.cpp">
+      <Filter>src\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\backends\imgui_impl_dx11.cpp">
-      <Filter>ImGui\backends</Filter>
+    <ClCompile Include="src\GamePH\GamePH_Hooks.cpp">
+      <Filter>src\GamePH</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\backends\imgui_impl_dx12.cpp">
-      <Filter>ImGui\backends</Filter>
+    <ClCompile Include="src\ImGui_impl\D3D11_impl.cpp">
+      <Filter>src\ImGui_impl</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>ImGui\backends</Filter>
+    <ClCompile Include="src\ImGui_impl\D3D12_impl.cpp">
+      <Filter>src\ImGui_impl</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\impl\d3d11_impl.cpp">
-      <Filter>ImGui\impl</Filter>
+    <ClCompile Include="src\ImGui_impl\Win32_impl.cpp">
+      <Filter>src\ImGui_impl</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\impl\win32_impl.cpp">
-      <Filter>ImGui\impl</Filter>
+    <ClCompile Include="src\Menu\Init.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\menu\camera.cpp">
-      <Filter>menu</Filter>
+    <ClCompile Include="src\Menu\Menu.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\menu\menu.cpp">
-      <Filter>menu</Filter>
+    <ClCompile Include="src\Menu\Misc.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGui\impl\d3d12_impl.cpp">
-      <Filter>ImGui\impl</Filter>
+    <ClCompile Include="src\Menu\Player.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\config\config.cpp">
-      <Filter>config</Filter>
+    <ClCompile Include="src\Menu\Teleport.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\menu\player.cpp">
-      <Filter>menu</Filter>
+    <ClCompile Include="src\Menu\Weapon.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\menu\world.cpp">
-      <Filter>menu</Filter>
+    <ClCompile Include="src\Menu\World.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\menu\misc.cpp">
-      <Filter>menu</Filter>
+    <ClCompile Include="src\Menu\Camera.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\utils\files.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\Menu\Debug.cpp">
+      <Filter>src\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="source\utils\values.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\Utils\Texture.cpp">
+      <Filter>src\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="source\utils\windows.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="deps\ImGui\imguiex.cpp">
+      <Filter>deps\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="source\utils\time.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\utils\memory.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\utils\sigscan.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\utils\hook.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGui\imguiex.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGui\imguiex_animation.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGui\imgui_hotkey.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGui\ImGuiFileDialog\ImGuiFileDialog.cpp">
-      <Filter>ImGui\ImGuiFileDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Vector3.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CGame.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CGSObject.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CGSObject2.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CInput.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CLevel.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CLevel2.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CLobbySteam.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CoPhysicsProperty.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CVideoSettings.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\engine_hooks.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CBaseCamera.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\CBulletPhysicsCharacter.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\FreeCamera.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\GameDI_PH.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\GameDI_PH2.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\game_hooks.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\LevelDI.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\LocalClientDI.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\LogicalPlayer.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\gameph_misc.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\PlayerHealthModule.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\PlayerState.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\PlayerVariables.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\SessionCooperativeDI.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\TPPCameraDI.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\DayNightCycle.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\TimeWeather\CSystem.cpp">
-      <Filter>game\GamePH\TimeWeather</Filter>
-    </ClCompile>
-    <ClCompile Include="pch\pch.cpp" />
-    <ClCompile Include="source\game\GamePH\PlayerDI_PH.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\menu\debug.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="source\utils\texture.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGui\misc\freetype\imgui_freetype.cpp">
-      <Filter>ImGui\misc\freetype</Filter>
-    </ClCompile>
-    <ClCompile Include="source\menu\init.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\Engine\engine_misc.cpp">
-      <Filter>game\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\PlayerInfectionModule.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\utils\rtti.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="source\menu\weapon.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\InventoryItem.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game\GamePH\InventoryContainerDI.cpp">
-      <Filter>game\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="source\menu\teleport.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="source\memscan\memscan.c">
-      <Filter>memscan</Filter>
-    </ClCompile>
-    <ClCompile Include="source\memscan\util\util.c">
-      <Filter>memscan\util</Filter>
+    <ClCompile Include="deps\ImGui\imguiex_animation.cpp">
+      <Filter>deps\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\kiero.h" />
-    <ClInclude Include="source\ImGui\imconfig.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\Config\Config.h">
+      <Filter>include\Config</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\imgui.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\Engine\Engine_Hooks.h">
+      <Filter>include\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\imgui_internal.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\ImGui_impl\D3D11_impl.h">
+      <Filter>include\ImGui_impl</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\ImGui_impl\D3D12_impl.h">
+      <Filter>include\ImGui_impl</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\imstb_textedit.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\ImGui_impl\Win32_impl.h">
+      <Filter>include\ImGui_impl</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\imstb_truetype.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="include\EGT\Menu\Debug.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\backends\imgui_impl_dx11.h">
-      <Filter>ImGui\backends</Filter>
+    <ClInclude Include="include\EGT\Menu\Init.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\backends\imgui_impl_dx12.h">
-      <Filter>ImGui\backends</Filter>
+    <ClInclude Include="include\EGT\Menu\Menu.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\backends\imgui_impl_win32.h">
-      <Filter>ImGui\backends</Filter>
+    <ClInclude Include="include\EGT\Menu\Misc.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\impl\d3d11_impl.h">
-      <Filter>ImGui\impl</Filter>
+    <ClInclude Include="include\EGT\Menu\Player.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGui\impl\win32_impl.h">
-      <Filter>ImGui\impl</Filter>
+    <ClInclude Include="include\EGT\Menu\Teleport.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\menu\camera.h">
-      <Filter>menu</Filter>
+    <ClInclude Include="include\EGT\Menu\Weapon.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\menu\menu.h">
-      <Filter>menu</Filter>
+    <ClInclude Include="include\EGT\Menu\World.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\core.h" />
-    <ClInclude Include="source\ImGui\impl\d3d12_impl.h">
-      <Filter>ImGui\impl</Filter>
+    <ClInclude Include="include\EGT\Menu\Camera.h">
+      <Filter>include\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="source\config\ini.h">
-      <Filter>config</Filter>
+    <ClInclude Include="include\EGT\Utils\Texture.h">
+      <Filter>include\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="source\config\config.h">
-      <Filter>config</Filter>
+    <ClInclude Include="include\EGT\Changelog.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="source\menu\player.h">
-      <Filter>menu</Filter>
+    <ClInclude Include="include\EGT\Core\Core.h">
+      <Filter>include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="source\menu\world.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\menu\misc.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\files.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\values.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\windows.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\time.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\memory.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\sigscan.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\offsets.h" />
-    <ClInclude Include="source\utils\hook.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\MinHook\MinHook.h">
-      <Filter>MinHook</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\imguiex.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\imguiex_animation.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\imgui_hotkey.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>ImGui\ImGuiFileDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\ImGuiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>ImGui\ImGuiFileDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\ClassHelpers.h">
-      <Filter>game</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Vector3.h">
-      <Filter>game</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CBulletPhysicsCharacter.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CGame.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CGSObject.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CGSObject2.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CInput.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CLevel.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CLevel2.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CLobbySteam.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CoPhysicsProperty.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CVideoSettings.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\CBaseCamera.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\DayNightCycle.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\FreeCamera.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\GameDI_PH.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\GameDI_PH2.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\LevelDI.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\LocalClientDI.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\LogicalPlayer.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\gameph_misc.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\PlayerHealthModule.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\PlayerState.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\PlayerVariables.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\SessionCooperativeDI.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\TPPCameraDI.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\CoBaseCameraProxy.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\TimeWeather\CSystem.h">
-      <Filter>game\GamePH\TimeWeather</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\TimeWeather\EWeather.h">
-      <Filter>game\GamePH\TimeWeather</Filter>
-    </ClInclude>
-    <ClInclude Include="pch\pch.h" />
-    <ClInclude Include="source\game\Engine\engine_hooks.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\changelog.h" />
-    <ClInclude Include="source\game\GamePH\PlayerDI_PH.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\menu\debug.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\texture.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGui\misc\freetype\imgui_freetype.h">
-      <Filter>ImGui\misc\freetype</Filter>
-    </ClInclude>
-    <ClInclude Include="source\menu\init.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\Engine\engine_misc.h">
-      <Filter>game\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\PlayerInfectionModule.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\utils\rtti.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\menu\weapon.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\InventoryItem.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\ItemDescWithContext.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\InventoryContainerDI.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game\GamePH\InventoryMoney.h">
-      <Filter>game\GamePH</Filter>
-    </ClInclude>
-    <ClInclude Include="source\menu\teleport.h">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="source\memscan\memscan.h">
-      <Filter>memscan</Filter>
-    </ClInclude>
-    <ClInclude Include="source\memscan\util\util.h">
-      <Filter>memscan\util</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="MinHook">
-      <UniqueIdentifier>{794284a1-160f-4b62-bfd0-d160dbb38e40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui">
-      <UniqueIdentifier>{8b35dc3d-fbec-4ae6-af90-4b9cc2b758e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\backends">
-      <UniqueIdentifier>{70e27b28-a2be-49e4-a4a1-5ed696079ee0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\impl">
-      <UniqueIdentifier>{28cd5a16-84b1-4a9e-96a4-79fc75982912}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="menu">
-      <UniqueIdentifier>{775559c7-e9f6-49d5-a2d4-6458b99e8cd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="config">
-      <UniqueIdentifier>{50f832bc-5ff2-45db-8d20-e8f458c78596}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils">
-      <UniqueIdentifier>{0e7be9b3-e988-471b-95e5-51ca0c69a046}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\ImGuiFileDialog">
-      <UniqueIdentifier>{bb4754c3-ee86-4349-bbf1-2cc4e298052e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="game">
-      <UniqueIdentifier>{8a23ad21-b2aa-444a-b20e-a87689d4f649}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="game\GamePH">
-      <UniqueIdentifier>{9afd9b80-0702-47ac-b291-27c901911b46}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="game\GamePH\TimeWeather">
-      <UniqueIdentifier>{383948e8-c7b5-46bc-bec6-7cfffb473f5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="game\Engine">
-      <UniqueIdentifier>{06a6e99d-eb6b-4430-bd86-76f3aed2ab32}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\misc">
-      <UniqueIdentifier>{838a40a1-3f7e-49e0-949c-07c534592052}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ImGui\misc\freetype">
-      <UniqueIdentifier>{122420d5-ac60-4778-80bf-1384697fcc44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="memscan">
-      <UniqueIdentifier>{1e82ab1f-550e-4fac-8fac-0888e1e62873}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="memscan\util">
-      <UniqueIdentifier>{7e81ee9f-f74a-4af8-8a10-7530b26c3c86}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>
