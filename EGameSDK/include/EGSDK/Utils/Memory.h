@@ -36,6 +36,7 @@ namespace EGSDK::Utils {
 			}
 		};
 
+		extern EGameSDK_API HMODULE GetCallingDLLModule(void* callerAddress);
 		extern EGameSDK_API const MODULEINFO GetModuleInfo(const char* szModule);
 		extern EGameSDK_API const FARPROC GetProcAddr(const std::string_view& module, const std::string_view& funcName);
 
@@ -72,8 +73,8 @@ namespace EGSDK::Utils {
 			return function(instance, args...);
 		}
 
-		template <typename ReturnType, typename R = ReturnType, typename... Args>
-		static ReturnType _SafeCallFunction(const char* moduleName, const char* functionName, R ret, Args... args) {
+		template <typename ReturnType, typename... Args>
+		static ReturnType _SafeCallFunction(const char* moduleName, const char* functionName, ReturnType ret, Args... args) {
 			using FunctionType = ReturnType(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(Utils::Memory::GetProcAddr(moduleName, functionName));
 			if (!function)
@@ -91,8 +92,8 @@ namespace EGSDK::Utils {
 			return Utils::Memory::SafeExecution::ExecuteVoid(reinterpret_cast<uint64_t>(function), args...);
 		}
 
-		template <typename ReturnType, typename GetOffsetFunc, typename R = ReturnType, typename... Args>
-		static ReturnType _SafeCallFunctionOffset(GetOffsetFunc getOffset, R ret, Args... args) {
+		template <typename ReturnType, typename GetOffsetFunc, typename... Args>
+		static ReturnType _SafeCallFunctionOffset(GetOffsetFunc getOffset, ReturnType ret, Args... args) {
 			using FunctionType = ReturnType(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(getOffset());
 			if (!function)

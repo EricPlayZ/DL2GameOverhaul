@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <functional>
 #include <set>
-#include <atomic>
+#include <unordered_map>
 #include <string_view>
 #include <MinHook\MinHook.h>
 #include <spdlog\spdlog.h>
@@ -19,12 +19,12 @@ namespace EGSDK::Utils {
 		private:
 			PDWORD64 m_addr;
 			BYTE m_originalBytes;
-			std::function<void(PEXCEPTION_POINTERS)> m_handler;
+			void (*m_handler)(PEXCEPTION_POINTERS);
 			DWORD m_originalProtection;
 
 			static long WINAPI OnException(PEXCEPTION_POINTERS info);
 		public:
-			BreakpointHook(PDWORD64 addr, std::function<void(PEXCEPTION_POINTERS)> handler);
+			BreakpointHook(PDWORD64 addr, void (*handler)(PEXCEPTION_POINTERS));
 			void Enable();
 			void Disable();
 			~BreakpointHook();
@@ -34,13 +34,20 @@ namespace EGSDK::Utils {
 		public:
 			HookBase(const std::string_view& name);
 			~HookBase();
-			static std::set<HookBase*>* GetInstances();
+			static std::unordered_map<HMODULE, std::set<HookBase*>>* GetInstances();
+			std::string_view GetName() { return *name; };
 
 			virtual bool HookLoop() { return false; };
 
-			const std::string_view name{};
-			std::atomic<bool> isHooking = false;
-			std::atomic<bool> isHooked = false;
+			bool IsHooking();
+			void SetHooking(bool value);
+
+			bool IsHooked();
+			void SetHooked(bool value);
+		private:
+			std::string_view* name = nullptr;
+			volatile LONG isHooking = 0;
+			volatile LONG isHooked = 0;
 		};
 		template <typename GetTargetOffsetRetType>
 		class ByteHook : HookBase {
@@ -48,18 +55,18 @@ namespace EGSDK::Utils {
 			ByteHook(const std::string_view& name, GetTargetOffsetRetType(*pGetOffsetFunc)(), unsigned char* patchBytes, size_t bytesAmount) : HookBase(name), pGetOffsetFunc(pGetOffsetFunc), patchBytes(patchBytes), bytesAmount(bytesAmount) {}
 
 			bool HookLoop() override {
-				if (isHooked)
+				if (IsHooked())
 					return true;
-				if (isHooking)
+				if (IsHooking())
 					return true;
 
-				isHooking = true;
+				SetHooking(true);
 				timeSpentHooking = Utils::Time::Timer(120000);
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking \"{}\" after 120 seconds", name);
-						isHooking = false;
+						SPDLOG_ERROR("Failed hooking \"{}\" after 120 seconds", GetName().data());
+						SetHooking(false);
 						return false;
 					}
 					if (!pGetOffsetFunc || !pGetOffsetFunc())
@@ -75,8 +82,8 @@ namespace EGSDK::Utils {
 					}
 					memcpy_s(pGetOffsetFunc(), bytesAmount, patchBytes, bytesAmount);
 					VirtualProtect(pGetOffsetFunc(), bytesAmount, originalProtection, &oldProtection);
-					isHooked = true;
-					isHooking = false;
+					SetHooked(true);
+					SetHooking(false);
 					return true;
 
 					Sleep(10);
@@ -84,7 +91,7 @@ namespace EGSDK::Utils {
 			}
 
 			void Enable() {
-				if (isHooked)
+				if (IsHooked())
 					return;
 
 				DWORD originalProtection = 0;
@@ -97,10 +104,10 @@ namespace EGSDK::Utils {
 				}
 				memcpy_s(pGetOffsetFunc(), bytesAmount, patchBytes, bytesAmount);
 				VirtualProtect(pGetOffsetFunc(), bytesAmount, originalProtection, &oldProtection);
-				isHooked = true;
+				SetHooked(true);
 			}
 			void Disable() {
-				if (!isHooked)
+				if (!IsHooked())
 					return;
 
 				DWORD originalProtection = 0;
@@ -109,7 +116,7 @@ namespace EGSDK::Utils {
 				VirtualProtect(pGetOffsetFunc(), bytesAmount, PAGE_EXECUTE_READWRITE, &originalProtection);
 				memcpy_s(pGetOffsetFunc(), bytesAmount, origBytes, bytesAmount);
 				VirtualProtect(pGetOffsetFunc(), bytesAmount, originalProtection, &oldProtection);
-				isHooked = false;
+				SetHooked(false);
 			}
 		private:
 			GetTargetOffsetRetType(*pGetOffsetFunc)() = nullptr;
@@ -129,16 +136,16 @@ namespace EGSDK::Utils {
 			bool HookLoop() override {
 				if (pOriginal)
 					return true;
-				if (isHooking)
+				if (IsHooking())
 					return true;
 
-				isHooking = true;
+				SetHooking(true);
 				timeSpentHooking = Utils::Time::Timer(120000);
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", name);
-						isHooking = false;
+						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", GetName().data());
+						SetHooking(false);
 						return false;
 					}
 					if (!pGetOffsetFunc)
@@ -148,8 +155,8 @@ namespace EGSDK::Utils {
 						pTarget = reinterpret_cast<OrigType>(pGetOffsetFunc());
 					else if (!pOriginal && MH_CreateHook(pTarget, pDetour, reinterpret_cast<void**>(&pOriginal)) == MH_OK) {
 						MH_EnableHook(pTarget);
-						isHooked = true;
-						isHooking = false;
+						SetHooked(true);
+						SetHooking(false);
 						return true;
 					}
 
@@ -184,16 +191,16 @@ namespace EGSDK::Utils {
 			bool HookLoop() override {
 				if (pOriginal)
 					return true;
-				if (isHooking)
+				if (IsHooking())
 					return true;
 
-				isHooking = true;
+				SetHooking(true);
 				timeSpentHooking = Utils::Time::Timer(120000);
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", name);
-						isHooking = false;
+						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", GetName().data());
+						SetHooking(false);
 						return false;
 					}
 					if (!pGetOffsetFunc)
@@ -204,8 +211,8 @@ namespace EGSDK::Utils {
 					else if (!pOriginal) {
 						HookVT(pInstance, pDetour, reinterpret_cast<void**>(&pOriginal), offset);
 						if (pOriginal) {
-							isHooked = true;
-							isHooking = false;
+							SetHooked(true);
+							SetHooking(false);
 							return true;
 						}
 					}

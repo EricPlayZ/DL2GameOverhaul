@@ -16,7 +16,13 @@ namespace EGSDK::Utils {
 			else
 				return EXCEPTION_CONTINUE_SEARCH;
 		}
-
+		
+		HMODULE GetCallingDLLModule(void* callerAddress) {
+			HMODULE callerModule{};
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)callerAddress, &callerModule))
+				return callerModule;
+			return nullptr;
+		}
 		const MODULEINFO GetModuleInfo(const char* szModule) {
 			if (!szModule)
 				return MODULEINFO();

@@ -2,26 +2,29 @@
 
 namespace EGSDK::Utils {
     namespace Time {
-        Timer::Timer(long timeMs) : timeToPass(std::chrono::milliseconds(timeMs)), timePassed(false) {
-            start = std::chrono::time_point_cast<std::chrono::milliseconds>(clock::now());
+        Timer::Timer(long timeMs) : timeToPass(timeMs), timePassed(false) {
+            const auto currentClock = clock::now();
+            start = std::chrono::duration_cast<std::chrono::milliseconds>(currentClock.time_since_epoch()).count();
             end = start + timeToPass;
         }
 
-        const long long Timer::GetTimePassed() {
+        const long long Timer::GetTimePassed() const {
             if (timePassed)
                 return -1;
 
             const auto currentClock = clock::now();
-            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentClock - start);
-            const long long timePassedMs = duration.count();
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentClock.time_since_epoch());
 
-            return timePassedMs;
+            return duration.count() - start;
         }
         const bool Timer::DidTimePass() {
             if (timePassed)
                 return true;
 
-            if (clock::now() >= end)
+            const auto currentClock = clock::now();
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentClock.time_since_epoch());
+
+            if (duration.count() >= end)
                 timePassed = true;
             return timePassed;
         }

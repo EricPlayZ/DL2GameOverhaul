@@ -5,7 +5,12 @@
 
 namespace EGSDK::GamePH {
 	static PlayerHealthModule* pPlayerHealthModule = nullptr;
-	std::vector<PlayerHealthModule*> PlayerHealthModule::playerHealthModulePtrList{};
+	std::vector<PlayerHealthModule*>* PlayerHealthModule::playerHealthModulePtrList = nullptr;
+
+	PlayerHealthModule::~PlayerHealthModule() {
+		delete playerHealthModulePtrList;
+		playerHealthModulePtrList = nullptr;
+	}
 
 	static PlayerHealthModule* GetOffset_PlayerHealthModule() {
 		if (!pPlayerHealthModule)
@@ -17,21 +22,33 @@ namespace EGSDK::GamePH {
 	PlayerHealthModule* PlayerHealthModule::Get() {
 		return _SafeGetter<PlayerHealthModule>(GetOffset_PlayerHealthModule, nullptr, false, nullptr);
 	}
-	void PlayerHealthModule::Set(void* instance) { pPlayerHealthModule = reinterpret_cast<PlayerHealthModule*>(instance); }
 
+	void PlayerHealthModule::EmplaceBack(PlayerHealthModule* ptr) {
+		if (!playerHealthModulePtrList)
+			playerHealthModulePtrList = new std::vector<PlayerHealthModule*>();
+
+		playerHealthModulePtrList->emplace_back(ptr);
+	}
 	void PlayerHealthModule::UpdateClassAddr() {
+		if (!playerHealthModulePtrList)
+			playerHealthModulePtrList = new std::vector<PlayerHealthModule*>();
+
 		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
 		if (!pPlayerDI_PH)
 			return;
-		if (PlayerHealthModule::Get() && PlayerHealthModule::Get()->pPlayerDI_PH == pPlayerDI_PH)
+		if (Get() && Get()->pPlayerDI_PH == pPlayerDI_PH)
 			return;
 
-		for (auto& pPlayerHealthModule : PlayerHealthModule::playerHealthModulePtrList) {
+		for (auto& pPlayerHealthModule : *playerHealthModulePtrList) {
 			if (pPlayerHealthModule->pPlayerDI_PH == pPlayerDI_PH) {
-				PlayerHealthModule::Set(pPlayerHealthModule);
-				PlayerHealthModule::playerHealthModulePtrList.clear();
-				PlayerHealthModule::playerHealthModulePtrList.emplace_back(pPlayerHealthModule);
+				SetInstance(pPlayerHealthModule);
+				playerHealthModulePtrList->clear();
+				playerHealthModulePtrList->emplace_back(pPlayerHealthModule);
 			}
 		}
+	}
+
+	void PlayerHealthModule::SetInstance(void* instance) {
+		pPlayerHealthModule = reinterpret_cast<PlayerHealthModule*>(instance);
 	}
 }

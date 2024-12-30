@@ -5,7 +5,12 @@
 
 namespace EGSDK::GamePH {
 	static PlayerInfectionModule* pPlayerInfectionModule = nullptr;
-	std::vector<PlayerInfectionModule*> PlayerInfectionModule::playerInfectionModulePtrList{};
+	std::vector<PlayerInfectionModule*>* PlayerInfectionModule::playerInfectionModulePtrList = nullptr;
+
+	PlayerInfectionModule::~PlayerInfectionModule() {
+		delete playerInfectionModulePtrList;
+		playerInfectionModulePtrList = nullptr;
+	}
 
 	static PlayerInfectionModule* GetOffset_PlayerInfectionModule() {
 		if (!pPlayerInfectionModule)
@@ -17,21 +22,33 @@ namespace EGSDK::GamePH {
 	PlayerInfectionModule* PlayerInfectionModule::Get() {
 		return _SafeGetter<PlayerInfectionModule>(GetOffset_PlayerInfectionModule, nullptr, false, nullptr);
 	}
-	void PlayerInfectionModule::Set(void* instance) { pPlayerInfectionModule = reinterpret_cast<PlayerInfectionModule*>(instance); }
 
+	void PlayerInfectionModule::EmplaceBack(PlayerInfectionModule* ptr) {
+		if (!playerInfectionModulePtrList)
+			playerInfectionModulePtrList = new std::vector<PlayerInfectionModule*>();
+
+		playerInfectionModulePtrList->emplace_back(ptr);
+	}
 	void PlayerInfectionModule::UpdateClassAddr() {
+		if (!playerInfectionModulePtrList)
+			playerInfectionModulePtrList = new std::vector<PlayerInfectionModule*>();
+
 		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
 		if (!pPlayerDI_PH)
 			return;
 		if (PlayerInfectionModule::Get() && PlayerInfectionModule::Get()->pPlayerDI_PH == pPlayerDI_PH)
 			return;
 
-		for (auto& pPlayerInfectionModule : PlayerInfectionModule::playerInfectionModulePtrList) {
+		for (auto& pPlayerInfectionModule : *playerInfectionModulePtrList) {
 			if (pPlayerInfectionModule->pPlayerDI_PH == pPlayerDI_PH) {
-				PlayerInfectionModule::Set(pPlayerInfectionModule);
-				PlayerInfectionModule::playerInfectionModulePtrList.clear();
-				PlayerInfectionModule::playerInfectionModulePtrList.emplace_back(pPlayerInfectionModule);
+				SetInstance(pPlayerInfectionModule);
+				playerInfectionModulePtrList->clear();
+				playerInfectionModulePtrList->emplace_back(pPlayerInfectionModule);
 			}
 		}
+	}
+
+	void PlayerInfectionModule::SetInstance(void* instance) {
+		pPlayerInfectionModule = reinterpret_cast<PlayerInfectionModule*>(instance);
 	}
 }

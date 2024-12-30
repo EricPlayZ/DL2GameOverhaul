@@ -76,7 +76,7 @@ namespace EGSDK::Core {
 			errorMsg = "EGameSDK encountered a fatal error that caused the game to crash.\n\nA file \"" + Utils::Files::GetCurrentProcDirectory() + "\\EGameSDK-dump.dmp\" has been generated. Please send this file to the developer!\n\nThe game will now close once you press OK.";
 		} else {
 			SPDLOG_ERROR("Failed to write mini-dump.");
-			errorMsg = "EGameSDK encountered a fatal error that caused the game to crash.\n\EGameSDK failed to generate a crash dump file unfortunately, which means it is harder to find the cause of the crash.\n\nThe game will now close once you press OK.";
+			errorMsg = "EGameSDK encountered a fatal error that caused the game to crash.\nEGameSDK failed to generate a crash dump file unfortunately, which means it is harder to find the cause of the crash.\n\nThe game will now close once you press OK.";
 		}
 
 		MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
@@ -112,23 +112,23 @@ namespace EGSDK::Core {
 		GameVersionCheck();
 
 		SPDLOG_WARN("Initializing hooks");
-		for (auto& hook : *Utils::Hook::HookBase::GetInstances()) {
+		for (auto& hook : (*EGSDK::Utils::Hook::HookBase::GetInstances())[hModule]) {
 			threads.emplace_back([&hook]() {
 				maxHookThreads.acquire();
 
-				if (hook->isHooking) {
-					SPDLOG_WARN("Hooking \"{}\"", hook->name.data());
-					while (hook->isHooking)
+				if (hook->IsHooking()) {
+					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					while (hook->IsHooking())
 						Sleep(10);
 
-					if (hook->isHooked)
-						SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
-				} else if (hook->isHooked)
-					SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
+					if (hook->IsHooked())
+						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
+				} else if (hook->IsHooked())
+					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				else {
-					SPDLOG_WARN("Hooking \"{}\"", hook->name.data());
+					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
 					if (hook->HookLoop())
-						SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
+						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
 
 				maxHookThreads.release();

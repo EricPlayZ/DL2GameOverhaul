@@ -6,7 +6,7 @@
 
 namespace EGSDK::GamePH {
 	float GameDI_PH::GetGameTimeDelta() {
-		return Utils::Memory::_SafeCallFunction<int>("engine_x64_rwdi.dll", "?GetGameTimeDelta@IGame@@QEBAMXZ", -1.0f, this);
+		return Utils::Memory::_SafeCallFunction<float>("engine_x64_rwdi.dll", "?GetGameTimeDelta@IGame@@QEBAMXZ", -1.0f, this);
 	}
 	void GameDI_PH::TogglePhotoMode(bool doNothing, bool setAsOptionalCamera) {
 		Utils::Memory::_SafeCallFunctionOffsetVoid(Offsets::Get_TogglePhotoMode2, this, doNothing, setAsOptionalCamera);

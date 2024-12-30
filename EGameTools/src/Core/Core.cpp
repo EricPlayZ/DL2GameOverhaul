@@ -213,7 +213,6 @@ namespace EGT::Core {
 	void InitLogger() {
 		try {
 			static std::vector<spdlog::sink_ptr> sinks{};
-			//sinks.push_back(EGSDK::Core::spdlogSink);
 			EGSDK::Core::spdlogSinks.push_back(std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>());
 
 			std::shared_ptr<spdlog::logger> logger = std::make_shared<spdlog::logger>("EGameTools", std::begin(EGSDK::Core::spdlogSinks), std::end(EGSDK::Core::spdlogSinks));
@@ -297,23 +296,23 @@ namespace EGT::Core {
 		CreateSymlinkForLoadingFiles();
 
 		SPDLOG_INFO("Initializing hooks");
-		for (auto& hook : *EGSDK::Utils::Hook::HookBase::GetInstances()) {
+		for (auto& hook : (*EGSDK::Utils::Hook::HookBase::GetInstances())[hModule]) {
 			threads.emplace_back([&hook]() {
 				maxHookThreads.acquire();
 
-				if (hook->isHooking) {
-					SPDLOG_WARN("Hooking \"{}\"", hook->name.data());
-					while (hook->isHooking)
+				if (hook->IsHooking()) {
+					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					while (hook->IsHooking())
 						Sleep(10);
 
-					if (hook->isHooked)
-						SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
-				} else if (hook->isHooked)
-					SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
+					if (hook->IsHooked())
+						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
+				} else if (hook->IsHooked())
+					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				else {
-					SPDLOG_WARN("Hooking \"{}\"", hook->name.data());
+					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
 					if (hook->HookLoop())
-						SPDLOG_INFO("Hooked \"{}\"!", hook->name.data());
+						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
 
 				maxHookThreads.release();

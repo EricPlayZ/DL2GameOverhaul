@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::GamePH {
@@ -12,11 +13,14 @@ namespace EGSDK::GamePH {
 			buffer<0x2C, float> immunity;
 		};
 		
-		static std::vector<PlayerInfectionModule*> playerInfectionModulePtrList;
-
+		~PlayerInfectionModule();
 		static PlayerInfectionModule* Get();
-		static void Set(void* instance);
 
+		static void EmplaceBack(PlayerInfectionModule* ptr);
 		static void UpdateClassAddr();
+	private:
+		static std::vector<PlayerInfectionModule*>* playerInfectionModulePtrList;
+
+		static void SetInstance(void* instance);
 	};
 }

@@ -1,7 +1,9 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <semaphore>
 #include <EGSDK\Utils\Hook.h>
+#include <EGSDK\Utils\Memory.h>
 
 namespace EGSDK::Utils {
 	namespace Hook {
@@ -31,7 +33,7 @@ namespace EGSDK::Utils {
 #pragma region BPHook
 		static std::vector<BreakpointHook*> s_hookList;
 
-		BreakpointHook::BreakpointHook(PDWORD64 addr, std::function<void(PEXCEPTION_POINTERS)> handler) {
+		BreakpointHook::BreakpointHook(PDWORD64 addr, void (*handler)(PEXCEPTION_POINTERS)) {
 			m_addr = addr;
 			m_handler = handler;
 			m_originalBytes = *reinterpret_cast<BYTE*>(m_addr);
@@ -92,9 +94,28 @@ namespace EGSDK::Utils {
 #pragma endregion
 
 #pragma region HookBase
-		HookBase::HookBase(const std::string_view& name) : name(name) { GetInstances()->insert(this); }
-		HookBase::~HookBase() { GetInstances()->erase(this); }
-		std::set<HookBase*>* HookBase::GetInstances() { static std::set<HookBase*> instances{}; return &instances; };
+		static std::counting_semaphore<4> maxHookThreads(4);
+
+		HookBase::HookBase(const std::string_view& name) {
+			this->name = new std::string_view(name);
+			HMODULE hModule = Memory::GetCallingDLLModule(this);
+			(*GetInstances())[hModule].insert(this);
+		}
+		HookBase::~HookBase() {
+			HMODULE hModule = Memory::GetCallingDLLModule(this);
+			(*GetInstances())[hModule].erase(this);
+			delete name;
+		}
+		std::unordered_map<HMODULE, std::set<HookBase*>>* HookBase::GetInstances() {
+			static std::unordered_map<HMODULE, std::set<HookBase*>> instances{};
+			return &instances;
+		};
+
+		bool HookBase::IsHooking() { return _InterlockedCompareExchange(&isHooking, 0, 0) != 0; }
+		void HookBase::SetHooking(bool value) { _InterlockedExchange(&isHooking, value ? 1 : 0); }
+
+		bool HookBase::IsHooked() { return _InterlockedCompareExchange(&isHooked, 0, 0) != 0; }
+		void HookBase::SetHooked(bool value) { _InterlockedExchange(&isHooked, value ? 1 : 0); }
 #pragma endregion
 	}
 }

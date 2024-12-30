@@ -13,11 +13,14 @@ namespace EGSDK::GamePH {
 			buffer<0x3C, float> maxHealth;
 		};
 		
-		static std::vector<PlayerHealthModule*> playerHealthModulePtrList;
-
+		~PlayerHealthModule();
 		static PlayerHealthModule* Get();
-		static void Set(void* instance);
-
+		
+		static void EmplaceBack(PlayerHealthModule* ptr);
 		static void UpdateClassAddr();
+	private:
+		static std::vector<PlayerHealthModule*>* playerHealthModulePtrList;
+
+		static void SetInstance(void* instance);
 	};
 }

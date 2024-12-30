@@ -16,7 +16,7 @@ namespace EGSDK::GamePH {
 	namespace Hooks {
 #pragma region CreatePlayerHealthModule
 		Utils::Hook::MHook<void*, DWORD64(*)(DWORD64), DWORD64> CreatePlayerHealthModuleHook{ "CreatePlayerHealthModule", &Offsets::Get_CreatePlayerHealthModule, [](DWORD64 playerHealthModule) {
-			PlayerHealthModule::playerHealthModulePtrList.emplace_back(reinterpret_cast<PlayerHealthModule*>(playerHealthModule));
+			PlayerHealthModule::EmplaceBack(reinterpret_cast<PlayerHealthModule*>(playerHealthModule));
 
 			CreatePlayerHealthModuleHook.ExecuteCallbacks(playerHealthModule);
 			return CreatePlayerHealthModuleHook.pOriginal(playerHealthModule);
@@ -25,7 +25,7 @@ namespace EGSDK::GamePH {
 
 #pragma region CreatePlayerInfectionModule
 		Utils::Hook::MHook<void*, DWORD64(*)(DWORD64), DWORD64> CreatePlayerInfectionModuleHook{ "CreatePlayerInfectionModule", &Offsets::Get_CreatePlayerInfectionModule, [](DWORD64 playerInfectionModule) {
-			PlayerInfectionModule::playerInfectionModulePtrList.emplace_back(reinterpret_cast<PlayerInfectionModule*>(playerInfectionModule));
+			PlayerInfectionModule::EmplaceBack(reinterpret_cast<PlayerInfectionModule*>(playerInfectionModule));
 
 			CreatePlayerInfectionModuleHook.ExecuteCallbacks(playerInfectionModule);
 			return CreatePlayerInfectionModuleHook.pOriginal(playerInfectionModule);

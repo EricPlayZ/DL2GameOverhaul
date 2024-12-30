@@ -6,7 +6,8 @@
 
 namespace EGSDK {
 #pragma pack(1)
-	template<size_t size, typename T> class buffer {
+	template<size_t size, typename T>
+	class buffer {
 		char buffer[size];
 	public:
 		T data;
