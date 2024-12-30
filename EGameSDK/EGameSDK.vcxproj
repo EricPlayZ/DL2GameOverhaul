@@ -226,7 +226,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>deps\MinHook\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-md.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mdd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary />
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <AssemblyDebug>true</AssemblyDebug>

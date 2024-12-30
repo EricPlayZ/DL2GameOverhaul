@@ -48,7 +48,7 @@ namespace EGT::ImGui_impl {
 
 			EGSDK::Engine::CInput* pCInput = EGSDK::Engine::CInput::Get();
 			if (!pCInput)
-				return CallWindowProc(oWndProc, hwnd, uMsg, wParam, lParam);
+				return CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
 
 			ImGui::GetIO().MouseDrawCursor = !Menu::hasSeenChangelog.GetValue() || Menu::firstTimeRunning.GetValue() || Menu::menuToggle.GetValue();
 			ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam);
@@ -68,7 +68,7 @@ namespace EGT::ImGui_impl {
 				pCInput->UnlockGameInput();
 			}
 
-			return CallWindowProc(oWndProc, hwnd, uMsg, wParam, lParam);
+			return CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
 		}
 
 		static LRESULT CALLBACK hkMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -108,12 +108,12 @@ namespace EGT::ImGui_impl {
 
 			return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
 		}
-		void MouseHkMsgLoop() {
+		static void MouseHkMsgLoop() {
 			MSG msg{};
-			while (true) {
-				if (oMouseProc && GetMessage(&msg, NULL, 0, 0)) {
+			while (oMouseProc) {
+				if (oMouseProc && GetMessageA(&msg, NULL, 0, 0)) {
 					TranslateMessage(&msg);
-					DispatchMessage(&msg);
+					DispatchMessageA(&msg);
 				}
 			}
 		}
@@ -122,9 +122,18 @@ namespace EGT::ImGui_impl {
 			if (oMouseProc)
 				return;
 
-			oMouseProc = SetWindowsHookEx(WH_MOUSE_LL, hkMouseProc, GetModuleHandle(nullptr), 0);
-			if (!oMouseProc)
-				SPDLOG_ERROR("Failed to enable low level mouse hook; mouse input-related functions (such as FreeCam speed changing through the scrollwheel) may not work");
+			std::thread([]() {
+				if (oMouseProc)
+					return;
+
+				oMouseProc = SetWindowsHookExA(WH_MOUSE_LL, hkMouseProc, GetModuleHandleA(nullptr), 0);
+				if (!oMouseProc) {
+					SPDLOG_ERROR("Failed to enable low level mouse hook; mouse input-related functions (such as FreeCam speed changing through the scrollwheel) may not work");
+					return;
+				}
+
+				MouseHkMsgLoop();
+			}).detach();
 		}
 		void DisableMouseHook() {
 			if (!oMouseProc)
@@ -136,10 +145,10 @@ namespace EGT::ImGui_impl {
 
 		void Init(HWND hwnd) {
 			gHwnd = hwnd;
-			oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)hkWindowProc);
-			Menu::Debug::disableLowLevelMouseHook ? DisableMouseHook() : EnableMouseHook();
+			oWndProc = (WNDPROC)SetWindowLongPtrA(hwnd, GWLP_WNDPROC, (LONG_PTR)hkWindowProc);
 
-			std::thread([]() { MouseHkMsgLoop(); }).detach();
+			if (!Menu::Debug::disableLowLevelMouseHook)
+				EnableMouseHook();
 		}
 	}
 }

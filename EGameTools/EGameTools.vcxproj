@@ -183,7 +183,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>..\EGameSDK\deps\MinHook\lib;deps\freetype\lib;..\$(PlatformShortName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DbgHelp.lib;Version.lib;EGameSDK.lib;libMinHook-x64-v141-md.lib;freetype-md.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DbgHelp.lib;Version.lib;EGameSDK.lib;libMinHook-x64-v141-mdd.lib;freetype-md.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary />
       <AdditionalOptions>/NOIMPLIB /NOEXP %(AdditionalOptions)</AdditionalOptions>
       <AssemblyDebug>true</AssemblyDebug>

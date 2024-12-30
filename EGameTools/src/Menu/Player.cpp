@@ -423,7 +423,7 @@ namespace EGT::Menu {
 				ImGui::EndDisabled();
 			}
 		}
-		void HandleDialogs() {
+		static void HandleDialogs() {
 			if (ImGuiFileDialog::Instance()->Display("ChooseSCRPath", ImGuiWindowFlags_NoCollapse, ImVec2(600.0f, 400.0f))) {
 				if (ImGuiFileDialog::Instance()->IsOk()) {
 					const std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
