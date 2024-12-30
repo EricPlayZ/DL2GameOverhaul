@@ -9,6 +9,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EGameTools", "EGameTools\EG
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EGameSDK", "EGameSDK\EGameSDK.vcxproj", "{152BCFEC-E42D-4370-AEDD-36F044085C0C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12} = {47F0BD81-B327-0619-BC31-6A3C28E82C12}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ultimate-ASI-Loader-x64", "Ultimate-ASI-Loader-x64\Ultimate-ASI-Loader-x64.vcxproj", "{47F0BD81-B327-0619-BC31-6A3C28E82C12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +39,14 @@ Global
 		{152BCFEC-E42D-4370-AEDD-36F044085C0C}.Release|x64.Build.0 = Release|x64
 		{152BCFEC-E42D-4370-AEDD-36F044085C0C}.Release|x86.ActiveCfg = Release|x64
 		{152BCFEC-E42D-4370-AEDD-36F044085C0C}.Release|x86.Build.0 = Release|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Debug|x64.ActiveCfg = Debug|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Debug|x64.Build.0 = Debug|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Debug|x86.ActiveCfg = Debug|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Debug|x86.Build.0 = Debug|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Release|x64.ActiveCfg = Release|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Release|x64.Build.0 = Release|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Release|x86.ActiveCfg = Release|x64
+		{47F0BD81-B327-0619-BC31-6A3C28E82C12}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

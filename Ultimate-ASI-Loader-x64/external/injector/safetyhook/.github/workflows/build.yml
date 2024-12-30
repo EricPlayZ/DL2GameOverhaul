@@ -1,0 +1,85 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        arch: [ x64, Win32 ]
+        build_type: [ Debug, Release ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -A ${{matrix.arch}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DSAFETYHOOK_FETCH_ZYDIS=ON -DSAFETYHOOK_BUILD_EXAMPLES=ON -DSAFETYHOOK_BUILD_TEST=ON -DSAFETYHOOK_AMALGAMATE=ON ..
+
+      - name: Build
+        run: |
+          cmake --build build --config ${{matrix.build_type}} --parallel
+
+      - name: Test
+        run: |
+          ./build/${{matrix.build_type}}/test.exe
+          ./build/${{matrix.build_type}}/test-amalgamated.exe
+
+  amalgamated-dist:
+    runs-on: windows-2022
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Amalgamate
+        run: |
+          python3 amalgamate.py
+
+      - name: Compress amalgamated release
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: amalgamated-dist/
+          dest: safetyhook-amalgamated.zip
+
+      - name: Upload amalgamate
+        uses: actions/upload-artifact@v4.3.0
+        with:
+          name: safetyhook-amalgamated
+          path: amalgamated-dist/
+
+      - name: Download & extract Zydis
+        run: |
+          Invoke-WebRequest -Uri https://github.com/zyantific/zydis/releases/download/v4.0.0/zydis-amalgamated.zip -OutFile zydis.zip
+          Expand-Archive .\zydis.zip .
+          Remove-Item .\zydis.zip
+           @("#define ZYCORE_STATIC_BUILD", "#define ZYDIS_STATIC_BUILD") + (Get-Content -Raw .\amalgamated-dist\Zydis.h) | Set-Content -Encoding utf8 .\amalgamated-dist\Zydis.h
+
+      - name: Compress amalgamated release with Zydis
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: amalgamated-dist/
+          dest: safetyhook-amalgamated-zydis.zip
+
+      - name: Upload amalgamate with Zydis
+        uses: actions/upload-artifact@v4.3.0
+        with:
+          name: safetyhook-amalgamated-zydis
+          path: amalgamated-dist/
+
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.15
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          prerelease: ${{contains(github.ref, '-pre')}}
+          files: |
+            safetyhook-amalgamated.zip
+            safetyhook-amalgamated-zydis.zip

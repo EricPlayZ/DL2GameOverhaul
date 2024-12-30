@@ -1,0 +1,12 @@
+[submodule "safetyhook"]
+	path = safetyhook
+	url = https://github.com/cursey/safetyhook
+[submodule "bddisasm"]
+	path = bddisasm
+	url = https://github.com/bitdefender/bddisasm
+[submodule "kananlib"]
+	path = kananlib
+	url = https://github.com/cursey/kananlib
+[submodule "minhook"]
+	path = minhook
+	url = https://github.com/TsudaKageyu/minhook

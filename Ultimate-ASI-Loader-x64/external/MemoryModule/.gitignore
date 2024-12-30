@@ -1,0 +1,8 @@
+*.o
+*.obj
+*.exe
+tests/*.dll
+tests/*.res
+
+tests/SampleExports.cpp
+tests/SampleExports.h

@@ -1,0 +1,148 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: 
+      - '*.md'
+      - 'docs/**'
+      - 'isagenerator/**'
+      - 'bddisasm_test/**'
+      - 'bdshemu_test/**'
+      - 'LICENSE'
+  pull_request:
+    branches: [ master ]
+    paths-ignore: 
+      - '*.md'
+      - 'docs/**'
+      - 'isagenerator/**'
+      - 'bddisasm_test/**'
+      - 'bdshemu_test/**'
+      - 'LICENSE'
+  release:
+    types: [published]
+  
+
+jobs:
+  Linux-build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install rapidjson
+      uses: actions/checkout@master
+      with:
+        repository: Tencent/rapidjson
+        path: rapidjson
+    - name: Build dependencies
+      run: |
+        cd rapidjson
+        mkdir build
+        cd build
+        cmake ..
+        make -j$(nproc)
+        sudo make install
+        cd ..
+        cd ..
+    - name: Build all
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+        make -j$(nproc)
+        cd -
+    - name: Install
+      run: |
+        cd build
+        sudo make install
+        cd -
+    - name: Install setuptools
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools
+    - name: Build pybddisasm
+      run: |
+        cd bindings/pybddisasm
+        python3 setup.py build
+        cd -
+    - name: Create package
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        cd build
+        sudo make package
+        cd -
+    - name: Release
+      if: ${{ github.event_name == 'release' }}
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'build/*.deb'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  Windows-msbuild:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Setup Windows SDK
+      uses: fbactions/setup-winsdk@v1
+      with:
+        winsdk-build-version: 18362
+    - name: Build all
+      run: MSBuild /t:Rebuild /p:Configuration=Release /p:Platform=x64 bddisasm.sln
+    - name: Build bddisasm and bdshemu for Win32
+      run: MSBuild /t:Rebuild /p:Configuration=Release /p:Platform=Win32 bddisasm.sln
+    - name: Zip binaries
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        del bin\x64\Release\*.idb
+        del bin\x64\Release\*.iobj
+        del bin\x64\Release\*.ipdb
+        del bin\Win32\Release\*.idb
+        del bin\Win32\Release\*.iobj
+        del bin\Win32\Release\*.ipdb
+        tar.exe -acf x64-windows-release.zip bin\x64\Release
+        tar.exe -acf x86-windows-release.zip bin\Win32\Release
+    - name: Release
+      if: ${{ github.event_name == 'release' }}
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'x64-windows-release.zip;x86-windows-release.zip'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        
+  Windows-cmake-build:
+
+    runs-on: windows-latest
+
+    permissions: read-all
+    steps:
+    - uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - uses: ilammy/msvc-dev-cmd@v1
+    - uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Build all
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G Ninja -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
+        ninja
+        cd -
+
+  Code-checks:
+
+    runs-on: ubuntu-latest
+
+    permissions: read-all
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install cppcheck
+      run: sudo apt install -y cppcheck
+    - name: Run cppcheck
+      run: cppcheck --error-exitcode=1 --language=c \
+        --enable=all --suppress=missingIncludeSystem --suppress=unusedStructMember --suppress=unusedFunction \
+        -I inc/ -I bddisasm/include bddisasm/ bdshemu/ \
+         /

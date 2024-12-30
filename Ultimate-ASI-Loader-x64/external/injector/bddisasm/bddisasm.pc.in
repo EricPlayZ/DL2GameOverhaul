@@ -1,0 +1,19 @@
+dir_prefix=@CMAKE_INSTALL_PREFIX@
+lib=@CMAKE_INSTALL_LIBDIR@
+include=@BDDISASM_INSTALL_INCLUDE_DIR@
+data_dir=@CMAKE_INSTALL_DATADIR@
+
+prefix=${dir_prefix}
+lib_dir=${dir_prefix}/${lib}
+include_dir=${dir_prefix}/${include}
+
+datarootdir=${dir_prefix}/${data_dir}
+pkgdatadir=${datarootdir}/bddisasm
+
+Name: bddisasm
+Description: "Bitdefender x86 instruction decoder and shellcode emulator"
+URL: https://github.com/bitdefender/bddisasm
+Version: @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
+
+Libs: -L${lib_dir} -lbdshemu -lbddisasm
+Cflags: -I${include_dir}
