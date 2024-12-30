@@ -260,7 +260,7 @@ namespace EGT::Core {
 
 		if (WriteMiniDump(exceptionInfo)) {
 			SPDLOG_INFO("Mini-dump written to \"EGameTools-dump.dmp\". Please send this to mod author for further help!");
-			errorMsg = "EGameTools encountered a fatal error that caused the game to crash.\n\nA file \"" + Utils::Files::GetCurrentProcDirectory() + "\\EGameTools-dump.dmp\" has been generated. Please send this file to the author of the mod!\n\nThe game will now close once you press OK.";
+			errorMsg = "EGameTools encountered a fatal error that caused the game to crash.\n\nA file \"" + EGSDK::Utils::Files::GetCurrentProcDirectory() + "\\EGameTools-dump.dmp\" has been generated. Please send this file to the author of the mod!\n\nThe game will now close once you press OK.";
 		} else {
 			SPDLOG_ERROR("Failed to write mini-dump.");
 			errorMsg = "EGameTools encountered a fatal error that caused the game to crash.\n\nEGameTools failed to generate a crash dump file unfortunately, which means it is harder to find the cause of the crash.\n\nThe game will now close once you press OK.";

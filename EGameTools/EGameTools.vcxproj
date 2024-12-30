@@ -133,7 +133,7 @@
       </Optimization>
       <IntrinsicFunctions>
       </IntrinsicFunctions>
-      <AdditionalIncludeDirectories>include;deps\EGameSDK\include;deps\EGameSDK\deps\memscan;deps\EGameSDK\deps\MinHook;deps\EGameSDK\deps\spdlog\include;deps\ImGui\freetype\include;deps\ImGui;deps\ImGuiFileDialog;deps\ini;deps\kiero;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\EGameSDK\include;..\EGameSDK\deps\MinHook;..\EGameSDK\deps\spdlog\include;deps\ImGui\freetype\include;deps\ImGui;deps\ImGuiFileDialog;deps\ini;deps\kiero;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(PlatformTarget).pch</PrecompiledHeaderOutputFile>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -142,19 +142,19 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mtd.lib;EGameSDK-d.lib;freetype-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mtd.lib;EGameSDK.lib;freetype-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>
       </EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>deps\EGameSDK\lib;deps\EGameSDK\deps\MinHook\lib;deps\ImGui\freetype\lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\EGameSDK\deps\MinHook\lib;deps\ImGui\freetype\lib;..\$(PlatformShortName)\$(Configuration);</AdditionalLibraryDirectories>
       <AssemblyDebug>true</AssemblyDebug>
       <ImportLibrary />
       <FixedBaseAddress>
       </FixedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Extra Files\Default Config\EGameTools.ini" "$(SolutionDir)$(PlatformShortName)\$(Configuration)\EGameTools.ini"</Command>
+      <Command>copy /Y "$(ProjectDir)_ExtraFiles\DefaultConfig\EGameTools.ini" "$(SolutionDir)$(PlatformShortName)\$(Configuration)\EGameTools.ini"</Command>
       <Message>Copying the default config file to the debug build directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -169,7 +169,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>include;deps\EGameSDK\include;deps\EGameSDK\deps\memscan;deps\EGameSDK\deps\MinHook;deps\EGameSDK\deps\spdlog\include;deps\ImGui\freetype\include;deps\ImGui;deps\ImGuiFileDialog;deps\ini;deps\kiero;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\EGameSDK\include;..\EGameSDK\deps\MinHook;..\EGameSDK\deps\spdlog\include;deps\ImGui\freetype\include;deps\ImGui;deps\ImGuiFileDialog;deps\ini;deps\kiero;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)_$(PlatformTarget).pch</PrecompiledHeaderOutputFile>
@@ -182,14 +182,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>deps\EGameSDK\lib;deps\EGameSDK\deps\MinHook\lib;deps\ImGui\freetype\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\EGameSDK\deps\MinHook\lib;deps\ImGui\freetype\lib;..\$(PlatformShortName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DbgHelp.lib;Version.lib;libMinHook-x64-v141-mtd.lib;EGameSDK.lib;freetype-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary />
       <AdditionalOptions>/NOIMPLIB /NOEXP %(AdditionalOptions)</AdditionalOptions>
       <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Extra Files\Default Config\EGameTools.ini" "$(SolutionDir)$(PlatformShortName)\$(Configuration)\EGameTools.ini"</Command>
+      <Command>copy /Y "$(ProjectDir)_ExtraFiles\DefaultConfig\EGameTools.ini" "$(SolutionDir)$(PlatformShortName)\$(Configuration)\EGameTools.ini"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying the default config file to the release build directory</Message>
