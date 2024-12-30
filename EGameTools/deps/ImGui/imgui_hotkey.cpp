@@ -1,6 +1,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui_hotkey.h>
-#include <imgui_internal.h>
+#include <ImGui\imgui_hotkey.h>
+#include <ImGui\imgui_internal.h>
 #include <EGSDK\Utils\Time.h>
 
 namespace ImGui {

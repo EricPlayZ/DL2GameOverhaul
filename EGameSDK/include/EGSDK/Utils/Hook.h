@@ -6,7 +6,7 @@
 #include <set>
 #include <atomic>
 #include <string_view>
-#include <MinHook.h>
+#include <MinHook\MinHook.h>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Exports.h>
 #include <EGSDK\Utils\Time.h>

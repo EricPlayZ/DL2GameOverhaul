@@ -3,10 +3,10 @@
 #include <dxgi.h>
 #include <dxgi1_4.h>
 #include <d3d12.h>
-#include <kiero.h>
+#include <kiero\kiero.h>
 #include <spdlog\spdlog.h>
-#include <backends\imgui_impl_dx12.h>
-#include <backends\imgui_impl_win32.h>
+#include <ImGui\backends\imgui_impl_dx12.h>
+#include <ImGui\backends\imgui_impl_win32.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Init.h>

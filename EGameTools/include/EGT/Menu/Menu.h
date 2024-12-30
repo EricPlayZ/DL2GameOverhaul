@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <set>
-#include <imgui_hotkey.h>
+#include <ImGui\imgui_hotkey.h>
 #include <EGT\Core\core.h>
 
 namespace EGT::Menu {

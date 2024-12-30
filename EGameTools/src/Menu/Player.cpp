@@ -2,9 +2,9 @@
 #include <fstream>
 #include <algorithm>
 #include <spdlog\spdlog.h>
-#include <imgui_hotkey.h>
-#include <imguiex.h>
-#include <ImGuiFileDialog.h>
+#include <ImGui\imgui_hotkey.h>
+#include <ImGui\imguiex.h>
+#include <ImGuiFileDialog\ImGuiFileDialog.h>
 #include <EGSDK\Utils\Files.h>
 #include <EGSDK\Engine\CBulletPhysicsCharacter.h>
 #include <EGSDK\GamePH\FreeCamera.h>

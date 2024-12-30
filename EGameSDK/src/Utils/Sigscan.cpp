@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 #include <list>
-#include <memscan.h>
+#include <memscan\memscan.h>
 #include <EGSDK\Utils\Sigscan.h>
 #include <EGSDK\Utils\Memory.h>
 

@@ -1,7 +1,7 @@
 #include <d3d11.h>
 #include <d3d12.h>
 #include <imgui.h>
-#include <stb\stb_image.h>
+#include <ImGuiFileDialog\stb\stb_image.h>
 #include <EGSDK\Core\Core.h>
 
 namespace EGT::ImGui_impl {

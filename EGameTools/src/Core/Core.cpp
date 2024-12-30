@@ -1,6 +1,6 @@
 #include <spdlog\spdlog.h>
 #include <spdlog\sinks\rotating_file_sink.h>
-#include <kiero.h>
+#include <kiero\kiero.h>
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\Utils\Files.h>
 #include <EGSDK\GamePH\LevelDI.h>

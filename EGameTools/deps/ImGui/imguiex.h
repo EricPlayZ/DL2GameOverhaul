@@ -1,7 +1,7 @@
 #pragma once
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui_internal.h>
-#include <imgui_hotkey.h>
+#include <ImGui\imgui_internal.h>
+#include <ImGui\imgui_hotkey.h>
 
 namespace ImGui {
 	extern void StyleScaleAllSizes(ImGuiStyle* style, const float scale_factor, ImGuiStyle* defStyle = nullptr);

@@ -1,8 +1,8 @@
 #include <filesystem>
 #include <fstream>
 #include <spdlog\spdlog.h>
-#include <imguiex.h>
-#include <misc\fonts\Ruda-Bold.embed>
+#include <ImGui\imguiex.h>
+#include <ImGui\misc\fonts\Ruda-Bold.embed>
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\GamePH\GamePH_Misc.h>
 #include <EGSDK\Utils\Files.h>

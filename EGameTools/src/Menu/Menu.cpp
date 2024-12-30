@@ -1,5 +1,5 @@
-#include <imgui_hotkey.h>
-#include <imguiex.h>
+#include <ImGui\imgui_hotkey.h>
+#include <ImGui\imguiex.h>
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\GamePH\GamePH_Misc.h>
 #include <EGT\Menu\Menu.h>

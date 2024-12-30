@@ -2,7 +2,7 @@
 #include <any>
 #include <filesystem>
 #include <spdlog\spdlog.h>
-#include <ini.h>
+#include <ini\ini.h>
 #include <EGSDK\Utils\Files.h>
 #include <EGT\Menu\Camera.h>
 #include <EGT\Menu\Menu.h>

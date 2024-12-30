@@ -1,10 +1,10 @@
 ﻿#include <vector>
 #include <mutex>
 #include <d3d11.h>
-#include <kiero.h>
+#include <kiero\kiero.h>
 #include <spdlog\spdlog.h>
-#include <backends\imgui_impl_dx11.h>
-#include <backends\imgui_impl_win32.h>
+#include <ImGui\backends\imgui_impl_dx11.h>
+#include <ImGui\backends\imgui_impl_win32.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Init.h>
