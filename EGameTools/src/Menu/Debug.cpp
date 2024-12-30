@@ -1,3 +1,5 @@
+#include <imguiex.h>
+#include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\Menu\Debug.h>
 
 #include <EGSDK\GamePH\DayNightCycle.h>
@@ -59,6 +61,12 @@ namespace EGT::Menu {
 			{ "CoPhysicsProperty", reinterpret_cast<void*(*)()>(&EGSDK::Engine::CoPhysicsProperty::Get) }
 		};
 
+#ifdef _DEBUG
+		bool disableLowLevelMouseHook = true;
+#else
+		bool disableLowLevelMouseHook = false;
+#endif
+
 		static void RenderClassAddrPair(const std::pair<std::string_view, void*(*)()>* pair) {
 			const float maxInputTextWidth = ImGui::CalcTextSize("0x0000000000000000").x;
 			static std::string labelID{};
@@ -88,6 +96,9 @@ namespace EGT::Menu {
 		Tab Tab::instance{};
 		void Tab::Update() {}
 		void Tab::Render() {
+			ImGui::SeparatorText("Misc##Debug");
+			if (ImGui::Checkbox("Disable Low Level Mouse Hook", &disableLowLevelMouseHook, "Disables the low level mouse hook that is used to capture mouse input in the game"))
+				disableLowLevelMouseHook ? ImGui_impl::Win32::DisableMouseHook() : ImGui_impl::Win32::EnableMouseHook();
 			ImGui::SeparatorText("Class addresses##Debug");
 			if (ImGui::CollapsingHeader("GamePH", ImGuiTreeNodeFlags_None)) {
 				ImGui::Indent();

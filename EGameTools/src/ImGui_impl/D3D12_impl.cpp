@@ -95,11 +95,7 @@ namespace EGT::ImGui_impl {
 				if (d3d12Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, frameContext[0].commandAllocator, NULL, IID_PPV_ARGS(&d3d12CommandList)) != S_OK || d3d12CommandList->Close() != S_OK)
 					return;
 
-#ifndef LLMH_IMPL_DISABLE_DEBUG
-				std::thread([&desc]() { Win32::Init(desc.OutputWindow); }).detach();
-#else 
 				Win32::Init(desc.OutputWindow);
-#endif
 
 				ImGui::CreateContext();
 				ImGui::GetIO().IniFilename = nullptr;

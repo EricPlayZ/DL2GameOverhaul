@@ -46,25 +46,15 @@ namespace EGSDK::GamePH {
 		return GameVerToStr(GetCurrentGameVersion());
 	}
 
-	static DWORD64 ShowTPPModelFunc2(GameDI_PH* pGameDI_PH) {
-		return Utils::Memory::_SafeCallFunctionOffset<DWORD64>(Offsets::Get_ShowTPPModelFunc2, 0, pGameDI_PH);
-	}
-	static void ShowTPPModelFunc3(DWORD64 tppFunc2Addr, bool showTPPModel) {
-		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
-		if (!pPlayerDI_PH)
-			return;
-
-		Utils::Memory::_SafeCallFunctionOffsetVoid(Offsets::Get_ShowTPPModelFunc3, tppFunc2Addr, showTPPModel);
-	}
 	void ShowTPPModel(bool showTPPModel) {
 		GameDI_PH* pGameDI_PH = GameDI_PH::Get();
 		if (!pGameDI_PH)
 			return;
-		DWORD64 tppFunc2Addr = ShowTPPModelFunc2(pGameDI_PH);
-		if (!tppFunc2Addr)
+		PlayerDI_PH* pPlayerDI_PH = PlayerDI_PH::Get();
+		if (!pPlayerDI_PH)
 			return;
 
-		ShowTPPModelFunc3(tppFunc2Addr, showTPPModel);
+		Utils::Memory::_SafeCallFunctionOffsetVoid(Offsets::Get_ShowTPPModelFunc3, pPlayerDI_PH, showTPPModel);
 	}
 	bool ReloadJumps() {
 		return Utils::Memory::_SafeCallFunctionOffset<bool>(Offsets::Get_ReloadJumps, false);

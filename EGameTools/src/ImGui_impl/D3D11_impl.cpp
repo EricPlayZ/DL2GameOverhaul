@@ -64,11 +64,7 @@ namespace EGT::ImGui_impl {
 
 				d3d11RenderTargetView = CreateRenderTargetView(pSwapChain);
 
-#ifndef LLMH_IMPL_DISABLE_DEBUG
-				std::thread([&desc]() { Win32::Init(desc.OutputWindow); }).detach();
-#else 
 				Win32::Init(desc.OutputWindow);
-#endif
 
 				ImGui::CreateContext();
 				ImGui::GetIO().IniFilename = nullptr;

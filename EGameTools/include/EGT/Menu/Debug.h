@@ -3,6 +3,8 @@
 	
 namespace EGT::Menu {
 	namespace Debug {
+		extern bool disableLowLevelMouseHook;
+
 		class Tab : MenuTab {
 		public:
 			Tab() : MenuTab("Debug", 6) {}

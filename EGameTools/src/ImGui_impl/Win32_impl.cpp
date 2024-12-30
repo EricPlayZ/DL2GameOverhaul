@@ -1,9 +1,11 @@
 ﻿#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <spdlog\spdlog.h>
 #include <imgui_hotkey.h>
 #include <EGSDK\Engine\CInput.h>
 #include <EGT\Menu\Menu.h>
+#include <EGT\Menu\Debug.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -69,7 +71,6 @@ namespace EGT::ImGui_impl {
 			return CallWindowProc(oWndProc, hwnd, uMsg, wParam, lParam);
 		}
 
-#ifndef LLMH_IMPL_DISABLE_DEBUG
 		static LRESULT CALLBACK hkMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 			if (nCode != HC_ACTION)
 				return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
@@ -107,20 +108,38 @@ namespace EGT::ImGui_impl {
 
 			return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
 		}
-#endif
+		void MouseHkMsgLoop() {
+			MSG msg{};
+			while (true) {
+				if (oMouseProc && GetMessage(&msg, NULL, 0, 0)) {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+		}
+
+		void EnableMouseHook() {
+			if (oMouseProc)
+				return;
+
+			oMouseProc = SetWindowsHookEx(WH_MOUSE_LL, hkMouseProc, GetModuleHandle(nullptr), 0);
+			if (!oMouseProc)
+				SPDLOG_ERROR("Failed to enable low level mouse hook; mouse input-related functions (such as FreeCam speed changing through the scrollwheel) may not work");
+		}
+		void DisableMouseHook() {
+			if (!oMouseProc)
+				return;
+
+			UnhookWindowsHookEx(oMouseProc);
+			oMouseProc = nullptr;
+		}
 
 		void Init(HWND hwnd) {
 			gHwnd = hwnd;
 			oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)hkWindowProc);
-#ifndef LLMH_IMPL_DISABLE_DEBUG
-			oMouseProc = SetWindowsHookEx(WH_MOUSE_LL, hkMouseProc, GetModuleHandle(nullptr), 0);
+			Menu::Debug::disableLowLevelMouseHook ? DisableMouseHook() : EnableMouseHook();
 
-			MSG msg;
-			while (oMouseProc && GetMessage(&msg, NULL, 0, 0)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-#endif
+			std::thread([]() { MouseHkMsgLoop(); }).detach();
 		}
 	}
 }
