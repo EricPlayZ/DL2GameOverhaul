@@ -2,10 +2,11 @@
 #include <EGSDK\Utils\Memory.h>
 #include <EGSDK\Utils\RTTI.h>
 #include <EGSDK\Utils\Sigscan.h>
+#include <EGSDK\Exports.h>
 
 namespace EGSDK {
 	#define AddOffset(name, moduleName, pattern, type, retType)\
-	static retType Get_## name () {\
+	static EGameSDK_API retType Get_## name () {\
 		static retType name = NULL;\
 		static int i = 0;\
 		if (Utils::Memory::IsValidPtr(name) || !GetModuleHandleA(moduleName) || i >= 50) return name;\
@@ -13,20 +14,20 @@ namespace EGSDK {
 		return name=reinterpret_cast<retType>(Utils::SigScan::PatternScanner::FindPattern(moduleName, {pattern, type}));\
 	} 
 	#define AddStaticOffset(name, off)\
-	static DWORD64 Get_## name () {\
+	static EGameSDK_API DWORD64 Get_## name () {\
 		static DWORD64 name = 0;\
 		if (name) return name; \
 		return name=static_cast<DWORD64>(off);\
 	} 
 	#define AddStaticOffset2(name, moduleName, off) \
-	static DWORD64 Get_## name () {\
+	static EGameSDK_API DWORD64 Get_## name () {\
 		static DWORD64 name = 0;\
 		if (Utils::Memory::IsValidPtr(name)) return name;\
 		return name=reinterpret_cast<DWORD64>(GetModuleHandleA(moduleName)) + static_cast<DWORD64>(off);\
 	}
 
 	#define AddVTOffset(name, moduleName, rttiName, retType)\
-	static retType GetVT_## name () {\
+	static EGameSDK_API retType GetVT_## name () {\
 		static retType VT_## name = NULL;\
 		static int i = 0;\
 		if (Utils::Memory::IsValidPtr(VT_## name)|| !GetModuleHandleA(moduleName) || i >= 50) return VT_## name;\
@@ -92,7 +93,7 @@ namespace EGSDK {
 		AddOffset(TogglePhotoMode1, "gamedll_ph_x64_rwdi.dll", "48 83 EC ?? 38 91 ?? ?? ?? ?? 0F 84", Utils::SigScan::PatternType::Address, void*)
 		AddOffset(TogglePhotoMode2, "gamedll_ph_x64_rwdi.dll", "48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 41 0F B6 F8 48 8B 0D", Utils::SigScan::PatternType::Address, void*)
 		//AddOffset(OnUpdate_ChangeMap, "gamedll_ph_x64_rwdi.dll", "E8 [?? ?? ?? ?? 88 44 24 20 48 8B 84 24 ?? ?? ?? ?? 48 83 78 ?? ??", PatternType::RelativePointer, void*)
-		AddOffset(GetPlayerDI_PH, "gamedll_ph_x64_rwdi.dll", "40 53 48 83 EC ?? 48 8B 01 48 8B D9 FF 90 ?? ?? ?? ?? 84 C0 74 ?? 48 8B 83 ?? ?? ?? ?? 48 8B 88 ?? ?? ?? ?? 48 85 C9 74 ?? 48 83 B9 ?? ?? ?? ?? ?? 74 ?? 48 8B 81", Utils::SigScan::PatternType::Address, void*) // ShowTPPModelFunc2
+		//AddOffset(GetPlayerDI_PH, "gamedll_ph_x64_rwdi.dll", "40 53 48 83 EC ?? 48 8B 01 48 8B D9 FF 90 ?? ?? ?? ?? 84 C0 74 ?? 48 8B 83 ?? ?? ?? ?? 48 8B 88 ?? ?? ?? ?? 48 85 C9 74 ?? 48 83 B9 ?? ?? ?? ?? ?? 74 ?? 48 8B 81", Utils::SigScan::PatternType::Address, void*) // ShowTPPModelFunc2
 		AddOffset(ShowTPPModelFunc3, "gamedll_ph_x64_rwdi.dll", "48 83 EC ?? 38 91 ?? ?? ?? ?? 74 ?? 88 91", Utils::SigScan::PatternType::Address, void*)
 		//AddOffset(CalculateOutOfBoundsTimer, "gamedll_ph_x64_rwdi.dll", "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 0F B6 99", PatternType::Address, void*)
 		AddOffset(IsNotOutOfMapBounds, "gamedll_ph_x64_rwdi.dll", "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 4C 8B F9 48 85 D2", Utils::SigScan::PatternType::Address, void*)

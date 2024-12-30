@@ -3,7 +3,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <EGSDK\Utils\Memory.h>
-#include <EGSDK\Exports.h>
 
 namespace EGSDK {
 #pragma pack(1)
