@@ -130,8 +130,8 @@ namespace EGT::Engine {
 			struct mount_path {
 				union {
 					const char* gamePath;
-					EGSDK::buffer<0x8, const char*> pakPath;
-					EGSDK::buffer<0x10, const char*> fullPakPath;
+					EGSDK::ClassHelpers::buffer<0x8, const char*> pakPath;
+					EGSDK::ClassHelpers::buffer<0x10, const char*> fullPakPath;
 				};
 			};
 

@@ -17,6 +17,6 @@ namespace EGSDK::GamePH {
 		return pCGame ? pCGame->pGameDI_PH : nullptr;
 	}
 	GameDI_PH* GameDI_PH::Get() {
-		return _SafeGetter<GameDI_PH>(GetOffset_GameDI_PH, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_GameDI_PH);
+		return ClassHelpers::SafeGetter<GameDI_PH>(GetOffset_GameDI_PH, false);
 	}
 }

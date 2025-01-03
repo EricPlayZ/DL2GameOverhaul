@@ -7,7 +7,7 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API CoBaseCameraProxy {
 	public:
 		union {
-			buffer<0xD0, TPPCameraDI*> pTPPCameraDI;
+			ClassHelpers::buffer<0xD0, TPPCameraDI*> pTPPCameraDI;
 		};
 	};
 }

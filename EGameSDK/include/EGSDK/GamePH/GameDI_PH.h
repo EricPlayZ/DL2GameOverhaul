@@ -7,8 +7,8 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API GameDI_PH {
 	public:
 		union {
-			buffer<0x130, SessionCooperativeDI*> pSessionCooperativeDI;
-			buffer<0x910, bool> blockPauseGameOnPlayerAfk;
+			ClassHelpers::buffer<0x130, SessionCooperativeDI*> pSessionCooperativeDI;
+			ClassHelpers::buffer<0x910, bool> blockPauseGameOnPlayerAfk;
 		};
 
 		float GetGameTimeDelta();

@@ -20,7 +20,7 @@ namespace EGSDK::GamePH {
 		return pPlayerInfectionModule;
 	}
 	PlayerInfectionModule* PlayerInfectionModule::Get() {
-		return _SafeGetter<PlayerInfectionModule>(GetOffset_PlayerInfectionModule, nullptr, false, nullptr);
+		return ClassHelpers::SafeGetter<PlayerInfectionModule>(GetOffset_PlayerInfectionModule, false);
 	}
 
 	void PlayerInfectionModule::EmplaceBack(PlayerInfectionModule* ptr) {

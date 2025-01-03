@@ -17,6 +17,6 @@ namespace EGSDK::GamePH {
 		return pCoBaseCameraProxy->pTPPCameraDI;
 	}
 	TPPCameraDI* TPPCameraDI::Get() {
-		return _SafeGetter<TPPCameraDI>(GetOffset_TPPCameraDI, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_TPPCameraDI);
+		return ClassHelpers::SafeGetter<TPPCameraDI>(GetOffset_TPPCameraDI, false);
 	}
 }

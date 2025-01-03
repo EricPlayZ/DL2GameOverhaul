@@ -7,7 +7,7 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerState {
 	public:
 		union {
-			buffer<0x300, PlayerVariables*> pPlayerVariables;
+			ClassHelpers::buffer<0x300, PlayerVariables*> pPlayerVariables;
 		};
 
 		static PlayerState* Get();

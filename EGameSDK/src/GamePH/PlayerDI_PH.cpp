@@ -10,14 +10,14 @@ namespace EGSDK::GamePH {
 		return Utils::Memory::_SafeCallFunctionOffset<InventoryItem*>(Offsets::Get_PlayerGetCurrentWeapon, nullptr, pPlayerDI_PH, indexMaybe);
 	}
 	InventoryItem* PlayerDI_PH::GetCurrentWeapon(UINT indexMaybe) {
-		return _SafeGetter<InventoryItem>(GetOffset_CurrentWeapon, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryItem, this, indexMaybe);
+		return ClassHelpers::SafeGetter<InventoryItem>(GetOffset_CurrentWeapon, false, {}, this, indexMaybe);
 	}
 
 	static InventoryContainerDI* GetOffset_InventoryContainer(PlayerDI_PH* pPlayerDI_PH) {
 		return reinterpret_cast<InventoryContainerDI*>(*reinterpret_cast<DWORD64*>(reinterpret_cast<DWORD64>(pPlayerDI_PH) + 0x470));
 	}
 	InventoryContainerDI* PlayerDI_PH::GetInventoryContainer() {
-		return _SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainer, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryContainerDI, this);
+		return ClassHelpers::SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainer, false, {}, this);
 	}
 
 	static PlayerDI_PH* GetOffset_PlayerDI_PH() {
@@ -25,6 +25,6 @@ namespace EGSDK::GamePH {
 		return pLocalClientDI ? pLocalClientDI->pPlayerDI_PH : nullptr;
 	}
 	PlayerDI_PH* PlayerDI_PH::Get() {
-		return _SafeGetter<PlayerDI_PH>(GetOffset_PlayerDI_PH, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_PlayerDI_PH);
+		return ClassHelpers::SafeGetter<PlayerDI_PH>(GetOffset_PlayerDI_PH, false);
 	}
 }

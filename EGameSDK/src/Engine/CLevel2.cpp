@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pCGSObject ? pCGSObject->pCLevel2 : nullptr;
     }
     CLevel2* CLevel2::Get() {
-        return _SafeGetter<CLevel2>(GetOffset_CLevel2, "engine_x64_rwdi.dll", false, nullptr);
+        return ClassHelpers::SafeGetter<CLevel2>(GetOffset_CLevel2, false);
     }
 }

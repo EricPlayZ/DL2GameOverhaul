@@ -8,6 +8,6 @@ namespace EGSDK::GamePH {
 		return Utils::Memory::_SafeCallFunctionOffset<InventoryMoney*>(Offsets::Get_PlayerGetInventoryMoney, nullptr, pInventoryContainerDI, indexMaybe);
 	}
 	InventoryMoney* InventoryContainerDI::GetInventoryMoney(UINT indexMaybe) {
-		return _SafeGetter<InventoryMoney>(GetOffset_InventoryMoney, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_InventoryMoney, this, indexMaybe);
+		return ClassHelpers::SafeGetter<InventoryMoney>(GetOffset_InventoryMoney, false, {}, this, indexMaybe);
 	}
 }

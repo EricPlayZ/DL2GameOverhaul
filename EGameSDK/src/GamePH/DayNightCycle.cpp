@@ -11,6 +11,6 @@ namespace EGSDK::GamePH {
 	}
 
 	DayNightCycle* DayNightCycle::Get() {
-		return _SafeGetter<DayNightCycle>(Offsets::Get_DayNightCycle, "gamedll_ph_x64_rwdi.dll", true, Offsets::GetVT_DayNightCycle);
+		return ClassHelpers::SafeGetter<DayNightCycle>(Offsets::Get_DayNightCycle, true);
 	}
 }

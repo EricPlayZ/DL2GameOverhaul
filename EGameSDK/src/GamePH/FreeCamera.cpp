@@ -8,6 +8,6 @@ namespace EGSDK::GamePH {
 	}
 
 	FreeCamera* FreeCamera::Get() {
-		return _SafeGetter<FreeCamera>(Offsets::Get_FreeCamera, "gamedll_ph_x64_rwdi.dll", true, Offsets::GetVT_FreeCamera);
+		return ClassHelpers::SafeGetter<FreeCamera>(Offsets::Get_FreeCamera, true);
 	}
 }

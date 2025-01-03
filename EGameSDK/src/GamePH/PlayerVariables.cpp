@@ -34,8 +34,8 @@ namespace EGSDK::GamePH {
 		static int offset = 0;
 		__try {
 			while (true) {
-				const bool isFloatPlayerVar = *(playerVarsGetter() + offset) == Offsets::GetVT_FloatPlayerVariable();
-				const bool isBoolPlayerVar = *(playerVarsGetter() + offset) == Offsets::GetVT_BoolPlayerVariable();
+				const bool isFloatPlayerVar = Utils::RTTI::IsClassVTableNameEqualTo(*(playerVarsGetter() + offset), "FloatPlayerVariable");
+				const bool isBoolPlayerVar = Utils::RTTI::IsClassVTableNameEqualTo(*(playerVarsGetter() + offset), "BoolPlayerVariable");
 
 				if (isFloatPlayerVar || isBoolPlayerVar) {
 					var.second.first = playerVarsGetter() + offset + VAR_LOC_OFFSET;
@@ -71,8 +71,6 @@ namespace EGSDK::GamePH {
 			return;
 		if (!Get())
 			return;
-		if (!Offsets::GetVT_FloatPlayerVariable() || !Offsets::GetVT_BoolPlayerVariable())
-			return;
 
 		for (auto& var : playerVars)
 			processPlayerVar(reinterpret_cast<DWORD64**(*)()>(&Get), var);
@@ -83,11 +81,11 @@ namespace EGSDK::GamePH {
 #pragma region Player Variables Sorting
 	struct VarTypeFieldMeta {
 		PlayerVariables::PlayerVarType type;
-		void*(*getFieldMetaVT)();
+		std::string_view className;
 	};
 	const std::vector<VarTypeFieldMeta> varTypeFields = {
-		{ PlayerVariables::PlayerVarType::Float, Offsets::GetVT_TypedFieldMetaFloatPlayerVariable },
-		{ PlayerVariables::PlayerVarType::Bool, Offsets::GetVT_TypedFieldMetaBoolPlayerVariable }
+		{ PlayerVariables::PlayerVarType::Float, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<FloatPlayerVariable>" },
+		{ PlayerVariables::PlayerVarType::Bool, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<BoolPlayerVariable>" }
 	};
 
 	bool isRetInstruction(BYTE* address) {
@@ -117,7 +115,7 @@ namespace EGSDK::GamePH {
 				continue;
 			}
 
-			playerVarName = reinterpret_cast<const char*>(Utils::Memory::CalcTargetAddrOfRelInst(reinterpret_cast<DWORD64>(funcAddress), 3));
+			playerVarName = reinterpret_cast<const char*>(Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(funcAddress), 3));
 			if (!playerVarName) {
 				funcAddress++;
 				continue;
@@ -139,9 +137,8 @@ namespace EGSDK::GamePH {
 				continue;
 			}
 
-			DWORD64 startOfLoadVarFunc = Utils::Memory::CalcTargetAddrOfRelInst(reinterpret_cast<DWORD64>(funcAddress), 1);
+			DWORD64 startOfLoadVarFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(funcAddress), 1);
 			for (const auto& varType : varTypeFields) {
-				DWORD64 metaVTAddr = reinterpret_cast<DWORD64>(varType.getFieldMetaVT());
 				BYTE* loadVarFuncAddress = reinterpret_cast<BYTE*>(startOfLoadVarFunc);
 				DWORD64 metaVTAddrFromFunc = 0;
 
@@ -152,15 +149,15 @@ namespace EGSDK::GamePH {
 						continue;
 					}
 
-					metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelInst(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
-					if (metaVTAddrFromFunc != metaVTAddr) {
+					metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
+					if (!Utils::RTTI::IsVTableNameEqualTo(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc), varType.className)) {
 						metaVTAddrFromFunc = 0;
 						loadVarFuncAddress++;
 						continue;
 					}
 				}
 
-				if (metaVTAddr == metaVTAddrFromFunc) {
+				if (Utils::RTTI::IsVTableNameEqualTo(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc), varType.className)) {
 					playerVarType = varType.type;
 					break;
 				}
@@ -219,6 +216,6 @@ namespace EGSDK::GamePH {
 		return pPlayerState ? pPlayerState->pPlayerVariables : nullptr;
 	}
 	PlayerVariables* PlayerVariables::Get() {
-		return _SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, "gamedll_ph_x64_rwdi.dll", false, nullptr);
+		return ClassHelpers::SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, false);
 	}
 }

@@ -20,6 +20,6 @@ namespace EGSDK::Engine {
 		return pCoPhysicsProperty ? pCoPhysicsProperty->pCBulletPhysicsCharacter : nullptr;
 	}
 	CBulletPhysicsCharacter* CBulletPhysicsCharacter::Get() {
-		return _SafeGetter<CBulletPhysicsCharacter>(GetOffset_CBulletPhysicsCharacter, "engine_x64_rwdi.dll", false, Offsets::GetVT_CBulletPhysicsCharacter);
+		return ClassHelpers::SafeGetter<CBulletPhysicsCharacter>(GetOffset_CBulletPhysicsCharacter, false);
 	}
 }

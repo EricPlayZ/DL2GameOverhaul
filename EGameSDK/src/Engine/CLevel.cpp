@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pCGame ? pCGame->pCLevel : nullptr;
     }
     CLevel* CLevel::Get() {
-        return _SafeGetter<CLevel>(GetOffset_CLevel, "engine_x64_rwdi.dll", false, Offsets::GetVT_CLevel);
+        return ClassHelpers::SafeGetter<CLevel>(GetOffset_CLevel, false);
     }
 }

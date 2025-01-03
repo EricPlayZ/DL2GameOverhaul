@@ -8,9 +8,9 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerInfectionModule {
 	public:
 		union {
-			buffer<0x8, PlayerDI_PH*> pPlayerDI_PH;
-			buffer<0x20, float> maxImmunity;
-			buffer<0x2C, float> immunity;
+			ClassHelpers::buffer<0x8, PlayerDI_PH*> pPlayerDI_PH;
+			ClassHelpers::buffer<0x20, float> maxImmunity;
+			ClassHelpers::buffer<0x2C, float> immunity;
 		};
 		
 		~PlayerInfectionModule();

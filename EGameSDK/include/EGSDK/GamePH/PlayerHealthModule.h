@@ -8,9 +8,9 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerHealthModule {
 	public:
 		union {
-			buffer<0x8, PlayerDI_PH*> pPlayerDI_PH;
-			buffer<0x2C, float> health;
-			buffer<0x3C, float> maxHealth;
+			ClassHelpers::buffer<0x8, PlayerDI_PH*> pPlayerDI_PH;
+			ClassHelpers::buffer<0x2C, float> health;
+			ClassHelpers::buffer<0x3C, float> maxHealth;
 		};
 		
 		~PlayerHealthModule();

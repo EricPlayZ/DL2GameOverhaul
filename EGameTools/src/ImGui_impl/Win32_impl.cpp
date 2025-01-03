@@ -118,7 +118,7 @@ namespace EGT::ImGui_impl {
 			}
 		}
 
-		void EnableMouseHook() {
+		static void EnableMouseHook() {
 			if (oMouseProc)
 				return;
 
@@ -135,13 +135,14 @@ namespace EGT::ImGui_impl {
 				MouseHkMsgLoop();
 			}).detach();
 		}
-		void DisableMouseHook() {
+		static void DisableMouseHook() {
 			if (!oMouseProc)
 				return;
 
 			UnhookWindowsHookEx(oMouseProc);
 			oMouseProc = nullptr;
 		}
+		void ToggleMouseHook(bool value) { value ? EnableMouseHook() : DisableMouseHook(); }
 
 		void Init(HWND hwnd) {
 			gHwnd = hwnd;

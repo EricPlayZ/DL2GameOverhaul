@@ -18,7 +18,7 @@ namespace EGSDK::GamePH {
 			return pLevelDI ? pLevelDI->GetTimeWeatherSystem() : nullptr;
 		}
 		CSystem* CSystem::Get() {
-			return _SafeGetter<CSystem>(GetOffset_CSystem, nullptr, false, nullptr);
+			return ClassHelpers::SafeGetter<CSystem>(GetOffset_CSystem, false);
 		}
 	}
 }

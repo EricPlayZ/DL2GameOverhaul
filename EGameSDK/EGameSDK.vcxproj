@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="deps\memscan\memscan.c" />
     <ClCompile Include="deps\memscan\util\util.c" />
+    <ClCompile Include="src\ClassHelpers.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\Engine\CBaseCamera.cpp" />

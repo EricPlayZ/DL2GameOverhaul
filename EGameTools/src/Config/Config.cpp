@@ -11,6 +11,7 @@
 #include <EGT\Menu\Teleport.h>
 #include <EGT\Menu\Weapon.h>
 #include <EGT\Menu\World.h>
+#include <EGT\Menu\Debug.h>
 #include <EGT\Config\Config.h>
 
 namespace EGT::Config {
@@ -258,7 +259,13 @@ namespace EGT::Config {
 		{ "Misc:GameChecks", "DisableDataPAKsCRCCheck", true, &Menu::Misc::disableDataPAKsCRCCheck, OPTION },
 		{ "Misc:GameChecks", "IncreaseDataPAKsLimit", true, &Menu::Misc::increaseDataPAKsLimit, OPTION },
 		{ "World:Time", "SlowMotionSpeed", 0.4f, &Menu::World::slowMotionSpeed, Float },
-		{ "World:Time", "SlowMotionTransitionTime", 1.0f, &Menu::World::slowMotionTransitionTime, Float }
+		{ "World:Time", "SlowMotionTransitionTime", 1.0f, &Menu::World::slowMotionTransitionTime, Float },
+#ifdef _DEBUG
+		{ "Debug:Misc", "DisableLowLevelMouseHook", true, &Menu::Debug::disableLowLevelMouseHook, OPTION },
+#else
+		{ "Debug:Misc", "DisableLowLevelMouseHook", false, &Menu::Debug::disableLowLevelMouseHook, OPTION },
+#endif
+		{ "Debug:Misc", "DisableVftableScanning", false, &Menu::Debug::disableVftableScanning, OPTION },
 	});
 	std::vector<ConfigEntry> configVariables(configVariablesDefault.begin(), configVariablesDefault.end());
 	static constexpr const char* configFileName = "EGameTools.ini";

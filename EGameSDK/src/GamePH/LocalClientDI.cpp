@@ -9,6 +9,6 @@ namespace EGSDK::GamePH {
         return pSessionCooperativeDI ? pSessionCooperativeDI->pLocalClientDI : nullptr;
     }
     LocalClientDI* LocalClientDI::Get() {
-        return _SafeGetter<LocalClientDI>(GetOffset_LocalClientDI, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_LocalClientDI);
+        return ClassHelpers::SafeGetter<LocalClientDI>(GetOffset_LocalClientDI, false);
     }
 }

@@ -1,4 +1,5 @@
 #include <ImGui\imguiex.h>
+#include <EGSDK\ClassHelpers.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\Menu\Debug.h>
 
@@ -66,6 +67,7 @@ namespace EGT::Menu {
 #else
 		bool disableLowLevelMouseHook = false;
 #endif
+		bool disableVftableScanning = false;
 
 		static void RenderClassAddrPair(const std::pair<std::string_view, void*(*)()>* pair) {
 			const float maxInputTextWidth = ImGui::CalcTextSize("0x0000000000000000").x;
@@ -97,8 +99,10 @@ namespace EGT::Menu {
 		void Tab::Update() {}
 		void Tab::Render() {
 			ImGui::SeparatorText("Misc##Debug");
-			if (ImGui::Checkbox("Disable Low Level Mouse Hook", &disableLowLevelMouseHook, "Disables the low level mouse hook that is used to capture mouse input in the game"))
-				disableLowLevelMouseHook ? ImGui_impl::Win32::DisableMouseHook() : ImGui_impl::Win32::EnableMouseHook();
+			if (ImGui::Checkbox("Disable Low Level Mouse Hook", &disableLowLevelMouseHook, "Disables the low level mouse hook that is used to capture mouse input in the game; this option is used for debugging purposes"))
+				ImGui_impl::Win32::ToggleMouseHook(disableLowLevelMouseHook);
+			if (ImGui::Checkbox("Disable Vftable Scanning", &disableVftableScanning, "Disables the vftable scanning for classes that are used in the game and used to validate a class in memory; this option is used for debugging purposes"))
+				EGSDK::ClassHelpers::SetIsVftableScanningDisabled(disableVftableScanning);
 			ImGui::SeparatorText("Class addresses##Debug");
 			if (ImGui::CollapsingHeader("GamePH", ImGuiTreeNodeFlags_None)) {
 				ImGui::Indent();

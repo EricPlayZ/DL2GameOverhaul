@@ -70,7 +70,7 @@ namespace EGSDK::GamePH {
 		return pCLevel ? pCLevel->pLevelDI : nullptr;
 	}
 	LevelDI* LevelDI::Get() {
-		LevelDI* ptr = _SafeGetter<LevelDI>(GetOffset_LevelDI, "gamedll_ph_x64_rwdi.dll", false, Offsets::GetVT_LevelDI);
+		LevelDI* ptr = ClassHelpers::SafeGetter<LevelDI>(GetOffset_LevelDI, false);
 		if (!ptr)
 			ResetLoadTimer();
 

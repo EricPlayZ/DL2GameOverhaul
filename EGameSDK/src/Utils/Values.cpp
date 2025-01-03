@@ -30,5 +30,20 @@ namespace EGSDK::Utils {
             str.replace(start_pos, from.length(), to);
             return true;
         }
+
+        std::string GetSimpleTypeName(std::string fullName) {
+            if (fullName.compare(0, 6, "class ") == 0)
+                fullName.erase(0, 6);
+            else if (fullName.compare(0, 7, "struct ") == 0)
+                fullName.erase(0, 7);
+            else if (fullName.compare(0, 5, "enum ") == 0)
+                fullName.erase(0, 5);
+
+            size_t pos = fullName.find_last_of("::");
+            if (pos != std::string::npos)
+                fullName.erase(0, pos + 1);
+
+            return fullName;
+        }
     }
 }

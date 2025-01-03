@@ -15,6 +15,7 @@
 #include <EGT\Engine\Engine_Hooks.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Misc.h>
+#include <EGT\Menu\Debug.h>
 #include <DbgHelp.h>
 #include <thread>
 #include <semaphore>
@@ -291,6 +292,9 @@ namespace EGT::Core {
 		SPDLOG_WARN("Initializing config");
 		Config::InitConfig();
 		threads.emplace_back(Config::ConfigLoop);
+
+		SPDLOG_WARN("Setting vftable scanning to: {}", Menu::Debug::disableVftableScanning);
+		EGSDK::ClassHelpers::SetIsVftableScanningDisabled(Menu::Debug::disableVftableScanning);
 
 		SPDLOG_WARN("Creating symlink for loading files");
 		CreateSymlinkForLoadingFiles();

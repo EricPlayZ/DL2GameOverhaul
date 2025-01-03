@@ -11,6 +11,6 @@ namespace EGSDK::Engine {
 	}
 
 	CInput* CInput::Get() {
-		return _SafeGetter<CInput>(Offsets::Get_CInput, "engine_x64_rwdi.dll", true, Offsets::GetVT_CInput);
+		return ClassHelpers::SafeGetter<CInput>(Offsets::Get_CInput, true);
 	}
 }

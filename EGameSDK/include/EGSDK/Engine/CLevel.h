@@ -12,8 +12,8 @@ namespace EGSDK {
 		class EGameSDK_API CLevel {
 		public:
 			union {
-				buffer<0x20, GamePH::LevelDI*> pLevelDI;
-				buffer<0x30, CGSObject*> pCGSObject;
+				ClassHelpers::buffer<0x20, GamePH::LevelDI*> pLevelDI;
+				ClassHelpers::buffer<0x30, CGSObject*> pCGSObject;
 			};
 
 			static CLevel* Get();

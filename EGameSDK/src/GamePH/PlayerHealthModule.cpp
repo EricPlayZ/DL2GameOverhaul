@@ -20,7 +20,7 @@ namespace EGSDK::GamePH {
 		return pPlayerHealthModule;
 	}
 	PlayerHealthModule* PlayerHealthModule::Get() {
-		return _SafeGetter<PlayerHealthModule>(GetOffset_PlayerHealthModule, nullptr, false, nullptr);
+		return ClassHelpers::SafeGetter<PlayerHealthModule>(GetOffset_PlayerHealthModule, false);
 	}
 
 	void PlayerHealthModule::EmplaceBack(PlayerHealthModule* ptr) {

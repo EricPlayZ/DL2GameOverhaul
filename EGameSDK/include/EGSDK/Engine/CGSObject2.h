@@ -10,7 +10,7 @@ namespace EGSDK {
 		class EGameSDK_API CGSObject2 {
 		public:
 			union {
-				buffer<0x20, GamePH::LogicalPlayer*> pLogicalPlayer;
+				ClassHelpers::buffer<0x20, GamePH::LogicalPlayer*> pLogicalPlayer;
 			};
 
 			static CGSObject2* Get();

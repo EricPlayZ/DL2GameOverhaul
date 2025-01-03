@@ -7,7 +7,7 @@ namespace EGSDK::Engine {
 	class EGameSDK_API CGSObject {
 	public:
 		union {
-			buffer<0x48, CLevel2*> pCLevel2;
+			ClassHelpers::buffer<0x48, CLevel2*> pCLevel2;
 		};
 
 		static CGSObject* Get();

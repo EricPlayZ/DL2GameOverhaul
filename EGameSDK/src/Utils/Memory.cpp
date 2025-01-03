@@ -50,14 +50,6 @@ namespace EGSDK::Utils {
 			return GetProcAddress(moduleHandle, funcName.data());
 		}
 
-		const bool IsAddressValidMod(const DWORD64 ptr, const char* moduleName) {
-			const MODULEINFO moduleInf = GetModuleInfo(moduleName);
-
-			const DWORD64 moduleEntryPoint = reinterpret_cast<DWORD64>(moduleInf.EntryPoint);
-			const DWORD64 moduleEndPoint = moduleEntryPoint + moduleInf.SizeOfImage;
-			return ptr && (ptr <= moduleEndPoint && ptr >= moduleEntryPoint);
-		}
-
 		std::string BytesToIDAPattern(BYTE* bytes, size_t size) {
 			std::stringstream idaPattern;
 			idaPattern << std::hex << std::uppercase << std::setfill('0');
@@ -103,7 +95,7 @@ namespace EGSDK::Utils {
 
 			return patt;
 		}
-		DWORD64 CalcTargetAddrOfRelInst(DWORD64 addrOfInst, size_t opSize) {
+		DWORD64 CalcTargetAddrOfRelativeInstr(DWORD64 addrOfInst, size_t opSize) {
 			int offset = *reinterpret_cast<int*>(addrOfInst + opSize);
 
 			return addrOfInst + opSize + 4 + offset;

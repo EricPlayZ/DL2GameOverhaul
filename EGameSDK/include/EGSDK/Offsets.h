@@ -9,7 +9,7 @@ namespace EGSDK {
 	static EGameSDK_API retType Get_## name () {\
 		static retType name = NULL;\
 		static int i = 0;\
-		if (Utils::Memory::IsValidPtr(name) || !GetModuleHandleA(moduleName) || i >= 50) return name;\
+		if (!Utils::Memory::IsBadReadPtr(name) || !GetModuleHandleA(moduleName) || i >= 50) return name;\
 		i++;\
 		return name=reinterpret_cast<retType>(Utils::SigScan::PatternScanner::FindPattern(moduleName, {pattern, type}));\
 	} 
@@ -22,54 +22,21 @@ namespace EGSDK {
 	#define AddStaticOffset2(name, moduleName, off) \
 	static EGameSDK_API DWORD64 Get_## name () {\
 		static DWORD64 name = 0;\
-		if (Utils::Memory::IsValidPtr(name)) return name;\
+		if (!Utils::Memory::IsBadReadPtr(name)) return name;\
 		return name=reinterpret_cast<DWORD64>(GetModuleHandleA(moduleName)) + static_cast<DWORD64>(off);\
 	}
-
-	#define AddVTOffset(name, moduleName, rttiName, retType)\
-	static EGameSDK_API retType GetVT_## name () {\
-		static retType VT_## name = NULL;\
-		static int i = 0;\
-		if (Utils::Memory::IsValidPtr(VT_## name)|| !GetModuleHandleA(moduleName) || i >= 50) return VT_## name;\
-		i++;\
-		return VT_## name=reinterpret_cast<retType>(Utils::RTTI::GetVTablePtr(moduleName, rttiName));\
-	} 
 
 	struct Offsets {
 		// Input related
 		AddOffset(CInput, "engine_x64_rwdi.dll", "48 8B 0D [?? ?? ?? ?? 48 85 C9 74 ?? 48 8B 01 84 D2", Utils::SigScan::PatternType::RelativePointer, DWORD64**) // g_CInput
 
 		// Player vars related
-		AddVTOffset(FloatPlayerVariable, "gamedll_ph_x64_rwdi.dll", "FloatPlayerVariable", void*)
-		AddVTOffset(BoolPlayerVariable, "gamedll_ph_x64_rwdi.dll", "BoolPlayerVariable", void*)
-		AddVTOffset(TypedFieldMetaFloatPlayerVariable, "gamedll_ph_x64_rwdi.dll", "?$TypedFieldMeta@VFloatPlayerVariable@@@?$FieldsCollection@VPlayerVariables@@@constds", void*)
-		AddVTOffset(TypedFieldMetaBoolPlayerVariable, "gamedll_ph_x64_rwdi.dll", "?$TypedFieldMeta@VBoolPlayerVariable@@@?$FieldsCollection@VPlayerVariables@@@constds", void*)
+		//AddVTOffset(TypedFieldMetaFloatPlayerVariable, "gamedll_ph_x64_rwdi.dll", "?$TypedFieldMeta@VFloatPlayerVariable@@@?$FieldsCollection@VPlayerVariables@@@constds", void*)
+		//AddVTOffset(TypedFieldMetaBoolPlayerVariable, "gamedll_ph_x64_rwdi.dll", "?$TypedFieldMeta@VBoolPlayerVariable@@@?$FieldsCollection@VPlayerVariables@@@constds", void*)
 		AddOffset(LoadPlayerVars, "gamedll_ph_x64_rwdi.dll", "48 89 4C 24 ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 8C 24", Utils::SigScan::PatternType::Address, void*)
 		AddOffset(PlayerState, "gamedll_ph_x64_rwdi.dll", "48 8B 35 [?? ?? ?? ?? 4C 8B F2 48 8B F9", Utils::SigScan::PatternType::RelativePointer, void*)
 
 		// Game related
-		AddVTOffset(CBulletPhysicsCharacter, "engine_x64_rwdi.dll", "CBulletPhysicsCharacter", void*)
-		AddVTOffset(CGSObject, "engine_x64_rwdi.dll", "CGSObject", void*)
-		AddVTOffset(CInput, "engine_x64_rwdi.dll", "CInput", void*)
-		AddVTOffset(CLevel, "engine_x64_rwdi.dll", "CLevel", void*)
-		AddVTOffset(CLobbySteam, "engine_x64_rwdi.dll", "CLobbySteam", void*)
-		AddVTOffset(CVideoSettings, "engine_x64_rwdi.dll", "CVideoSettings", void*)
-
-		AddVTOffset(DayNightCycle, "gamedll_ph_x64_rwdi.dll", "DayNightCycle", void*)
-		AddVTOffset(FreeCamera, "gamedll_ph_x64_rwdi.dll", "FreeCamera", void*)
-		AddVTOffset(GameDI_PH, "gamedll_ph_x64_rwdi.dll", "GameDI_PH", void*)
-		AddVTOffset(InventoryContainerDI, "gamedll_ph_x64_rwdi.dll", "InventoryContainerDI", void*)
-		AddVTOffset(InventoryItem, "gamedll_ph_x64_rwdi.dll", "InventoryItem", void*)
-		AddVTOffset(InventoryMoney, "gamedll_ph_x64_rwdi.dll", "InventoryMoney", void*)
-		AddVTOffset(ItemDescWithContext, "gamedll_ph_x64_rwdi.dll", "ItemDescWithContext", void*)
-		AddVTOffset(LevelDI, "gamedll_ph_x64_rwdi.dll", "LevelDI", void*)
-		AddVTOffset(LocalClientDI, "gamedll_ph_x64_rwdi.dll", "LocalClientDI", void*)
-		AddVTOffset(LogicalPlayer, "gamedll_ph_x64_rwdi.dll", "LogicalPlayer", void*)
-		AddVTOffset(PlayerDI_PH, "gamedll_ph_x64_rwdi.dll", "PlayerDI_PH", void*)
-		AddVTOffset(PlayerState, "gamedll_ph_x64_rwdi.dll", "PlayerState", void*)
-		AddVTOffset(SessionCooperativeDI, "gamedll_ph_x64_rwdi.dll", "SessionCooperativeDI", void*)
-		AddVTOffset(TPPCameraDI, "gamedll_ph_x64_rwdi.dll", "TPPCameraDI", void*)
-
 		AddStaticOffset(gameDI_PH2_offset, 0x28)
 		AddStaticOffset(allowVelocityMod_offset, 0x5C)
 		AddStaticOffset(disableHeadCorrection_offset, 0x108)

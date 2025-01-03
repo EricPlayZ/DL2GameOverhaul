@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pCGame ? pCGame->pCVideoSettings : nullptr;
     }
     CVideoSettings* CVideoSettings::Get() {
-        return _SafeGetter<CVideoSettings>(GetOffset_CVideoSettings, "engine_x64_rwdi.dll", false, Offsets::GetVT_CVideoSettings);
+        return ClassHelpers::SafeGetter<CVideoSettings>(GetOffset_CVideoSettings, false);
     }
 }

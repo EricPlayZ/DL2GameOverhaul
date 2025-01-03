@@ -4,6 +4,6 @@
 
 namespace EGSDK::Engine {
 	CLobbySteam* CLobbySteam::Get() {
-		return _SafeGetter<CLobbySteam>(Offsets::Get_CLobbySteam, "engine_x64_rwdi.dll", true, Offsets::GetVT_CLobbySteam);
+		return ClassHelpers::SafeGetter<CLobbySteam>(Offsets::Get_CLobbySteam, true);
 	}
 }

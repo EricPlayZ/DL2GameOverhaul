@@ -7,7 +7,7 @@ namespace EGSDK::Engine {
 	class EGameSDK_API CoPhysicsProperty {
 	public:
 		union {
-			buffer<0x20, CBulletPhysicsCharacter*> pCBulletPhysicsCharacter;
+			ClassHelpers::buffer<0x20, CBulletPhysicsCharacter*> pCBulletPhysicsCharacter;
 		};
 
 		static CoPhysicsProperty* Get();

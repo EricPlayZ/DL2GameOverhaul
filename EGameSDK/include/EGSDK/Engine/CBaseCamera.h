@@ -5,11 +5,11 @@ namespace EGSDK::Engine {
 	class EGameSDK_API CBaseCamera {
 	public:
 		/*union {
-			buffer<0x48, float> yaw;
-			buffer<0x4C, float> X;
-			buffer<0x58, float> pitch;
-			buffer<0x5C, float> Y;
-			buffer<0x6C, float> Z;
+			ClassHelpers::buffer<0x48, float> yaw;
+			ClassHelpers::buffer<0x4C, float> X;
+			ClassHelpers::buffer<0x58, float> pitch;
+			ClassHelpers::buffer<0x5C, float> Y;
+			ClassHelpers::buffer<0x6C, float> Z;
 		};*/
 		Vector3* GetForwardVector(Vector3* outForwardVec);
 		Vector3* GetUpVector(Vector3* outUpVec);

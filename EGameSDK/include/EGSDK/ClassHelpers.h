@@ -2,61 +2,72 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <typeinfo>
 #include <EGSDK\Utils\Memory.h>
+#include <EGSDK\Utils\RTTI.h>
+#include <EGSDK\Utils\Values.h>
+#include <EGSDK\Exports.h>
 
 namespace EGSDK {
+	namespace ClassHelpers {
 #pragma pack(1)
-	template<size_t size, typename T>
-	class buffer {
-		char buffer[size];
-	public:
-		T data;
+		template<size_t size, typename T>
+		class buffer {
+			char buffer[size];
+		public:
+			T data;
 
-		operator T() { return data; }
-		T operator->() { return data; }
+			operator T() { return data; }
+			T operator->() { return data; }
 
-		DWORD64 operator&(const DWORD64 other) const { return reinterpret_cast<DWORD64>(data) & other; }
-		DWORD64 operator>>(const int shift) const { return reinterpret_cast<DWORD64>(data) >> shift; }
-		DWORD64 operator<<(const int shift) const { return reinterpret_cast<DWORD64>(data) << shift; }
+			DWORD64 operator&(const DWORD64 other) const { return reinterpret_cast<DWORD64>(data) & other; }
+			DWORD64 operator>>(const int shift) const { return reinterpret_cast<DWORD64>(data) >> shift; }
+			DWORD64 operator<<(const int shift) const { return reinterpret_cast<DWORD64>(data) << shift; }
 
-		T& operator=(const T& other) { data = other; return data; }
-		T& operator*=(const T& other) { data *= other; return data; }
-		T operator*(const T& other) const { return data * other; }
-		T& operator/=(const T& other) { data /= other; return data; }
-		T operator/(const T& other) const { return data / other; }
-		T& operator+=(const T& other) { data += other; return data; }
-		T operator+(const T& other) const { return data + other; }
-		T& operator-=(const T& other) { data -= other; return data; }
-		T operator-(const T& other) const { return data - other; }
-	};
+			T& operator=(const T& other) { data = other; return data; }
+			T& operator*=(const T& other) { data *= other; return data; }
+			T operator*(const T& other) const { return data * other; }
+			T& operator/=(const T& other) { data /= other; return data; }
+			T operator/(const T& other) const { return data / other; }
+			T& operator+=(const T& other) { data += other; return data; }
+			T operator+(const T& other) const { return data + other; }
+			T& operator-=(const T& other) { data -= other; return data; }
+			T operator-(const T& other) const { return data - other; }
+		};
 #pragma pack()
 
-	template <typename T, typename GetOffsetFunc, typename GetVTFunc = std::nullptr_t, typename... Args>
-	static T* _SafeGetImpl(GetOffsetFunc getOffset, const char* moduleName, bool isDoublePtr, GetVTFunc getVT, Args... args) {
-		if (!getOffset(args...))
-			return nullptr;
+		extern EGameSDK_API bool IsVftableScanningDisabled();
+		extern EGameSDK_API void SetIsVftableScanningDisabled(bool value);
 
-		T* ptr = isDoublePtr ? *reinterpret_cast<T**>(getOffset(args...)) : reinterpret_cast<T*>(getOffset(args...));
-		if (moduleName && !Utils::Memory::IsValidPtrMod(ptr, moduleName))
-			return nullptr;
-
-		if constexpr (!std::is_same_v<GetVTFunc, std::nullptr_t>) {
-			if (*reinterpret_cast<DWORD64**>(ptr) != getVT())
+		template <typename T, typename GetOffsetFunc, typename... Args>
+		T* _SafeGetImpl(GetOffsetFunc getOffset, bool isDoublePtr, std::string_view className, Args... args) {
+			if (!getOffset(args...))
 				return nullptr;
-		}
 
-		return ptr;
+			T* ptr = isDoublePtr ? *reinterpret_cast<T**>(getOffset(args...)) : reinterpret_cast<T*>(getOffset(args...));
+			if (Utils::Memory::IsBadReadPtr(ptr))
+				return nullptr;
+
+			if (IsVftableScanningDisabled())
+				return ptr;
+			
+			if (!className.empty() && !Utils::RTTI::IsClassVTableNameEqualTo(ptr, className))
+				return nullptr;
+			else if (className.empty() && !Utils::RTTI::IsClassVTableNameEqualTo(ptr, Utils::Values::GetSimpleTypeName(typeid(T).name())))
+				return nullptr;
+
+			return ptr;
+		}
+		template <typename T, typename GetOffsetFunc, typename... Args>
+		T* SafeGetter(GetOffsetFunc getOffset, bool isDoublePtr = true, std::string_view className = {}, Args... args) {
+			return Utils::Memory::SafeExecution::Execute<T*>(
+				reinterpret_cast<uint64_t>(&_SafeGetImpl<T, GetOffsetFunc, Args...>),
+				nullptr,
+				reinterpret_cast<void*>(getOffset),
+				isDoublePtr,
+				className,
+				args...
+			);
+		}
 	}
-	template <typename T, typename GetOffsetFunc, typename GetVTFunc = std::nullptr_t, typename... Args>
-	static T* _SafeGetter(GetOffsetFunc getOffset, const char* moduleName, bool isDoublePtr = true, GetVTFunc getVT = nullptr, Args... args) {
-		return Utils::Memory::SafeExecution::Execute<T*>(
-			reinterpret_cast<uint64_t>(&_SafeGetImpl<T, GetOffsetFunc, GetVTFunc, Args...>),
-			nullptr,
-			reinterpret_cast<void*>(getOffset),
-			moduleName,
-			isDoublePtr,
-			reinterpret_cast<void*>(getVT),
-			args...
-		);
 	}
-}

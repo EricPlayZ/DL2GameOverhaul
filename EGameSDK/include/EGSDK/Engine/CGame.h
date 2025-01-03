@@ -13,9 +13,9 @@ namespace EGSDK {
 		class EGameSDK_API CGame {
 		public:
 			union {
-				buffer<0x8, GamePH::GameDI_PH*> pGameDI_PH;
-				buffer<0x28, CVideoSettings*> pCVideoSettings;
-				buffer<0x390, CLevel*> pCLevel;
+				ClassHelpers::buffer<0x8, GamePH::GameDI_PH*> pGameDI_PH;
+				ClassHelpers::buffer<0x28, CVideoSettings*> pCVideoSettings;
+				ClassHelpers::buffer<0x390, CLevel*> pCLevel;
 			};
 
 			static CGame* Get();

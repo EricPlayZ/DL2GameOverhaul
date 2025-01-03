@@ -4,6 +4,7 @@
 namespace EGT::Menu {
 	namespace Debug {
 		extern bool disableLowLevelMouseHook;
+		extern bool disableVftableScanning;
 
 		class Tab : MenuTab {
 		public:

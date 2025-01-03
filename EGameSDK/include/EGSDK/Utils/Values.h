@@ -16,5 +16,7 @@ namespace EGSDK::Utils {
 			else
 				return std::to_string(val);
 		}
+
+		extern EGameSDK_API std::string GetSimpleTypeName(std::string fullName);
 	}
 }
