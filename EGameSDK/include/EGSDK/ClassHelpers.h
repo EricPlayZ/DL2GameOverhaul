@@ -9,65 +9,63 @@
 #include <EGSDK\Exports.h>
 
 namespace EGSDK {
-	namespace ClassHelpers {
+    namespace ClassHelpers {
 #pragma pack(1)
-		template<size_t size, typename T>
-		class buffer {
-			char buffer[size];
-		public:
-			T data;
+        template<size_t size, typename T>
+        class buffer {
+            char buffer[size];
+        public:
+            T data;
 
-			operator T() { return data; }
-			T operator->() { return data; }
+            operator T() { return data; }
+            T operator->() { return data; }
 
-			DWORD64 operator&(const DWORD64 other) const { return reinterpret_cast<DWORD64>(data) & other; }
-			DWORD64 operator>>(const int shift) const { return reinterpret_cast<DWORD64>(data) >> shift; }
-			DWORD64 operator<<(const int shift) const { return reinterpret_cast<DWORD64>(data) << shift; }
+            DWORD64 operator&(const DWORD64 other) const { return reinterpret_cast<DWORD64>(data) & other; }
+            DWORD64 operator>>(const int shift) const { return reinterpret_cast<DWORD64>(data) >> shift; }
+            DWORD64 operator<<(const int shift) const { return reinterpret_cast<DWORD64>(data) << shift; }
 
-			T& operator=(const T& other) { data = other; return data; }
-			T& operator*=(const T& other) { data *= other; return data; }
-			T operator*(const T& other) const { return data * other; }
-			T& operator/=(const T& other) { data /= other; return data; }
-			T operator/(const T& other) const { return data / other; }
-			T& operator+=(const T& other) { data += other; return data; }
-			T operator+(const T& other) const { return data + other; }
-			T& operator-=(const T& other) { data -= other; return data; }
-			T operator-(const T& other) const { return data - other; }
-		};
+            T& operator=(const T& other) { data = other; return data; }
+            T& operator*=(const T& other) { data *= other; return data; }
+            T operator*(const T& other) const { return data * other; }
+            T& operator/=(const T& other) { data /= other; return data; }
+            T operator/(const T& other) const { return data / other; }
+            T& operator+=(const T& other) { data += other; return data; }
+            T operator+(const T& other) const { return data + other; }
+            T& operator-=(const T& other) { data -= other; return data; }
+            T operator-(const T& other) const { return data - other; }
+        };
 #pragma pack()
 
-		extern EGameSDK_API bool IsVftableScanningDisabled();
-		extern EGameSDK_API void SetIsVftableScanningDisabled(bool value);
+        extern EGameSDK_API bool IsVftableScanningDisabled();
+        extern EGameSDK_API void SetIsVftableScanningDisabled(bool value);
 
-		template <typename T, typename GetOffsetFunc, typename... Args>
-		T* _SafeGetImpl(GetOffsetFunc getOffset, bool isDoublePtr, std::string_view className, Args... args) {
-			if (!getOffset(args...))
-				return nullptr;
+        template <typename T, typename GetOffsetFunc, typename... Args>
+        __forceinline T* _SafeGetImpl(GetOffsetFunc getOffset, bool isDoublePtr, bool checkForVTable, Args... args) {
+            auto offset = getOffset(args...);
+            if (!offset)
+                return nullptr;
 
-			T* ptr = isDoublePtr ? *reinterpret_cast<T**>(getOffset(args...)) : reinterpret_cast<T*>(getOffset(args...));
-			if (Utils::Memory::IsBadReadPtr(ptr))
-				return nullptr;
+            T* ptr = isDoublePtr ? *reinterpret_cast<T**>(offset) : reinterpret_cast<T*>(offset);
+            if (Utils::Memory::IsBadReadPtr(ptr))
+                return nullptr;
 
-			if (IsVftableScanningDisabled())
-				return ptr;
-			
-			if (!className.empty() && !Utils::RTTI::IsClassVTableNameEqualTo(ptr, className))
-				return nullptr;
-			else if (className.empty() && !Utils::RTTI::IsClassVTableNameEqualTo(ptr, Utils::Values::GetSimpleTypeName(typeid(T).name())))
-				return nullptr;
+            if (!checkForVTable || IsVftableScanningDisabled())
+                return ptr;
 
-			return ptr;
-		}
-		template <typename T, typename GetOffsetFunc, typename... Args>
-		T* SafeGetter(GetOffsetFunc getOffset, bool isDoublePtr = true, std::string_view className = {}, Args... args) {
-			return Utils::Memory::SafeExecution::Execute<T*>(
-				reinterpret_cast<uint64_t>(&_SafeGetImpl<T, GetOffsetFunc, Args...>),
-				nullptr,
-				reinterpret_cast<void*>(getOffset),
-				isDoublePtr,
-				className,
-				args...
-			);
-		}
-	}
-	}
+            static const std::string expectedVtableName = Utils::Values::GetSimpleTypeName(typeid(T).name());
+            if (Utils::RTTI::GetVTableNameFromVTPtr(*reinterpret_cast<T**>(ptr)) != expectedVtableName)
+                return nullptr;
+
+            return ptr;
+        }
+
+        template <typename T, typename GetOffsetFunc, typename... Args>
+        __forceinline T* SafeGetter(GetOffsetFunc getOffset, bool isDoublePtr = true, bool checkForVTable = true, Args... args) {
+            __try {
+				return _SafeGetImpl<T>(getOffset, isDoublePtr, checkForVTable, args...);
+            } __except (Utils::Memory::SafeExecution::fail(GetExceptionCode(), GetExceptionInformation())) {
+                return nullptr;
+            }
+        }
+    }
+}

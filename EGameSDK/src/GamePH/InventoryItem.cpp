@@ -8,6 +8,6 @@ namespace EGSDK::GamePH {
 		return reinterpret_cast<ItemDescWithContext*>(reinterpret_cast<DWORD64>(pInventoryItem) + 0x40);
 	}
 	ItemDescWithContext* InventoryItem::GetItemDescCtx() {
-		return ClassHelpers::SafeGetter<ItemDescWithContext>(GetOffset_ItemDescWithContext, false, {}, this);
+		return ClassHelpers::SafeGetter<ItemDescWithContext>(GetOffset_ItemDescWithContext, false, true, this);
 	}
 }

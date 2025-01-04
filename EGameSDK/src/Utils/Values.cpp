@@ -1,29 +1,35 @@
 #include <string>
 #include <algorithm>
+#include <array>
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <EGSDK\Utils\Values.h>
 
 namespace EGSDK::Utils {
     namespace Values {
-        bool str_ends_with_ci(std::string const& text, std::string const& substr) {
+        bool str_ends_with_ci(const std::string& text, const std::string& substr) {
             if (substr.length() > text.length())
                 return false;
 
-            auto it = std::search(text.rbegin(), text.rbegin() + substr.length(), substr.rbegin(), substr.rend(), [](char ch1, char ch2) {
+            return std::equal(substr.rbegin(), substr.rend(), text.rbegin(), [](char ch1, char ch2) {
                 return std::toupper(ch1) == std::toupper(ch2);
             });
-            return it == text.rbegin();
         }
 
-        bool are_samef(float a, float b, float precision) { return abs(a - b) < precision; }
+        __forceinline bool are_samef(float a, float b, float precision) {
+            return std::fabs(a - b) < precision;
+        }
+
         float round_decimal(float value, int decimal_places) {
-            const double multiplier = std::pow(10.0f, decimal_places);
-            return std::roundf(value * static_cast<float>(multiplier)) / static_cast<float>(multiplier);
+            float multiplier = 1.0f;
+            for (int i = 0; i < decimal_places; ++i)
+                multiplier *= 10.0f;
+
+            return std::round(value * multiplier) / multiplier;
         }
 
         bool str_replace(std::string& str, const std::string& from, const std::string& to) {
-            const size_t start_pos = str.find(from);
+            size_t start_pos = str.find(from);
             if (start_pos == std::string::npos)
                 return false;
 
@@ -32,12 +38,16 @@ namespace EGSDK::Utils {
         }
 
         std::string GetSimpleTypeName(std::string fullName) {
-            if (fullName.compare(0, 6, "class ") == 0)
-                fullName.erase(0, 6);
-            else if (fullName.compare(0, 7, "struct ") == 0)
-                fullName.erase(0, 7);
-            else if (fullName.compare(0, 5, "enum ") == 0)
-                fullName.erase(0, 5);
+            static const std::string class_prefix = "class ";
+            static const std::string struct_prefix = "struct ";
+            static const std::string enum_prefix = "enum ";
+
+            if (fullName.compare(0, class_prefix.size(), class_prefix) == 0)
+                fullName.erase(0, class_prefix.size());
+            else if (fullName.compare(0, struct_prefix.size(), struct_prefix) == 0)
+                fullName.erase(0, struct_prefix.size());
+            else if (fullName.compare(0, enum_prefix.size(), enum_prefix) == 0)
+                fullName.erase(0, enum_prefix.size());
 
             size_t pos = fullName.find_last_of("::");
             if (pos != std::string::npos)

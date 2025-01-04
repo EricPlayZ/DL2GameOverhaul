@@ -6,21 +6,25 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <unordered_map>
+#include <shared_mutex>
 #include <EGSDK\Exports.h>
 
 namespace EGSDK::Utils {
 	namespace Memory {
-		static const BYTE SigScanWildCard = 0xAA;
-		static const std::string_view SigScanWildCardStr = "AA";
+		static constexpr BYTE SigScanWildCard = 0xAA;
+		static constexpr std::string_view SigScanWildCardStr = "AA";
 
 		class EGameSDK_API SafeExecution {
 		public:
 			static int fail(unsigned int code, struct _EXCEPTION_POINTERS* ep);
 
-			template<typename T = void*, typename R = T, typename... Args>
-			static T Execute(uint64_t ptr, R ret, Args... args) {
+			template<typename T = void*, typename... Args>
+			static T Execute(uint64_t ptr, T ret, Args... args) {
 				__try {
-					return reinterpret_cast<T(__stdcall*)(Args...)>(ptr)(args...);
+					using FunctionType = T(__stdcall*)(Args...);
+					auto func = reinterpret_cast<FunctionType>(ptr);
+					return func(args...);
 				} __except (fail(GetExceptionCode(), GetExceptionInformation())) {
 					return ret;
 				}
@@ -29,7 +33,9 @@ namespace EGSDK::Utils {
 			template<typename... Args>
 			static void ExecuteVoid(uint64_t ptr, Args... args) {
 				__try {
-					return reinterpret_cast<void(__stdcall*)(Args...)>(ptr)(args...);
+					using FunctionType = void(__stdcall*)(Args...);
+					auto func = reinterpret_cast<FunctionType>(ptr);
+					func(args...);
 				} __except (fail(GetExceptionCode(), GetExceptionInformation())) {
 
 				}
@@ -70,71 +76,82 @@ namespace EGSDK::Utils {
 		*/
 		// COPYRIGHT NOTICE - START
 		template <typename T>
-		bool IsBadMemPtr(const bool write, T* ptr, const std::size_t size) {
-			const auto min_ptr = 0x10000;
-			const auto max_ptr = 0x000F000000000000;
+		bool IsBadMemPtr(bool write, T* ptr, std::size_t size) {
+			struct PointerHash {
+				std::size_t operator()(const void* ptr) const {
+					return reinterpret_cast<std::size_t>(ptr) >> 12; // Reduce collisions by using shifted addresses.
+				}
+			};
+
+			static std::unordered_map<void*, MEMORY_BASIC_INFORMATION, PointerHash> memoryCache{};
+			static std::shared_mutex cacheMutex{};
+
+			constexpr DWORD64 min_ptr = 0x10000;
+			constexpr DWORD64 max_ptr = 0x000F000000000000;
 
 			if (ptr == nullptr || reinterpret_cast<DWORD64>(ptr) < min_ptr || reinterpret_cast<DWORD64>(ptr) >= max_ptr)
 				return true;
 
-			DWORD mask = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+			DWORD mask = write
+				? (PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)
+				: (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
 
-			if (write)
-				mask = PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
-
-			auto current = reinterpret_cast<BYTE*>(ptr);
-			const auto last = current + size;
-
-			// So we are considering the region:
-			// [ptr, ptr+size)
+			BYTE* current = reinterpret_cast<BYTE*>(ptr);
+			const BYTE* last = current + size;
 
 			while (current < last) {
-				MEMORY_BASIC_INFORMATION mbi;
+				MEMORY_BASIC_INFORMATION mbi{};
+				{
+					std::shared_lock lock(cacheMutex);
+					auto pageAlignedAddr = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(current) & ~0xFFF);
+					auto it = memoryCache.find(pageAlignedAddr);
+					if (it != memoryCache.end())
+						mbi = it->second;
+					else {
+						lock.unlock();
+						if (VirtualQuery(reinterpret_cast<LPCVOID>(pageAlignedAddr), &mbi, sizeof mbi) == 0)
+							return true;
 
-				// We couldn't get any information on this region.
-				// Let's not risk any read/write operation.
-				if (VirtualQuery(reinterpret_cast<LPCVOID>(current), &mbi, sizeof mbi) == 0)
+						std::unique_lock writeLock(cacheMutex);
+						memoryCache[pageAlignedAddr] = mbi;
+					}
+				}
+
+				if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS) || (mbi.Protect & mask) == 0)
 					return true;
 
-				// We can't perform our desired read/write operations in this region.
-				if ((mbi.Protect & mask) == 0)
-					return true;
-
-				// We can't access this region.
-				if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS))
-					return true;
-
-				// Let's consider the next region.
 				current = reinterpret_cast<BYTE*>(mbi.BaseAddress) + mbi.RegionSize;
 			}
 
 			return false;
 		}
 		template <typename T>
-		bool IsBadReadPtr(T* ptr, const std::size_t size) {
+		__forceinline bool IsBadReadPtr(T* ptr, const std::size_t size) {
 			return IsBadMemPtr(false, ptr, size);
 		}
 		template <typename T>
-		bool IsBadReadPtr(T* ptr) {
-			return IsBadReadPtr(ptr, sizeof ptr);
+		__forceinline bool IsBadReadPtr(T* ptr) {
+			return IsBadReadPtr(ptr, sizeof(ptr));
 		}
 		template <typename T>
-		bool IsBadWritePtr(T* ptr, const std::size_t size) {
+		__forceinline bool IsBadWritePtr(T* ptr, const std::size_t size) {
 			return IsBadMemPtr(true, ptr, size);
 		}
 		template <typename T>
-		bool IsBadWritePtr(T* ptr) {
-			return IsBadWritePtr(ptr, sizeof ptr);
+		__forceinline bool IsBadWritePtr(T* ptr) {
+			return IsBadWritePtr(ptr, sizeof(ptr));
 		}
 		// COPYRIGHT NOTICE - END
 
-		template <std::size_t Index, typename ReturnType = void, typename... Args> __forceinline ReturnType CallVT(void* instance, Args... args) {
+		template <std::size_t Index, typename ReturnType = void, typename... Args>
+		__forceinline ReturnType CallVT(void* instance, Args... args) {
 			using Fn = ReturnType(__thiscall*)(void*, Args...);
 
 			auto function = (*reinterpret_cast<Fn**>(instance))[Index];
 			return function(instance, args...);
 		}
-		template <std::size_t Index, typename ReturnType = void, typename... Args> __forceinline ReturnType CallFromVT(void* instance, void* vtable, Args... args) {
+		template <std::size_t Index, typename ReturnType = void, typename... Args>
+		__forceinline ReturnType CallFromVT(void* instance, void* vtable, Args... args) {
 			using Fn = ReturnType(__thiscall*)(void*, Args...);
 
 			auto function = reinterpret_cast<Fn*>(vtable)[Index];
@@ -142,41 +159,57 @@ namespace EGSDK::Utils {
 		}
 
 		template <typename ReturnType, typename... Args>
-		static ReturnType _SafeCallFunction(const char* moduleName, const char* functionName, ReturnType ret, Args... args) {
+		__forceinline ReturnType SafeCallFunction(const char* moduleName, const char* functionName, ReturnType ret, Args... args) {
 			using FunctionType = ReturnType(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(Utils::Memory::GetProcAddr(moduleName, functionName));
 			if (!function)
 				return ret;
 
-			return Utils::Memory::SafeExecution::Execute<ReturnType>(reinterpret_cast<uint64_t>(function), ReturnType(), args...);
+			__try {
+				return function(args...);
+			} __except (SafeExecution::fail(GetExceptionCode(), GetExceptionInformation())) {
+				return ret;
+			}
 		}
 		template <typename... Args>
-		static void _SafeCallFunctionVoid(const char* moduleName, const char* functionName, Args... args) {
+		__forceinline void SafeCallFunctionVoid(const char* moduleName, const char* functionName, Args... args) {
 			using FunctionType = void(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(Utils::Memory::GetProcAddr(moduleName, functionName));
 			if (!function)
 				return;
 
-			return Utils::Memory::SafeExecution::ExecuteVoid(reinterpret_cast<uint64_t>(function), args...);
+			__try {
+				function(args...);
+			} __except (SafeExecution::fail(GetExceptionCode(), GetExceptionInformation())) {
+				return;
+			}
 		}
 
 		template <typename ReturnType, typename GetOffsetFunc, typename... Args>
-		static ReturnType _SafeCallFunctionOffset(GetOffsetFunc getOffset, ReturnType ret, Args... args) {
+		__forceinline ReturnType SafeCallFunctionOffset(GetOffsetFunc getOffset, ReturnType ret, Args... args) {
 			using FunctionType = ReturnType(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(getOffset());
 			if (!function)
 				return ret;
 
-			return Utils::Memory::SafeExecution::Execute<ReturnType>(reinterpret_cast<uint64_t>(function), ReturnType(), args...);
+			__try {
+				return function(args...);
+			} __except (SafeExecution::fail(GetExceptionCode(), GetExceptionInformation())) {
+				return ret;
+			}
 		}
 		template <typename GetOffsetFunc, typename... Args>
-		static void _SafeCallFunctionOffsetVoid(GetOffsetFunc getOffset, Args... args) {
+		__forceinline void SafeCallFunctionOffsetVoid(GetOffsetFunc getOffset, Args... args) {
 			using FunctionType = void(__stdcall*)(Args...);
 			FunctionType function = reinterpret_cast<FunctionType>(getOffset());
 			if (!function)
 				return;
 
-			return Utils::Memory::SafeExecution::ExecuteVoid(reinterpret_cast<uint64_t>(function), args...);
+			__try {
+				function(args...);
+			} __except (SafeExecution::fail(GetExceptionCode(), GetExceptionInformation())) {
+				return;
+			}
 		}
 #pragma endregion
 	}

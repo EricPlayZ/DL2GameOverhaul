@@ -54,9 +54,9 @@ namespace EGSDK::GamePH {
 		if (!pPlayerDI_PH)
 			return;
 
-		Utils::Memory::_SafeCallFunctionOffsetVoid(Offsets::Get_ShowTPPModelFunc3, pPlayerDI_PH, showTPPModel);
+		Utils::Memory::SafeCallFunctionOffsetVoid(Offsets::Get_ShowTPPModelFunc3, pPlayerDI_PH, showTPPModel);
 	}
 	bool ReloadJumps() {
-		return Utils::Memory::_SafeCallFunctionOffset<bool>(Offsets::Get_ReloadJumps, false);
+		return Utils::Memory::SafeCallFunctionOffset<bool>(Offsets::Get_ReloadJumps, false);
 	}
 }

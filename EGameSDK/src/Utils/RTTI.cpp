@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <unordered_map>
+#include <shared_mutex>
 #include <DbgHelp.h>
 #include <memscan\memscan.h>
 #include <EGSDK\Utils\RTTI.h>
@@ -13,64 +14,93 @@
 namespace EGSDK::Utils {
 	namespace RTTI {
 		static std::unordered_map<DWORD64, std::string> vtableAddressCache{};
+		static std::shared_mutex vtableCacheMutex;
 
-		static std::string _GetVTableNameFromVTPtr(void* vtPtr) {
-			if (Utils::Memory::IsBadReadPtr(vtPtr))
-				return "bad_read_vtable";
-			DWORD64 vtableStructAddr = reinterpret_cast<DWORD64>(vtPtr);
-			if (auto it = vtableAddressCache.find(vtableStructAddr); it != vtableAddressCache.end())
-				return it->second;
+        static __forceinline std::string CacheEmptyResult(DWORD64 vtableStructAddr) {
+            std::unique_lock lock(vtableCacheMutex);
+            vtableAddressCache.try_emplace(vtableStructAddr, "");
+            return {};
+        }
 
-			DWORD64 objectLocatorAddr = *reinterpret_cast<DWORD64*>(vtableStructAddr - sizeof(DWORD64));
+        std::string GetVTableNameFromVTPtr(void* vtPtr) {
+            if (Utils::Memory::IsBadReadPtr(vtPtr))
+                return "bad_read_vtable";
 
-			DWORD64 baseOffset = *reinterpret_cast<DWORD64*>(objectLocatorAddr + 0x14);
-			DWORD64 baseAddr = objectLocatorAddr - baseOffset;
+            DWORD64 vtableStructAddr = reinterpret_cast<DWORD64>(vtPtr);
 
-			DWORD classHierarchyDescriptorOffset = *reinterpret_cast<DWORD*>(objectLocatorAddr + 0x10);
-			DWORD64 classHierarchyDescriptorAddr = baseAddr + classHierarchyDescriptorOffset;
+            {
+                std::shared_lock lock(vtableCacheMutex);
+                if (auto it = vtableAddressCache.find(vtableStructAddr); it != vtableAddressCache.end())
+                    return it->second;
+            }
 
-			int baseClassCount = *reinterpret_cast<int*>(classHierarchyDescriptorAddr + 0x8);
-			if (baseClassCount == 0 || baseClassCount > 24)
-				return {};
+            DWORD64* objectLocatorPtr = reinterpret_cast<DWORD64*>(vtableStructAddr - sizeof(DWORD64));
+            if (Utils::Memory::IsBadReadPtr(objectLocatorPtr))
+                return CacheEmptyResult(vtableStructAddr);
 
-			DWORD baseClassArrayOffset = *reinterpret_cast<DWORD*>(classHierarchyDescriptorAddr + 0xC);
-			DWORD64 baseClassArrayAddr = baseAddr + baseClassArrayOffset;
+            DWORD64 objectLocatorAddr = *objectLocatorPtr;
+            DWORD64* baseOffsetPtr = reinterpret_cast<DWORD64*>(objectLocatorAddr + 0x14);
+            if (Utils::Memory::IsBadReadPtr(baseOffsetPtr))
+                return CacheEmptyResult(vtableStructAddr);
 
-			DWORD baseClassDescriptorOffset = *reinterpret_cast<DWORD*>(baseClassArrayAddr);
-			DWORD64 baseClassDescriptorAddr = baseAddr + baseClassDescriptorOffset;
+            DWORD64 baseOffset = *baseOffsetPtr;
+            DWORD64 baseAddr = objectLocatorAddr - baseOffset;
 
-			DWORD typeDescriptorOffset = *reinterpret_cast<DWORD*>(baseClassDescriptorAddr);
-			DWORD64 typeDescriptorAddr = baseAddr + typeDescriptorOffset;
+            DWORD* classHierarchyDescriptorOffsetPtr = reinterpret_cast<DWORD*>(objectLocatorAddr + 0x10);
+            if (Utils::Memory::IsBadReadPtr(classHierarchyDescriptorOffsetPtr))
+                return CacheEmptyResult(vtableStructAddr);
 
-			std::string decoratedClassName = "?" + std::string(reinterpret_cast<const char*>(typeDescriptorAddr + 0x14));
-			char outUndecoratedClassName[255]{};
-			UnDecorateSymbolName(decoratedClassName.c_str(), outUndecoratedClassName, sizeof(outUndecoratedClassName), UNDNAME_NAME_ONLY);
+            DWORD classHierarchyDescriptorOffset = *classHierarchyDescriptorOffsetPtr;
+            DWORD64 classHierarchyDescriptorAddr = baseAddr + classHierarchyDescriptorOffset;
 
-			vtableAddressCache[vtableStructAddr] = outUndecoratedClassName;
+            int* baseClassCountPtr = reinterpret_cast<int*>(classHierarchyDescriptorAddr + 0x8);
+            if (Utils::Memory::IsBadReadPtr(baseClassCountPtr) || *baseClassCountPtr == 0 || *baseClassCountPtr > 24)
+                return CacheEmptyResult(vtableStructAddr);
 
-			return outUndecoratedClassName;
-		}
-		static std::string _GetVTableName(void* classPtr) {
-			if (Utils::Memory::IsBadReadPtr(classPtr))
-				return "bad_read_class";
-			return _GetVTableNameFromVTPtr(*reinterpret_cast<DWORD64**>(classPtr));
-		}
+            DWORD* baseClassArrayOffsetPtr = reinterpret_cast<DWORD*>(classHierarchyDescriptorAddr + 0xC);
+            if (Utils::Memory::IsBadReadPtr(baseClassArrayOffsetPtr))
+                return CacheEmptyResult(vtableStructAddr);
 
-		std::string GetVTableNameFromVTPtr(void* vtPtr) {
-			std::string result = _GetVTableNameFromVTPtr(vtPtr);
-			if (result.empty())
-				vtableAddressCache.try_emplace(*reinterpret_cast<DWORD64*>(vtPtr), "");
+            DWORD baseClassArrayOffset = *baseClassArrayOffsetPtr;
+            DWORD64 baseClassArrayAddr = baseAddr + baseClassArrayOffset;
 
-			return result;
-		}
-		std::string GetVTableName(void* classPtr) {
-			std::string result = _GetVTableName(classPtr);
-			if (result.empty())
-				vtableAddressCache.try_emplace(*reinterpret_cast<DWORD64*>(classPtr), "");
+            DWORD* baseClassDescriptorOffsetPtr = reinterpret_cast<DWORD*>(baseClassArrayAddr);
+            if (Utils::Memory::IsBadReadPtr(baseClassDescriptorOffsetPtr))
+                return CacheEmptyResult(vtableStructAddr);
 
-			return result;
-		}
-		bool IsClassVTableNameEqualTo(void* classPtr, std::string_view tableName) { return GetVTableName(classPtr) == tableName; }
-		bool IsVTableNameEqualTo(void* vtPtr, std::string_view tableName) { return GetVTableNameFromVTPtr(vtPtr) == tableName; }
+            DWORD baseClassDescriptorOffset = *baseClassDescriptorOffsetPtr;
+            DWORD64 baseClassDescriptorAddr = baseAddr + baseClassDescriptorOffset;
+
+            DWORD* typeDescriptorOffsetPtr = reinterpret_cast<DWORD*>(baseClassDescriptorAddr);
+            if (Utils::Memory::IsBadReadPtr(typeDescriptorOffsetPtr))
+                return CacheEmptyResult(vtableStructAddr);
+
+            DWORD typeDescriptorOffset = *typeDescriptorOffsetPtr;
+            DWORD64 typeDescriptorAddr = baseAddr + typeDescriptorOffset;
+
+            const char* decoratedClassNameCStr = reinterpret_cast<const char*>(typeDescriptorAddr + 0x14);
+            std::string decoratedClassName = "?" + std::string(decoratedClassNameCStr);
+
+            char outUndecoratedClassNameCStr[255]{};
+            if (UnDecorateSymbolName(decoratedClassName.c_str(), outUndecoratedClassNameCStr, sizeof(outUndecoratedClassNameCStr), UNDNAME_NAME_ONLY) == 0)
+                return CacheEmptyResult(vtableStructAddr);
+
+            std::string result(outUndecoratedClassNameCStr);
+
+            // Cache the valid result
+            {
+                std::unique_lock lock(vtableCacheMutex);
+                vtableAddressCache[vtableStructAddr] = result;
+            }
+
+            return result;
+        }
+        std::string GetVTableName(void* classPtr) {
+            if (Utils::Memory::IsBadReadPtr(classPtr))
+                return "bad_read_class";
+
+            void* vtablePtr = *reinterpret_cast<void**>(classPtr);
+            return GetVTableNameFromVTPtr(vtablePtr);
+        }
 	}
 }

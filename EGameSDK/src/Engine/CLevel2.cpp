@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pCGSObject ? pCGSObject->pCLevel2 : nullptr;
     }
     CLevel2* CLevel2::Get() {
-        return ClassHelpers::SafeGetter<CLevel2>(GetOffset_CLevel2, false);
+        return ClassHelpers::SafeGetter<CLevel2>(GetOffset_CLevel2, false, false);
     }
 }

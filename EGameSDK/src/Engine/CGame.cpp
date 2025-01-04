@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pCLobbySteam ? pCLobbySteam->pCGame : nullptr;
     }
     CGame* CGame::Get() {
-        return ClassHelpers::SafeGetter<CGame>(GetOffset_CGame, false);
+        return ClassHelpers::SafeGetter<CGame>(GetOffset_CGame, false, false);
     }
 }

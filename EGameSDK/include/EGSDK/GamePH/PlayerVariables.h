@@ -25,7 +25,8 @@ namespace EGSDK::GamePH {
 		static bool SortPlayerVars();
 #endif
 
-		template <typename T> static T getDefaultValue() {
+		template <typename T>
+		static T getDefaultValue() {
 			if constexpr (std::is_same<T, std::string>::value)
 				return {};
 			else if constexpr (std::is_same<T, bool>::value)
@@ -36,7 +37,8 @@ namespace EGSDK::GamePH {
 				return T();
 		}
 
-		template <typename T> static T GetPlayerVar(const std::string& playerVar) {
+		template <typename T>
+		static T GetPlayerVar(const std::string& playerVar) {
 			static_assert(std::is_same<T, bool>::value || std::is_same<T, float>::value || std::is_same<T, std::string>::value, "Invalid type: value must be bool, float or string");
 
 			if (!gotPlayerVars)
@@ -51,7 +53,8 @@ namespace EGSDK::GamePH {
 
 			return *reinterpret_cast<T*>(it->second.first);
 		}
-		template <typename T> static void ChangePlayerVar(const std::string& playerVar, const T value) {
+		template <typename T>
+		static void ChangePlayerVar(const std::string& playerVar, const T value) {
 			static_assert(std::is_same<T, bool>::value || std::is_same<T, float>::value || std::is_same<T, std::string>::value, "Invalid type: value must be bool, float or string");
 
 			if (!gotPlayerVars)
@@ -89,7 +92,8 @@ namespace EGSDK::GamePH {
 		static std::unordered_map<std::string, std::any> prevPlayerVarValueMap;
 		static std::unordered_map<std::string, bool> prevBoolValueMap;
 
-		template <typename T> static void ManagePlayerVarByBool(const std::string& playerVar, const T valueIfTrue, const T valueIfFalse, bool boolVal, bool usePreviousVal = true) {
+		template <typename T>
+		static void ManagePlayerVarByBool(const std::string& playerVar, const T valueIfTrue, const T valueIfFalse, bool boolVal, bool usePreviousVal = true) {
 			if (!gotPlayerVars)
 				return;
 

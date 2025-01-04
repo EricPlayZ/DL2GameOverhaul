@@ -4,7 +4,7 @@
 
 namespace EGSDK::GamePH {
 	void FreeCamera::AllowCameraMovement(int mode) {
-		Utils::Memory::_SafeCallFunctionOffsetVoid(Offsets::Get_AllowCameraMovement, this, mode);
+		Utils::Memory::SafeCallFunctionOffsetVoid(Offsets::Get_AllowCameraMovement, this, mode);
 	}
 
 	FreeCamera* FreeCamera::Get() {

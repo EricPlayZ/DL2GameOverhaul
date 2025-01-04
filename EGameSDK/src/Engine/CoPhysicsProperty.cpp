@@ -9,6 +9,6 @@ namespace EGSDK::Engine {
         return pPlayerDI_PH ? pPlayerDI_PH->pCoPhysicsProperty : nullptr;
     }
     CoPhysicsProperty* CoPhysicsProperty::Get() {
-        return ClassHelpers::SafeGetter<CoPhysicsProperty>(GetOffset_CoPhysicsProperty, false);
+        return ClassHelpers::SafeGetter<CoPhysicsProperty>(GetOffset_CoPhysicsProperty, false, false);
     }
 }

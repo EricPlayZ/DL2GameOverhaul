@@ -30,37 +30,37 @@ namespace EGSDK::GamePH {
 
 		it->second.first.template emplace<T>(varValue);
 	}
-	static void processPlayerVar(DWORD64** (*playerVarsGetter)(), std::pair<std::string, std::pair<void*, std::string>>& var) {
+	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::pair<std::string, std::pair<void*, std::string>>& var) {
 		static int offset = 0;
-		__try {
-			while (true) {
-				const bool isFloatPlayerVar = Utils::RTTI::IsClassVTableNameEqualTo(*(playerVarsGetter() + offset), "FloatPlayerVariable");
-				const bool isBoolPlayerVar = Utils::RTTI::IsClassVTableNameEqualTo(*(playerVarsGetter() + offset), "BoolPlayerVariable");
+		static const std::string floatPlayerVarClassName = "FloatPlayerVariable";
+		static const std::string boolPlayerVarClassName = "BoolPlayerVariable";
 
-				if (isFloatPlayerVar || isBoolPlayerVar) {
-					var.second.first = playerVarsGetter() + offset + VAR_LOC_OFFSET;
-					const std::string& varName = var.first;
+		while (true) {
+			const std::string vTableName = Utils::RTTI::GetVTableName(playerVarsGetter() + offset);
+			const bool isFloatPlayerVar = vTableName == floatPlayerVarClassName;
+			const bool isBoolPlayerVar = vTableName == boolPlayerVarClassName;
 
-					if (isFloatPlayerVar) {
-						float* varValue = reinterpret_cast<float*>(var.second.first);
-						updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
-						updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
+			if (isFloatPlayerVar || isBoolPlayerVar) {
+				var.second.first = playerVarsGetter() + offset + VAR_LOC_OFFSET;
+				const std::string& varName = var.first;
 
-						offset += FLOAT_VAR_OFFSET;
-					} else {
-						bool* varValue = reinterpret_cast<bool*>(var.second.first);
-						updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
-						updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
+				if (isFloatPlayerVar) {
+					float* varValue = reinterpret_cast<float*>(var.second.first);
+					updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
+					updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
 
-						offset += BOOL_VAR_OFFSET;
-					}
+					offset += FLOAT_VAR_OFFSET;
+				} else {
+					bool* varValue = reinterpret_cast<bool*>(var.second.first);
+					updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
+					updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
 
-					break;
-				} else
-					offset += 1;
-			}
-		} __except (EXCEPTION_EXECUTE_HANDLER) {
-			SPDLOG_ERROR("Failed to process player variable: {}", var.first);
+					offset += BOOL_VAR_OFFSET;
+				}
+
+				break;
+			} else
+				offset += 1;
 		}
 	}
 
@@ -72,8 +72,13 @@ namespace EGSDK::GamePH {
 		if (!Get())
 			return;
 
-		for (auto& var : playerVars)
-			processPlayerVar(reinterpret_cast<DWORD64**(*)()>(&Get), var);
+		for (auto& var : playerVars) {
+			__try {
+				processPlayerVar(reinterpret_cast<DWORD64*(*)()>(&Get), var);
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				SPDLOG_ERROR("Failed to process player variable: {}", var.first);
+			}
+		}
 
 		gotPlayerVars = true;
 	}
@@ -88,17 +93,17 @@ namespace EGSDK::GamePH {
 		{ PlayerVariables::PlayerVarType::Bool, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<BoolPlayerVariable>" }
 	};
 
-	bool isRetInstruction(BYTE* address) {
+	static bool isRetInstruction(BYTE* address) {
 		//return address[0] == 0xC3 && address[1] == 0xCC;
 		return address[0] == 0x00 && address[1] == 0x00 && address[2] == 0xC3 && address[3] == 0xCC;
 	}
-	bool isLeaInstruction(BYTE* address, BYTE REX, BYTE ModRM) {
+	static bool isLeaInstruction(BYTE* address, BYTE REX, BYTE ModRM) {
 		return address[0] == REX && address[1] == 0x8D && address[2] == ModRM;
 	}
-	bool isCallInstruction(BYTE* address) {
+	static bool isCallInstruction(BYTE* address) {
 		return address[0] == 0xE8 && address[4] != 0xE8;
 	}
-	bool isBelowFuncSizeLimit(BYTE* address, DWORD64 startOfFunc, size_t sizeLimit) {
+	static bool isBelowFuncSizeLimit(BYTE* address, DWORD64 startOfFunc, size_t sizeLimit) {
 		return (reinterpret_cast<DWORD64>(address) - startOfFunc) < sizeLimit;
 	}
 
@@ -127,7 +132,7 @@ namespace EGSDK::GamePH {
 
 		return playerVarName;
 	}
-	PlayerVariables::PlayerVarType getPlayerVarType(BYTE*& funcAddress, DWORD64 startOfFunc) {
+	static PlayerVariables::PlayerVarType getPlayerVarType(BYTE*& funcAddress, DWORD64 startOfFunc) {
 		PlayerVariables::PlayerVarType playerVarType = PlayerVariables::PlayerVarType::NONE;
 
 		while (!playerVarType && !isRetInstruction(funcAddress) && isBelowFuncSizeLimit(funcAddress, startOfFunc, MAX_FUNC_SIZE)) {
@@ -150,14 +155,14 @@ namespace EGSDK::GamePH {
 					}
 
 					metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
-					if (!Utils::RTTI::IsVTableNameEqualTo(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc), varType.className)) {
+					if (Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc)) != varType.className) {
 						metaVTAddrFromFunc = 0;
 						loadVarFuncAddress++;
 						continue;
 					}
 				}
 
-				if (Utils::RTTI::IsVTableNameEqualTo(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc), varType.className)) {
+				if (Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc)) == varType.className) {
 					playerVarType = varType.type;
 					break;
 				}
@@ -216,6 +221,6 @@ namespace EGSDK::GamePH {
 		return pPlayerState ? pPlayerState->pPlayerVariables : nullptr;
 	}
 	PlayerVariables* PlayerVariables::Get() {
-		return ClassHelpers::SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, false);
+		return ClassHelpers::SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, false, false);
 	}
 }

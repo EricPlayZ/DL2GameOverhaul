@@ -9,6 +9,6 @@ namespace EGSDK::GamePH {
 		return pGameDI_PH ? reinterpret_cast<GameDI_PH2*>(reinterpret_cast<DWORD64>(pGameDI_PH) + Offsets::Get_gameDI_PH2_offset()) : nullptr;
 	}
 	GameDI_PH2* GameDI_PH2::Get() {
-		return ClassHelpers::SafeGetter<GameDI_PH2>(GetOffset_GameDI_PH2, false);
+		return ClassHelpers::SafeGetter<GameDI_PH2>(GetOffset_GameDI_PH2, false, false);
 	}
 }
