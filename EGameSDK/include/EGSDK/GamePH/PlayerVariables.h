@@ -27,11 +27,11 @@ namespace EGSDK::GamePH {
 
 		template <typename T>
 		static T getDefaultValue() {
-			if constexpr (std::is_same<T, std::string>::value)
+			if constexpr (std::is_same_v<T, std::string>)
 				return {};
-			else if constexpr (std::is_same<T, bool>::value)
+			else if constexpr (std::is_same_v<T, bool>)
 				return false;
-			else if constexpr (std::is_same<T, float>::value)
+			else if constexpr (std::is_same_v<T, float>)
 				return -404.0f;
 			else
 				return T();
@@ -39,7 +39,7 @@ namespace EGSDK::GamePH {
 
 		template <typename T>
 		static T GetPlayerVar(const std::string& playerVar) {
-			static_assert(std::is_same<T, bool>::value || std::is_same<T, float>::value || std::is_same<T, std::string>::value, "Invalid type: value must be bool, float or string");
+			static_assert(std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, std::string>, "Invalid type: value must be bool, float or string");
 
 			if (!gotPlayerVars)
 				return getDefaultValue<T>();
@@ -55,7 +55,7 @@ namespace EGSDK::GamePH {
 		}
 		template <typename T>
 		static void ChangePlayerVar(const std::string& playerVar, const T value) {
-			static_assert(std::is_same<T, bool>::value || std::is_same<T, float>::value || std::is_same<T, std::string>::value, "Invalid type: value must be bool, float or string");
+			static_assert(std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, std::string>, "Invalid type: value must be bool, float or string");
 
 			if (!gotPlayerVars)
 				return;
@@ -67,7 +67,7 @@ namespace EGSDK::GamePH {
 			if (it == PlayerVariables::playerVars.end())
 				return;
 
-			if (std::is_same<T, std::string>::value) {
+			if (std::is_same_v<T, std::string>) {
 				std::string valueStr = Utils::Values::to_string(value);
 				if (it->second.second == "float") {
 					float* const varValue = reinterpret_cast<float*>(it->second.first);
