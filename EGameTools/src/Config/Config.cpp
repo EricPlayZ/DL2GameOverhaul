@@ -14,22 +14,6 @@
 #include <EGT\Menu\Debug.h>
 #include <EGT\Config\Config.h>
 
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-// TODO: USE DEFAULT CLASS FIELD INITIALIZER INSTEAD OF CUSTOM
-
 namespace EGT::Config {
 	enum ValueType {
 		OPTION,
@@ -44,84 +28,8 @@ namespace EGT::Config {
 		void* optionPtr;
 		ValueType type;
 	};
-	static const auto configVariablesDefault = std::to_array<ConfigEntry>({
-		{ "Menu", "Opacity", Menu::opacity, &Menu::opacity, Float },
-		{ "Menu", "Scale", Menu::scale, &Menu::scale, Float },
-		{ "Menu", "FirstTimeRunning", Menu::firstTimeRunning.GetValue(), &Menu::firstTimeRunning, OPTION},
-		{ "Menu", "HasSeenChangelog", Menu::hasSeenChangelog.GetValue(), &Menu::hasSeenChangelog, OPTION },
-		{ "Menu:Keybinds", "MenuToggleKey", Menu::menuToggle.ToStringVKeyMap(), &Menu::menuToggle, String},
-		{ "Menu:Keybinds", "GodModeToggleKey", Menu::Player::godMode.ToStringVKeyMap(), &Menu::Player::godMode, String},
-		{ "Menu:Keybinds", "FreezePlayerToggleKey", Menu::Player::freezePlayer.ToStringVKeyMap(), &Menu::Player::freezePlayer, String },
-		{ "Menu:Keybinds", "UnlimitedImmunityToggleKey", Menu::Player::unlimitedImmunity.ToStringVKeyMap(), &Menu::Player::unlimitedImmunity, String},
-		{ "Menu:Keybinds", "UnlimitedStaminaToggleKey", Menu::Player::unlimitedStamina.ToStringVKeyMap(), &Menu::Player::unlimitedStamina, String},
-		{ "Menu:Keybinds", "UnlimitedItemsToggleKey", Menu::Player::unlimitedItems.ToStringVKeyMap(), &Menu::Player::unlimitedItems, String},
-		{ "Menu:Keybinds", "OneHitKillToggleKey", Menu::Player::oneHitKill.ToStringVKeyMap(), &Menu::Player::oneHitKill, String},
-		{ "Menu:Keybinds", "DisableOutOfBoundsTimerToggleKey", Menu::Player::disableOutOfBoundsTimer.ToStringVKeyMap(), &Menu::Player::disableOutOfBoundsTimer, String},
-		{ "Menu:Keybinds", "NightrunnerModeToggleKey", Menu::Player::nightrunnerMode.ToStringVKeyMap(), &Menu::Player::nightrunnerMode, String},
-		{ "Menu:Keybinds", "OneHandedModeToggleKey", Menu::Player::oneHandedMode.ToStringVKeyMap(), &Menu::Player::oneHandedMode, String},
-		{ "Menu:Keybinds", "AllowGrappleHookInSafezoneToggleKey", Menu::Player::allowGrappleHookInSafezone.ToStringVKeyMap(), &Menu::Player::allowGrappleHookInSafezone, String},
-		{ "Menu:Keybinds", "DisableAirControlToggleKey", Menu::Player::disableAirControl.ToStringVKeyMap(), &Menu::Player::disableAirControl, String },
-		{ "Menu:Keybinds", "UnlimitedDurabilityToggleKey", Menu::Weapon::unlimitedDurability.ToStringVKeyMap(), &Menu::Weapon::unlimitedDurability, String },
-		{ "Menu:Keybinds", "UnlimitedAmmoToggleKey", Menu::Weapon::unlimitedAmmo.ToStringVKeyMap(), &Menu::Weapon::unlimitedAmmo, String },
-		{ "Menu:Keybinds", "NoSpreadToggleKey", Menu::Weapon::noSpread.ToStringVKeyMap(), &Menu::Weapon::noSpread, String },
-		{ "Menu:Keybinds", "NoRecoilToggleKey", Menu::Weapon::noRecoil.ToStringVKeyMap(), &Menu::Weapon::noRecoil, String },
-		{ "Menu:Keybinds", "InstantReloadToggleKey", Menu::Weapon::instantReload.ToStringVKeyMap(), &Menu::Weapon::instantReload, String },
-		{ "Menu:Keybinds", "FreeCamToggleKey", Menu::Camera::freeCam.ToStringVKeyMap(), &Menu::Camera::freeCam, String},
-		{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", Menu::Camera::teleportPlayerToCamera.ToStringVKeyMap(), &Menu::Camera::teleportPlayerToCamera, String},
-		{ "Menu:Keybinds", "ThirdPersonToggleKey", Menu::Camera::thirdPersonCamera.ToStringVKeyMap(), &Menu::Camera::thirdPersonCamera, String},
-		{ "Menu:Keybinds", "UseTPPModelToggleKey", Menu::Camera::tpUseTPPModel.ToStringVKeyMap(), &Menu::Camera::tpUseTPPModel, String},
-		{ "Menu:Keybinds", "GoProMode", Menu::Camera::goProMode.ToStringVKeyMap(), &Menu::Camera::goProMode, String },
-		{ "Menu:Keybinds", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.ToStringVKeyMap(), &Menu::Camera::disableSafezoneFOVReduction, String },
-		{ "Menu:Keybinds", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.ToStringVKeyMap(), &Menu::Camera::disablePhotoModeLimits, String},
-		{ "Menu:Keybinds", "DisableHeadCorrectionToggleKey", Menu::Camera::disableHeadCorrection.ToStringVKeyMap(), &Menu::Camera::disableHeadCorrection, String },
-		{ "Menu:Keybinds", "TeleportToSelectedLocationToggleKey", Menu::Teleport::teleportToSelectedLocation.ToStringVKeyMap(), &Menu::Teleport::teleportToSelectedLocation, String },
-		{ "Menu:Keybinds", "TeleportToCoordsToggleKey", Menu::Teleport::teleportToCoords.ToStringVKeyMap(), &Menu::Teleport::teleportToCoords, String },
-		{ "Menu:Keybinds", "DisableHUDToggleKey", Menu::Misc::disableHUD.ToStringVKeyMap(), &Menu::Misc::disableHUD, String},
-		{ "Menu:Keybinds", "DisableGamePauseWhileAFKToggleKey", Menu::Misc::disableGamePauseWhileAFK.ToStringVKeyMap(), &Menu::Misc::disableGamePauseWhileAFK, String},
-		{ "Menu:Keybinds", "FreezeTimeToggleKey", Menu::World::freezeTime.ToStringVKeyMap(), &Menu::World::freezeTime, String},
-		{ "Menu:Keybinds", "SlowMotionToggleKey", Menu::World::slowMotion.ToStringVKeyMap(), &Menu::World::slowMotion, String},
-		{ "Player:Misc", "GodMode", Menu::Player::godMode.GetValue(), &Menu::Player::godMode, OPTION },
-		{ "Player:Misc", "UnlimitedImmunity", Menu::Player::unlimitedImmunity.GetValue(), &Menu::Player::unlimitedImmunity, OPTION },
-		{ "Player:Misc", "UnlimitedStamina", Menu::Player::unlimitedStamina.GetValue(), &Menu::Player::unlimitedStamina, OPTION },
-		{ "Player:Misc", "UnlimitedItems", Menu::Player::unlimitedItems.GetValue(), &Menu::Player::unlimitedItems, OPTION },
-		{ "Player:Misc", "OneHitKill", Menu::Player::oneHitKill.GetValue(), &Menu::Player::oneHitKill, OPTION },
-		{ "Player:Misc", "InvisibleToEnemies", Menu::Player::invisibleToEnemies.GetValue(), &Menu::Player::invisibleToEnemies, OPTION },
-		{ "Player:Misc", "DisableOutOfBoundsTimer", Menu::Player::disableOutOfBoundsTimer.GetValue(), &Menu::Player::disableOutOfBoundsTimer, OPTION },
-		{ "Player:Misc", "NightrunnerMode", Menu::Player::nightrunnerMode.GetValue(), &Menu::Player::nightrunnerMode, OPTION },
-		{ "Player:Misc", "OneHandedMode", Menu::Player::oneHandedMode.GetValue(), &Menu::Player::oneHandedMode, OPTION },
-		{ "Player:Misc", "AllowGrappleHookInSafezone", Menu::Player::allowGrappleHookInSafezone.GetValue(), &Menu::Player::allowGrappleHookInSafezone, OPTION },
-		{ "Player:PlayerJumpParameters", "DisableAirControl", Menu::Player::disableAirControl.GetValue(), &Menu::Player::disableAirControl, OPTION },
-		{ "Player:PlayerVariables", "Enabled", Menu::Player::playerVariables.GetValue(), &Menu::Player::playerVariables, OPTION },
-		{ "Player:PlayerVariables", "LastSaveSCRPath", Menu::Player::saveSCRPath, &Menu::Player::saveSCRPath, String },
-		{ "Player:PlayerVariables", "LastLoadSCRFilePath", Menu::Player::loadSCRFilePath, &Menu::Player::loadSCRFilePath, String },
-		{ "Weapon:Misc", "UnlimitedDurability", Menu::Weapon::unlimitedDurability.GetValue(), &Menu::Weapon::unlimitedDurability, OPTION },
-		{ "Weapon:Misc", "UnlimitedAmmo", Menu::Weapon::unlimitedAmmo.GetValue(), &Menu::Weapon::unlimitedAmmo, OPTION },
-		{ "Weapon:Misc", "NoSpread", Menu::Weapon::noSpread.GetValue(), &Menu::Weapon::noSpread, OPTION },
-		{ "Weapon:Misc", "NoRecoil", Menu::Weapon::noRecoil.GetValue(), &Menu::Weapon::noRecoil, OPTION },
-		{ "Weapon:Misc", "InstantReload", Menu::Weapon::instantReload.GetValue(), &Menu::Weapon::instantReload, OPTION },
-		{ "Camera:FreeCam", "Speed", Menu::Camera::freeCamSpeed, &Menu::Camera::freeCamSpeed, Float },
-		{ "Camera:FreeCam", "TeleportPlayerToCamera", Menu::Camera::teleportPlayerToCamera.GetValue(), &Menu::Camera::teleportPlayerToCamera, OPTION },
-		{ "Camera:ThirdPerson", "Enabled", Menu::Camera::thirdPersonCamera.GetValue(), &Menu::Camera::thirdPersonCamera, OPTION },
-		{ "Camera:ThirdPerson", "UseTPPModel", Menu::Camera::tpUseTPPModel.GetValue(), &Menu::Camera::tpUseTPPModel, OPTION },
-		{ "Camera:ThirdPerson", "DistanceBehindPlayer", Menu::Camera::tpDistanceBehindPlayer, &Menu::Camera::tpDistanceBehindPlayer, Float },
-		{ "Camera:ThirdPerson", "HeightAbovePlayer", Menu::Camera::tpHeightAbovePlayer, &Menu::Camera::tpHeightAbovePlayer, Float },
-		{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", Menu::Camera::tpHorizontalDistanceFromPlayer, &Menu::Camera::tpHorizontalDistanceFromPlayer, Float },
-		{ "Camera:Misc", "LensDistortion", Menu::Camera::lensDistortion, &Menu::Camera::lensDistortion, Float },
-		{ "Camera:Misc", "GoProMode", Menu::Camera::goProMode.GetValue(), &Menu::Camera::goProMode, OPTION },
-		{ "Camera:Misc", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.GetValue(), &Menu::Camera::disableSafezoneFOVReduction, OPTION },
-		{ "Camera:Misc", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.GetValue(), &Menu::Camera::disablePhotoModeLimits, OPTION },
-		{ "Camera:Misc", "DisableHeadCorrection", Menu::Camera::disableHeadCorrection.GetValue(), &Menu::Camera::disableHeadCorrection, OPTION },
-		{ "Teleport:SavedLocations", "SavedTeleportLocations", Menu::Teleport::savedTeleportLocationsStr, &Menu::Teleport::savedTeleportLocations, String},
-		{ "Misc:Misc", "DisableGamePauseWhileAFK", Menu::Misc::disableGamePauseWhileAFK.GetValue(), &Menu::Misc::disableGamePauseWhileAFK, OPTION },
-		{ "Misc:GameChecks", "DisableSavegameCRCCheck", Menu::Misc::disableSavegameCRCCheck.GetValue(), &Menu::Misc::disableSavegameCRCCheck, OPTION },
-		{ "Misc:GameChecks", "DisableDataPAKsCRCCheck", Menu::Misc::disableDataPAKsCRCCheck.GetValue(), &Menu::Misc::disableDataPAKsCRCCheck, OPTION },
-		{ "Misc:GameChecks", "IncreaseDataPAKsLimit", Menu::Misc::increaseDataPAKsLimit.GetValue(), &Menu::Misc::increaseDataPAKsLimit, OPTION },
-		{ "World:Time", "SlowMotionSpeed", Menu::World::slowMotionSpeed, &Menu::World::slowMotionSpeed, Float },
-		{ "World:Time", "SlowMotionTransitionTime", Menu::World::slowMotionTransitionTime, &Menu::World::slowMotionTransitionTime, Float },
-		{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook, &Menu::Debug::disableLowLevelMouseHook, OPTION },
-		{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning, &Menu::Debug::disableVftableScanning, OPTION },
-	});
-	std::vector<ConfigEntry> configVariables(configVariablesDefault.begin(), configVariablesDefault.end());
+	static std::vector<ConfigEntry> configVariablesDefault{};
+	static std::vector<ConfigEntry> configVariables{};
 	static constexpr const char* configFileName = "EGameTools.ini";
 	static std::filesystem::file_time_type configPreviousWriteTime{};
 	static std::filesystem::file_time_type configLastWriteTime{};
@@ -129,6 +37,87 @@ namespace EGT::Config {
 	static bool savedConfig = false;
 
 	static inih::INIReader reader{};
+
+	static void InitializeConfigVariables() {
+		configVariablesDefault = std::vector<ConfigEntry>({
+			{ "Menu", "Opacity", Menu::opacity, &Menu::opacity, Float },
+			{ "Menu", "Scale", Menu::scale, &Menu::scale, Float },
+			{ "Menu", "FirstTimeRunning", Menu::firstTimeRunning.GetValue(), &Menu::firstTimeRunning, OPTION },
+			{ "Menu", "HasSeenChangelog", Menu::hasSeenChangelog.GetValue(), &Menu::hasSeenChangelog, OPTION },
+			{ "Menu:Keybinds", "MenuToggleKey", Menu::menuToggle.ToStringVKeyMap(), &Menu::menuToggle, String },
+			{ "Menu:Keybinds", "GodModeToggleKey", Menu::Player::godMode.ToStringVKeyMap(), &Menu::Player::godMode, String },
+			{ "Menu:Keybinds", "FreezePlayerToggleKey", Menu::Player::freezePlayer.ToStringVKeyMap(), &Menu::Player::freezePlayer, String },
+			{ "Menu:Keybinds", "UnlimitedImmunityToggleKey", Menu::Player::unlimitedImmunity.ToStringVKeyMap(), &Menu::Player::unlimitedImmunity, String },
+			{ "Menu:Keybinds", "UnlimitedStaminaToggleKey", Menu::Player::unlimitedStamina.ToStringVKeyMap(), &Menu::Player::unlimitedStamina, String },
+			{ "Menu:Keybinds", "UnlimitedItemsToggleKey", Menu::Player::unlimitedItems.ToStringVKeyMap(), &Menu::Player::unlimitedItems, String },
+			{ "Menu:Keybinds", "OneHitKillToggleKey", Menu::Player::oneHitKill.ToStringVKeyMap(), &Menu::Player::oneHitKill, String },
+			{ "Menu:Keybinds", "DisableOutOfBoundsTimerToggleKey", Menu::Player::disableOutOfBoundsTimer.ToStringVKeyMap(), &Menu::Player::disableOutOfBoundsTimer, String },
+			{ "Menu:Keybinds", "NightrunnerModeToggleKey", Menu::Player::nightrunnerMode.ToStringVKeyMap(), &Menu::Player::nightrunnerMode, String },
+			{ "Menu:Keybinds", "OneHandedModeToggleKey", Menu::Player::oneHandedMode.ToStringVKeyMap(), &Menu::Player::oneHandedMode, String },
+			{ "Menu:Keybinds", "AllowGrappleHookInSafezoneToggleKey", Menu::Player::allowGrappleHookInSafezone.ToStringVKeyMap(), &Menu::Player::allowGrappleHookInSafezone, String },
+			{ "Menu:Keybinds", "DisableAirControlToggleKey", Menu::Player::disableAirControl.ToStringVKeyMap(), &Menu::Player::disableAirControl, String },
+			{ "Menu:Keybinds", "UnlimitedDurabilityToggleKey", Menu::Weapon::unlimitedDurability.ToStringVKeyMap(), &Menu::Weapon::unlimitedDurability, String },
+			{ "Menu:Keybinds", "UnlimitedAmmoToggleKey", Menu::Weapon::unlimitedAmmo.ToStringVKeyMap(), &Menu::Weapon::unlimitedAmmo, String },
+			{ "Menu:Keybinds", "NoSpreadToggleKey", Menu::Weapon::noSpread.ToStringVKeyMap(), &Menu::Weapon::noSpread, String },
+			{ "Menu:Keybinds", "NoRecoilToggleKey", Menu::Weapon::noRecoil.ToStringVKeyMap(), &Menu::Weapon::noRecoil, String },
+			{ "Menu:Keybinds", "InstantReloadToggleKey", Menu::Weapon::instantReload.ToStringVKeyMap(), &Menu::Weapon::instantReload, String },
+			{ "Menu:Keybinds", "FreeCamToggleKey", Menu::Camera::freeCam.ToStringVKeyMap(), &Menu::Camera::freeCam, String },
+			{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", Menu::Camera::teleportPlayerToCamera.ToStringVKeyMap(), &Menu::Camera::teleportPlayerToCamera, String },
+			{ "Menu:Keybinds", "ThirdPersonToggleKey", Menu::Camera::thirdPersonCamera.ToStringVKeyMap(), &Menu::Camera::thirdPersonCamera, String },
+			{ "Menu:Keybinds", "UseTPPModelToggleKey", Menu::Camera::tpUseTPPModel.ToStringVKeyMap(), &Menu::Camera::tpUseTPPModel, String },
+			{ "Menu:Keybinds", "GoProMode", Menu::Camera::goProMode.ToStringVKeyMap(), &Menu::Camera::goProMode, String },
+			{ "Menu:Keybinds", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.ToStringVKeyMap(), &Menu::Camera::disableSafezoneFOVReduction, String },
+			{ "Menu:Keybinds", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.ToStringVKeyMap(), &Menu::Camera::disablePhotoModeLimits, String },
+			{ "Menu:Keybinds", "DisableHeadCorrectionToggleKey", Menu::Camera::disableHeadCorrection.ToStringVKeyMap(), &Menu::Camera::disableHeadCorrection, String },
+			{ "Menu:Keybinds", "TeleportToSelectedLocationToggleKey", Menu::Teleport::teleportToSelectedLocation.ToStringVKeyMap(), &Menu::Teleport::teleportToSelectedLocation, String },
+			{ "Menu:Keybinds", "TeleportToCoordsToggleKey", Menu::Teleport::teleportToCoords.ToStringVKeyMap(), &Menu::Teleport::teleportToCoords, String },
+			{ "Menu:Keybinds", "DisableHUDToggleKey", Menu::Misc::disableHUD.ToStringVKeyMap(), &Menu::Misc::disableHUD, String },
+			{ "Menu:Keybinds", "DisableGamePauseWhileAFKToggleKey", Menu::Misc::disableGamePauseWhileAFK.ToStringVKeyMap(), &Menu::Misc::disableGamePauseWhileAFK, String },
+			{ "Menu:Keybinds", "FreezeTimeToggleKey", Menu::World::freezeTime.ToStringVKeyMap(), &Menu::World::freezeTime, String },
+			{ "Menu:Keybinds", "SlowMotionToggleKey", Menu::World::slowMotion.ToStringVKeyMap(), &Menu::World::slowMotion, String },
+			{ "Player:Misc", "GodMode", Menu::Player::godMode.GetValue(), &Menu::Player::godMode, OPTION },
+			{ "Player:Misc", "UnlimitedImmunity", Menu::Player::unlimitedImmunity.GetValue(), &Menu::Player::unlimitedImmunity, OPTION },
+			{ "Player:Misc", "UnlimitedStamina", Menu::Player::unlimitedStamina.GetValue(), &Menu::Player::unlimitedStamina, OPTION },
+			{ "Player:Misc", "UnlimitedItems", Menu::Player::unlimitedItems.GetValue(), &Menu::Player::unlimitedItems, OPTION },
+			{ "Player:Misc", "OneHitKill", Menu::Player::oneHitKill.GetValue(), &Menu::Player::oneHitKill, OPTION },
+			{ "Player:Misc", "InvisibleToEnemies", Menu::Player::invisibleToEnemies.GetValue(), &Menu::Player::invisibleToEnemies, OPTION },
+			{ "Player:Misc", "DisableOutOfBoundsTimer", Menu::Player::disableOutOfBoundsTimer.GetValue(), &Menu::Player::disableOutOfBoundsTimer, OPTION },
+			{ "Player:Misc", "NightrunnerMode", Menu::Player::nightrunnerMode.GetValue(), &Menu::Player::nightrunnerMode, OPTION },
+			{ "Player:Misc", "OneHandedMode", Menu::Player::oneHandedMode.GetValue(), &Menu::Player::oneHandedMode, OPTION },
+			{ "Player:Misc", "AllowGrappleHookInSafezone", Menu::Player::allowGrappleHookInSafezone.GetValue(), &Menu::Player::allowGrappleHookInSafezone, OPTION },
+			{ "Player:PlayerJumpParameters", "DisableAirControl", Menu::Player::disableAirControl.GetValue(), &Menu::Player::disableAirControl, OPTION },
+			{ "Player:PlayerVariables", "Enabled", Menu::Player::playerVariables.GetValue(), &Menu::Player::playerVariables, OPTION },
+			{ "Player:PlayerVariables", "LastSaveSCRPath", Menu::Player::saveSCRPath, &Menu::Player::saveSCRPath, String },
+			{ "Player:PlayerVariables", "LastLoadSCRFilePath", Menu::Player::loadSCRFilePath, &Menu::Player::loadSCRFilePath, String },
+			{ "Weapon:Misc", "UnlimitedDurability", Menu::Weapon::unlimitedDurability.GetValue(), &Menu::Weapon::unlimitedDurability, OPTION },
+			{ "Weapon:Misc", "UnlimitedAmmo", Menu::Weapon::unlimitedAmmo.GetValue(), &Menu::Weapon::unlimitedAmmo, OPTION },
+			{ "Weapon:Misc", "NoSpread", Menu::Weapon::noSpread.GetValue(), &Menu::Weapon::noSpread, OPTION },
+			{ "Weapon:Misc", "NoRecoil", Menu::Weapon::noRecoil.GetValue(), &Menu::Weapon::noRecoil, OPTION },
+			{ "Weapon:Misc", "InstantReload", Menu::Weapon::instantReload.GetValue(), &Menu::Weapon::instantReload, OPTION },
+			{ "Camera:FreeCam", "Speed", Menu::Camera::freeCamSpeed, &Menu::Camera::freeCamSpeed, Float },
+			{ "Camera:FreeCam", "TeleportPlayerToCamera", Menu::Camera::teleportPlayerToCamera.GetValue(), &Menu::Camera::teleportPlayerToCamera, OPTION },
+			{ "Camera:ThirdPerson", "Enabled", Menu::Camera::thirdPersonCamera.GetValue(), &Menu::Camera::thirdPersonCamera, OPTION },
+			{ "Camera:ThirdPerson", "UseTPPModel", Menu::Camera::tpUseTPPModel.GetValue(), &Menu::Camera::tpUseTPPModel, OPTION },
+			{ "Camera:ThirdPerson", "DistanceBehindPlayer", Menu::Camera::tpDistanceBehindPlayer, &Menu::Camera::tpDistanceBehindPlayer, Float },
+			{ "Camera:ThirdPerson", "HeightAbovePlayer", Menu::Camera::tpHeightAbovePlayer, &Menu::Camera::tpHeightAbovePlayer, Float },
+			{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", Menu::Camera::tpHorizontalDistanceFromPlayer, &Menu::Camera::tpHorizontalDistanceFromPlayer, Float },
+			{ "Camera:Misc", "LensDistortion", Menu::Camera::lensDistortion, &Menu::Camera::lensDistortion, Float },
+			{ "Camera:Misc", "GoProMode", Menu::Camera::goProMode.GetValue(), &Menu::Camera::goProMode, OPTION },
+			{ "Camera:Misc", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.GetValue(), &Menu::Camera::disableSafezoneFOVReduction, OPTION },
+			{ "Camera:Misc", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.GetValue(), &Menu::Camera::disablePhotoModeLimits, OPTION },
+			{ "Camera:Misc", "DisableHeadCorrection", Menu::Camera::disableHeadCorrection.GetValue(), &Menu::Camera::disableHeadCorrection, OPTION },
+			{ "Teleport:SavedLocations", "SavedTeleportLocations", Menu::Teleport::savedTeleportLocationsStr, &Menu::Teleport::savedTeleportLocations, String },
+			{ "Misc:Misc", "DisableGamePauseWhileAFK", Menu::Misc::disableGamePauseWhileAFK.GetValue(), &Menu::Misc::disableGamePauseWhileAFK, OPTION },
+			{ "Misc:GameChecks", "DisableSavegameCRCCheck", Menu::Misc::disableSavegameCRCCheck.GetValue(), &Menu::Misc::disableSavegameCRCCheck, OPTION },
+			{ "Misc:GameChecks", "DisableDataPAKsCRCCheck", Menu::Misc::disableDataPAKsCRCCheck.GetValue(), &Menu::Misc::disableDataPAKsCRCCheck, OPTION },
+			{ "Misc:GameChecks", "IncreaseDataPAKsLimit", Menu::Misc::increaseDataPAKsLimit.GetValue(), &Menu::Misc::increaseDataPAKsLimit, OPTION },
+			{ "World:Time", "SlowMotionSpeed", Menu::World::slowMotionSpeed, &Menu::World::slowMotionSpeed, Float },
+			{ "World:Time", "SlowMotionTransitionTime", Menu::World::slowMotionTransitionTime, &Menu::World::slowMotionTransitionTime, Float },
+			{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook, &Menu::Debug::disableLowLevelMouseHook, OPTION },
+			{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning, &Menu::Debug::disableVftableScanning, OPTION },
+		});
+		configVariables = configVariablesDefault;
+	}
 
 	static void UpdateEntry(const ConfigEntry& entry) {
 		switch (entry.type) {
@@ -359,6 +348,7 @@ namespace EGT::Config {
 		}
 	}
 	void InitConfig() {
+		InitializeConfigVariables();
 		ConfigExists() ? ReadConfig() : CreateConfig();
 
 		configPreviousWriteTime = std::filesystem::last_write_time(configFileName);

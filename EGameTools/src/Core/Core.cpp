@@ -32,12 +32,14 @@ namespace EGT::Core {
 	}
 
 	static FILE* f = nullptr;
-	void EnableConsole() {
-		AllocConsole();
-		SetConsoleTitle("EGameTools");
-		freopen_s(&f, "CONOUT$", "w", stdout);
-		DisableConsoleQuickEdit();
-	}
+    void EnableConsole() {
+        AllocConsole();
+        SetConsoleTitle("EGameTools");
+        HWND consoleWindow = GetConsoleWindow();
+        MoveWindow(consoleWindow, 0, 0, 1800, 720, TRUE);
+        freopen_s(&f, "CONOUT$", "w", stdout);
+        DisableConsoleQuickEdit();
+    }
 	void DisableConsole() {
 		if (f)
 			fclose(f);
