@@ -187,7 +187,6 @@ namespace EGT::Config {
 				} else if (entry.key == "SavedTeleportLocations") {
 					Menu::Teleport::savedTeleportLocations = Menu::Teleport::ParseTeleportLocations(strValue);
 					Menu::Teleport::UpdateTeleportLocationVisualNames();
-					break;
 				}
 
 				reader.InsertEntry(entry.section.data(), entry.key.data(), strValue);
