@@ -13,9 +13,9 @@ namespace EGT::Menu {
 	namespace Misc {
 		ImGui::KeyBindOption disableGamePauseWhileAFK{ VK_NONE };
 		ImGui::KeyBindOption disableHUD{ VK_F8 };
-		ImGui::Option disableSavegameCRCCheck{};
-		ImGui::Option disableDataPAKsCRCCheck{};
-		ImGui::Option increaseDataPAKsLimit{};
+		ImGui::Option disableSavegameCRCCheck{ false };
+		ImGui::Option disableDataPAKsCRCCheck{ false };
+		ImGui::Option increaseDataPAKsLimit{ false };
 
 		static void UpdateDisabledOptions() {
 			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();

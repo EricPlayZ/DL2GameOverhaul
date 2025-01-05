@@ -16,7 +16,7 @@ namespace EGT::Menu {
 	namespace Camera {
 		int FOV = 57;
 
-		ImGui::Option photoMode{};
+		ImGui::Option photoMode{ false };
 
 		ImGui::KeyBindOption freeCam{ VK_F3 };
 		float freeCamSpeed = 2.0f;

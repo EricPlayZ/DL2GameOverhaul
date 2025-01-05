@@ -22,8 +22,8 @@ namespace EGT::Menu {
     float opacity = 99.0f;
     float scale = 1.0f;
 
-    ImGui::Option firstTimeRunning{};
-    ImGui::Option hasSeenChangelog{};
+    ImGui::Option firstTimeRunning{ true };
+    ImGui::Option hasSeenChangelog{ false };
 
     int currentTabIndex = 0;
 

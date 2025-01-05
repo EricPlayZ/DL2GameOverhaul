@@ -39,7 +39,7 @@ namespace EGT::Menu {
 		ImGui::KeyBindOption oneHandedMode{ VK_NONE };
 		ImGui::KeyBindOption allowGrappleHookInSafezone{ VK_NONE };
 		ImGui::KeyBindOption disableAirControl{ VK_NONE };
-		ImGui::Option playerVariables{};
+		ImGui::Option playerVariables{ false };
 
 		std::string saveSCRPath{};
 		std::string loadSCRFilePath{};

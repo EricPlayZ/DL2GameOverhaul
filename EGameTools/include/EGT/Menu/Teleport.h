@@ -6,10 +6,11 @@
 namespace EGT::Menu {
 	namespace Teleport {
 		struct TeleportLocation {
-			std::string name;
-			EGSDK::Vector3 pos;
+			std::string name{};
+			EGSDK::Vector3 pos{};
 		};
 
+		extern std::string savedTeleportLocationsStr;
 		extern std::vector<TeleportLocation> savedTeleportLocations;
 
 		extern EGSDK::Vector3 waypointCoords;

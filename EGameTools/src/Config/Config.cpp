@@ -1,3 +1,5 @@
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <any>
 #include <filesystem>
@@ -36,164 +38,6 @@ namespace EGT::Config {
 		Float,
 		String
 	};
-
-	struct VKey {
-		constexpr VKey(std::string_view name, int code) : name(name), code(code) {}
-
-		std::string_view name;
-		int code;
-	};
-	static constexpr auto virtualKeyCodes = std::to_array<VKey>({
-		{ "VK_NONE", VK_NONE },
-
-		// Function keys
-		{ "VK_F1", VK_F1 },
-		{ "VK_F2", VK_F2 },
-		{ "VK_F3", VK_F3 },
-		{ "VK_F4", VK_F4 },
-		{ "VK_F5", VK_F5 },
-		{ "VK_F6", VK_F6 },
-		{ "VK_F7", VK_F7 },
-		{ "VK_F8", VK_F8 },
-		{ "VK_F9", VK_F9 },
-		{ "VK_F10", VK_F10 },
-		{ "VK_F11", VK_F11 },
-		{ "VK_F12", VK_F12 },
-
-		// Number keys
-		{ "VK_0", '0' },
-		{ "VK_1", '1' },
-		{ "VK_2", '2' },
-		{ "VK_3", '3' },
-		{ "VK_4", '4' },
-		{ "VK_5", '5' },
-		{ "VK_6", '6' },
-		{ "VK_7", '7' },
-		{ "VK_8", '8' },
-		{ "VK_9", '9' },
-		{ "0", '0' },
-		{ "1", '1' },
-		{ "2", '2' },
-		{ "3", '3' },
-		{ "4", '4' },
-		{ "5", '5' },
-		{ "6", '6' },
-		{ "7", '7' },
-		{ "8", '8' },
-		{ "9", '9' },
-
-		// Alphabetic keys
-		{ "VK_A", 'A' },
-		{ "VK_B", 'B' },
-		{ "VK_C", 'C' },
-		{ "VK_D", 'D' },
-		{ "VK_E", 'E' },
-		{ "VK_F", 'F' },
-		{ "VK_G", 'G' },
-		{ "VK_H", 'H' },
-		{ "VK_I", 'I' },
-		{ "VK_J", 'J' },
-		{ "VK_K", 'K' },
-		{ "VK_L", 'L' },
-		{ "VK_M", 'M' },
-		{ "VK_N", 'N' },
-		{ "VK_O", 'O' },
-		{ "VK_P", 'P' },
-		{ "VK_Q", 'Q' },
-		{ "VK_R", 'R' },
-		{ "VK_S", 'S' },
-		{ "VK_T", 'T' },
-		{ "VK_U", 'U' },
-		{ "VK_V", 'V' },
-		{ "VK_W", 'W' },
-		{ "VK_X", 'X' },
-		{ "VK_Y", 'Y' },
-		{ "VK_Z", 'Z' },
-		{ "A", 'A' },
-		{ "B", 'B' },
-		{ "C", 'C' },
-		{ "D", 'D' },
-		{ "E", 'E' },
-		{ "F", 'F' },
-		{ "G", 'G' },
-		{ "H", 'H' },
-		{ "I", 'I' },
-		{ "J", 'J' },
-		{ "K", 'K' },
-		{ "L", 'L' },
-		{ "M", 'M' },
-		{ "N", 'N' },
-		{ "O", 'O' },
-		{ "P", 'P' },
-		{ "Q", 'Q' },
-		{ "R", 'R' },
-		{ "S", 'S' },
-		{ "T", 'T' },
-		{ "U", 'U' },
-		{ "V", 'V' },
-		{ "W", 'W' },
-		{ "X", 'X' },
-		{ "Y", 'Y' },
-		{ "Z", 'Z' },
-
-		// Special keys
-		{"VK_BACK", VK_BACK },
-		{"VK_TAB", VK_TAB },
-		{"VK_RETURN", VK_RETURN },
-		{"VK_CAPITAL", VK_CAPITAL },
-		{"VK_SPACE", VK_SPACE },
-		{"VK_PRIOR", VK_PRIOR },
-		{"VK_NEXT", VK_NEXT },
-		{"VK_END", VK_END },
-		{"VK_HOME", VK_HOME },
-		{"VK_LEFT", VK_LEFT },
-		{"VK_UP", VK_UP },
-		{"VK_RIGHT", VK_RIGHT },
-		{"VK_DOWN", VK_DOWN },
-		{"VK_INSERT", VK_INSERT },
-		{"VK_DELETE", VK_DELETE },
-
-		// Numpad keys
-		{ "VK_NUMPAD0", VK_NUMPAD0 },
-		{ "VK_NUMPAD1", VK_NUMPAD1 },
-		{ "VK_NUMPAD2", VK_NUMPAD2 },
-		{ "VK_NUMPAD3", VK_NUMPAD3 },
-		{ "VK_NUMPAD4", VK_NUMPAD4 },
-		{ "VK_NUMPAD5", VK_NUMPAD5 },
-		{ "VK_NUMPAD6", VK_NUMPAD6 },
-		{ "VK_NUMPAD7", VK_NUMPAD7 },
-		{ "VK_NUMPAD8", VK_NUMPAD8 },
-		{ "VK_NUMPAD9", VK_NUMPAD9 },
-		{ "VK_MULTIPLY", VK_MULTIPLY },
-		{ "VK_ADD", VK_ADD },
-		{ "VK_SUBTRACT", VK_SUBTRACT },
-		{ "VK_DECIMAL", VK_DECIMAL },
-		{ "VK_DIVIDE", VK_DIVIDE },
-
-		// Modifier keys
-		{ "VK_SHIFT", VK_LSHIFT },
-		{ "VK_LSHIFT", VK_LSHIFT },
-		{ "VK_RSHIFT", VK_RSHIFT },
-		{ "VK_CONTROL", VK_LCONTROL },
-		{ "VK_LCONTROL", VK_LCONTROL },
-		{ "VK_RCONTROL", VK_RCONTROL },
-		{ "VK_MENU", VK_LMENU },
-		{ "VK_LMENU", VK_LMENU },
-		{ "VK_RMENU", VK_RMENU },
-
-		// Other keys
-		{ "VK_OEM_1", VK_OEM_1 },
-		{ "VK_OEM_PLUS", VK_OEM_PLUS },
-		{ "VK_OEM_COMMA", VK_OEM_COMMA },
-		{ "VK_OEM_MINUS", VK_OEM_MINUS },
-		{ "VK_OEM_PERIOD", VK_OEM_PERIOD },
-		{ "VK_OEM_2", VK_OEM_2 },
-		{ "VK_OEM_3", VK_OEM_3 },
-		{ "VK_OEM_4", VK_OEM_4 },
-		{ "VK_OEM_5", VK_OEM_5 },
-		{ "VK_OEM_6", VK_OEM_6 },
-		{ "VK_OEM_7", VK_OEM_7 }
-	});
 	
 	struct ConfigEntry {
 		std::string_view section;
@@ -203,85 +47,81 @@ namespace EGT::Config {
 		ValueType type;
 	};
 	static const auto configVariablesDefault = std::to_array<ConfigEntry>({
-		{ "Menu", "Opacity", 99.0f, &Menu::opacity, Float },
-		{ "Menu", "Scale", 1.0f, &Menu::scale, Float },
-		{ "Menu", "FirstTimeRunning", true, &Menu::firstTimeRunning, OPTION },
-		{ "Menu", "HasSeenChangelog", false, &Menu::hasSeenChangelog, OPTION },
-		{ "Menu:Keybinds", "MenuToggleKey", std::string("VK_F5"), &Menu::menuToggle, String},
-		{ "Menu:Keybinds", "GodModeToggleKey", std::string("VK_F6"), &Menu::Player::godMode, String},
-		{ "Menu:Keybinds", "FreezePlayerToggleKey", std::string("VK_NONE"), &Menu::Player::freezePlayer, String },
-		{ "Menu:Keybinds", "UnlimitedImmunityToggleKey", std::string("VK_NONE"), &Menu::Player::unlimitedImmunity, String},
-		{ "Menu:Keybinds", "UnlimitedStaminaToggleKey", std::string("VK_NONE"), &Menu::Player::unlimitedStamina, String},
-		{ "Menu:Keybinds", "UnlimitedItemsToggleKey", std::string("VK_NONE"), &Menu::Player::unlimitedItems, String},
-		{ "Menu:Keybinds", "OneHitKillToggleKey", std::string("VK_NONE"), &Menu::Player::oneHitKill, String},
-		{ "Menu:Keybinds", "DisableOutOfBoundsTimerToggleKey", std::string("VK_NONE"), &Menu::Player::disableOutOfBoundsTimer, String},
-		{ "Menu:Keybinds", "NightrunnerModeToggleKey", std::string("VK_F7"), &Menu::Player::nightrunnerMode, String},
-		{ "Menu:Keybinds", "OneHandedModeToggleKey", std::string("VK_NONE"), &Menu::Player::oneHandedMode, String},
-		{ "Menu:Keybinds", "AllowGrappleHookInSafezoneToggleKey", std::string("VK_NONE"), &Menu::Player::allowGrappleHookInSafezone, String},
-		{ "Menu:Keybinds", "DisableAirControlToggleKey", std::string("VK_NONE"), &Menu::Player::disableAirControl, String },
-		{ "Menu:Keybinds", "UnlimitedDurabilityToggleKey", std::string("VK_NONE"), &Menu::Weapon::unlimitedDurability, String },
-		{ "Menu:Keybinds", "UnlimitedAmmoToggleKey", std::string("VK_NONE"), &Menu::Weapon::unlimitedAmmo, String },
-		{ "Menu:Keybinds", "NoSpreadToggleKey", std::string("VK_NONE"), &Menu::Weapon::noSpread, String },
-		{ "Menu:Keybinds", "NoRecoilToggleKey", std::string("VK_NONE"), &Menu::Weapon::noRecoil, String },
-		{ "Menu:Keybinds", "InstantReloadToggleKey", std::string("VK_NONE"), &Menu::Weapon::instantReload, String },
-		{ "Menu:Keybinds", "FreeCamToggleKey", std::string("VK_F3"), &Menu::Camera::freeCam, String},
-		{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", std::string("VK_F4"), &Menu::Camera::teleportPlayerToCamera, String},
-		{ "Menu:Keybinds", "ThirdPersonToggleKey", std::string("VK_F1"), &Menu::Camera::thirdPersonCamera, String},
-		{ "Menu:Keybinds", "UseTPPModelToggleKey", std::string("VK_F2"), &Menu::Camera::tpUseTPPModel, String},
-		{ "Menu:Keybinds", "GoProMode", std::string("VK_NONE"), &Menu::Camera::goProMode, String },
-		{ "Menu:Keybinds", "DisableSafezoneFOVReduction", std::string("VK_NONE"), &Menu::Camera::disableSafezoneFOVReduction, String },
-		{ "Menu:Keybinds", "DisablePhotoModeLimits", std::string("VK_NONE"), &Menu::Camera::disablePhotoModeLimits, String},
-		{ "Menu:Keybinds", "DisableHeadCorrectionToggleKey", std::string("VK_NONE"), &Menu::Camera::disableHeadCorrection, String },
-		{ "Menu:Keybinds", "TeleportToSelectedLocationToggleKey", std::string("VK_F9"), &Menu::Teleport::teleportToSelectedLocation, String },
-		{ "Menu:Keybinds", "TeleportToCoordsToggleKey", std::string("VK_NONE"), &Menu::Teleport::teleportToCoords, String },
-		{ "Menu:Keybinds", "DisableHUDToggleKey", std::string("VK_F8"), &Menu::Misc::disableHUD, String},
-		{ "Menu:Keybinds", "DisableGamePauseWhileAFKToggleKey", std::string("VK_NONE"), &Menu::Misc::disableGamePauseWhileAFK, String},
-		{ "Menu:Keybinds", "FreezeTimeToggleKey", std::string("VK_NONE"), &Menu::World::freezeTime, String},
-		{ "Menu:Keybinds", "SlowMotionToggleKey", std::string("VK_4"), &Menu::World::slowMotion, String},
-		{ "Player:Misc", "GodMode", false, &Menu::Player::godMode, OPTION },
-		{ "Player:Misc", "UnlimitedImmunity", false, &Menu::Player::unlimitedImmunity, OPTION },
-		{ "Player:Misc", "UnlimitedStamina", false, &Menu::Player::unlimitedStamina, OPTION },
-		{ "Player:Misc", "UnlimitedItems", false, &Menu::Player::unlimitedItems, OPTION },
-		{ "Player:Misc", "OneHitKill", false, &Menu::Player::oneHitKill, OPTION },
-		{ "Player:Misc", "InvisibleToEnemies", false, &Menu::Player::invisibleToEnemies, OPTION },
-		{ "Player:Misc", "DisableOutOfBoundsTimer", true, &Menu::Player::disableOutOfBoundsTimer, OPTION },
-		{ "Player:Misc", "NightrunnerMode", false, &Menu::Player::nightrunnerMode, OPTION },
-		{ "Player:Misc", "OneHandedMode", false, &Menu::Player::oneHandedMode, OPTION },
-		{ "Player:Misc", "AllowGrappleHookInSafezone", false, &Menu::Player::allowGrappleHookInSafezone, OPTION },
-		{ "Player:PlayerJumpParameters", "DisableAirControl", false, &Menu::Player::disableAirControl, OPTION },
-		{ "Player:PlayerVariables", "Enabled", false, &Menu::Player::playerVariables, OPTION },
-		{ "Player:PlayerVariables", "LastSaveSCRPath", std::string(), &Menu::Player::saveSCRPath, String },
-		{ "Player:PlayerVariables", "LastLoadSCRFilePath", std::string(), &Menu::Player::loadSCRFilePath, String },
-		{ "Weapon:Misc", "UnlimitedDurability", false, &Menu::Weapon::unlimitedDurability, OPTION },
-		{ "Weapon:Misc", "UnlimitedAmmo", false, &Menu::Weapon::unlimitedAmmo, OPTION },
-		{ "Weapon:Misc", "NoSpread", false, &Menu::Weapon::noSpread, OPTION },
-		{ "Weapon:Misc", "NoRecoil", false, &Menu::Weapon::noRecoil, OPTION },
-		{ "Weapon:Misc", "InstantReload", false, &Menu::Weapon::instantReload, OPTION },
-		{ "Camera:FreeCam", "Speed", 2.0f, &Menu::Camera::freeCamSpeed, Float },
-		{ "Camera:FreeCam", "TeleportPlayerToCamera", false, &Menu::Camera::teleportPlayerToCamera, OPTION },
-		{ "Camera:ThirdPerson", "Enabled", false, &Menu::Camera::thirdPersonCamera, OPTION },
-		{ "Camera:ThirdPerson", "UseTPPModel", true, &Menu::Camera::tpUseTPPModel, OPTION },
-		{ "Camera:ThirdPerson", "DistanceBehindPlayer", 2.0f, &Menu::Camera::tpDistanceBehindPlayer, Float },
-		{ "Camera:ThirdPerson", "HeightAbovePlayer", 1.35f, &Menu::Camera::tpHeightAbovePlayer, Float },
-		{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", 0.0f, &Menu::Camera::tpHorizontalDistanceFromPlayer, Float },
-		{ "Camera:Misc", "LensDistortion", 20.0f, &Menu::Camera::lensDistortion, Float },
-		{ "Camera:Misc", "GoProMode", false, &Menu::Camera::goProMode, OPTION },
-		{ "Camera:Misc", "DisableSafezoneFOVReduction", true, &Menu::Camera::disableSafezoneFOVReduction, OPTION },
-		{ "Camera:Misc", "DisablePhotoModeLimits", true, &Menu::Camera::disablePhotoModeLimits, OPTION },
-		{ "Camera:Misc", "DisableHeadCorrection", false, &Menu::Camera::disableHeadCorrection, OPTION },
-		{ "Teleport:SavedLocations", "SavedTeleportLocations", std::string("Bazaar - Highest Point:1944,123.6,932.8;Bazaar - Main Entrance:1962.9,50.1,927.9;Colonel Williams Stronghold - Main Entrance Bridge:994.3,22.8,-1138.6;Dynamo Cars Factory - Main Entrance:2295.9,-2.1,-78.6;Fish Eye - Player Safehouse:1180.4,32.4,-146.8;Fish Eye - Top of The Baloon:1122.6,98.8,-101.2;Observatory - Meeting Room:1951.2,-13.4,-329.6;Observatory - The 2 Domes (No Chemicals):1985.4,19.9,-357.2;Out of Bounds - Cut Road Quest:2693.3,-4.7,-241.5;PK Metro Station - Main Entrance:1886.9,50,628.9;PK Ship - Main Entrance:801.8,4.2,139.8;St. Paul Cathedral - GRE Entrance:463.4,4.2,-421;Tolga & Fatin Quest - Underground Loot Box:2343.9,12.2,-661.5;VNC Tower - \"V\" Logo:1434.2,4.3,-319.3;VNC Tower - Highest Player Safehouse:1424.7,354.6,-455;VNC Tower - Highest Point:1403.8,446.7,-389.8;X13 - Tunnel Near the City Walls Towards Facility:2407.9,36.2,-461.7;X13 - Underground Facility:2437.8,12.2,-649.9;X13 - Waltz Arena:2551.9,15.3,-569.1"), &Menu::Teleport::savedTeleportLocations, String},
-		{ "Misc:Misc", "DisableGamePauseWhileAFK", true, &Menu::Misc::disableGamePauseWhileAFK, OPTION },
-		{ "Misc:GameChecks", "DisableSavegameCRCCheck", true, &Menu::Misc::disableSavegameCRCCheck, OPTION },
-		{ "Misc:GameChecks", "DisableDataPAKsCRCCheck", true, &Menu::Misc::disableDataPAKsCRCCheck, OPTION },
-		{ "Misc:GameChecks", "IncreaseDataPAKsLimit", true, &Menu::Misc::increaseDataPAKsLimit, OPTION },
-		{ "World:Time", "SlowMotionSpeed", 0.4f, &Menu::World::slowMotionSpeed, Float },
-		{ "World:Time", "SlowMotionTransitionTime", 1.0f, &Menu::World::slowMotionTransitionTime, Float },
-#ifdef _DEBUG
-		{ "Debug:Misc", "DisableLowLevelMouseHook", true, &Menu::Debug::disableLowLevelMouseHook, OPTION },
-#else
-		{ "Debug:Misc", "DisableLowLevelMouseHook", false, &Menu::Debug::disableLowLevelMouseHook, OPTION },
-#endif
-		{ "Debug:Misc", "DisableVftableScanning", false, &Menu::Debug::disableVftableScanning, OPTION },
+		{ "Menu", "Opacity", Menu::opacity, &Menu::opacity, Float },
+		{ "Menu", "Scale", Menu::scale, &Menu::scale, Float },
+		{ "Menu", "FirstTimeRunning", Menu::firstTimeRunning.GetValue(), &Menu::firstTimeRunning, OPTION},
+		{ "Menu", "HasSeenChangelog", Menu::hasSeenChangelog.GetValue(), &Menu::hasSeenChangelog, OPTION },
+		{ "Menu:Keybinds", "MenuToggleKey", Menu::menuToggle.ToStringVKeyMap(), &Menu::menuToggle, String},
+		{ "Menu:Keybinds", "GodModeToggleKey", Menu::Player::godMode.ToStringVKeyMap(), &Menu::Player::godMode, String},
+		{ "Menu:Keybinds", "FreezePlayerToggleKey", Menu::Player::freezePlayer.ToStringVKeyMap(), &Menu::Player::freezePlayer, String },
+		{ "Menu:Keybinds", "UnlimitedImmunityToggleKey", Menu::Player::unlimitedImmunity.ToStringVKeyMap(), &Menu::Player::unlimitedImmunity, String},
+		{ "Menu:Keybinds", "UnlimitedStaminaToggleKey", Menu::Player::unlimitedStamina.ToStringVKeyMap(), &Menu::Player::unlimitedStamina, String},
+		{ "Menu:Keybinds", "UnlimitedItemsToggleKey", Menu::Player::unlimitedItems.ToStringVKeyMap(), &Menu::Player::unlimitedItems, String},
+		{ "Menu:Keybinds", "OneHitKillToggleKey", Menu::Player::oneHitKill.ToStringVKeyMap(), &Menu::Player::oneHitKill, String},
+		{ "Menu:Keybinds", "DisableOutOfBoundsTimerToggleKey", Menu::Player::disableOutOfBoundsTimer.ToStringVKeyMap(), &Menu::Player::disableOutOfBoundsTimer, String},
+		{ "Menu:Keybinds", "NightrunnerModeToggleKey", Menu::Player::nightrunnerMode.ToStringVKeyMap(), &Menu::Player::nightrunnerMode, String},
+		{ "Menu:Keybinds", "OneHandedModeToggleKey", Menu::Player::oneHandedMode.ToStringVKeyMap(), &Menu::Player::oneHandedMode, String},
+		{ "Menu:Keybinds", "AllowGrappleHookInSafezoneToggleKey", Menu::Player::allowGrappleHookInSafezone.ToStringVKeyMap(), &Menu::Player::allowGrappleHookInSafezone, String},
+		{ "Menu:Keybinds", "DisableAirControlToggleKey", Menu::Player::disableAirControl.ToStringVKeyMap(), &Menu::Player::disableAirControl, String },
+		{ "Menu:Keybinds", "UnlimitedDurabilityToggleKey", Menu::Weapon::unlimitedDurability.ToStringVKeyMap(), &Menu::Weapon::unlimitedDurability, String },
+		{ "Menu:Keybinds", "UnlimitedAmmoToggleKey", Menu::Weapon::unlimitedAmmo.ToStringVKeyMap(), &Menu::Weapon::unlimitedAmmo, String },
+		{ "Menu:Keybinds", "NoSpreadToggleKey", Menu::Weapon::noSpread.ToStringVKeyMap(), &Menu::Weapon::noSpread, String },
+		{ "Menu:Keybinds", "NoRecoilToggleKey", Menu::Weapon::noRecoil.ToStringVKeyMap(), &Menu::Weapon::noRecoil, String },
+		{ "Menu:Keybinds", "InstantReloadToggleKey", Menu::Weapon::instantReload.ToStringVKeyMap(), &Menu::Weapon::instantReload, String },
+		{ "Menu:Keybinds", "FreeCamToggleKey", Menu::Camera::freeCam.ToStringVKeyMap(), &Menu::Camera::freeCam, String},
+		{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", Menu::Camera::teleportPlayerToCamera.ToStringVKeyMap(), &Menu::Camera::teleportPlayerToCamera, String},
+		{ "Menu:Keybinds", "ThirdPersonToggleKey", Menu::Camera::thirdPersonCamera.ToStringVKeyMap(), &Menu::Camera::thirdPersonCamera, String},
+		{ "Menu:Keybinds", "UseTPPModelToggleKey", Menu::Camera::tpUseTPPModel.ToStringVKeyMap(), &Menu::Camera::tpUseTPPModel, String},
+		{ "Menu:Keybinds", "GoProMode", Menu::Camera::goProMode.ToStringVKeyMap(), &Menu::Camera::goProMode, String },
+		{ "Menu:Keybinds", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.ToStringVKeyMap(), &Menu::Camera::disableSafezoneFOVReduction, String },
+		{ "Menu:Keybinds", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.ToStringVKeyMap(), &Menu::Camera::disablePhotoModeLimits, String},
+		{ "Menu:Keybinds", "DisableHeadCorrectionToggleKey", Menu::Camera::disableHeadCorrection.ToStringVKeyMap(), &Menu::Camera::disableHeadCorrection, String },
+		{ "Menu:Keybinds", "TeleportToSelectedLocationToggleKey", Menu::Teleport::teleportToSelectedLocation.ToStringVKeyMap(), &Menu::Teleport::teleportToSelectedLocation, String },
+		{ "Menu:Keybinds", "TeleportToCoordsToggleKey", Menu::Teleport::teleportToCoords.ToStringVKeyMap(), &Menu::Teleport::teleportToCoords, String },
+		{ "Menu:Keybinds", "DisableHUDToggleKey", Menu::Misc::disableHUD.ToStringVKeyMap(), &Menu::Misc::disableHUD, String},
+		{ "Menu:Keybinds", "DisableGamePauseWhileAFKToggleKey", Menu::Misc::disableGamePauseWhileAFK.ToStringVKeyMap(), &Menu::Misc::disableGamePauseWhileAFK, String},
+		{ "Menu:Keybinds", "FreezeTimeToggleKey", Menu::World::freezeTime.ToStringVKeyMap(), &Menu::World::freezeTime, String},
+		{ "Menu:Keybinds", "SlowMotionToggleKey", Menu::World::slowMotion.ToStringVKeyMap(), &Menu::World::slowMotion, String},
+		{ "Player:Misc", "GodMode", Menu::Player::godMode.GetValue(), &Menu::Player::godMode, OPTION },
+		{ "Player:Misc", "UnlimitedImmunity", Menu::Player::unlimitedImmunity.GetValue(), &Menu::Player::unlimitedImmunity, OPTION },
+		{ "Player:Misc", "UnlimitedStamina", Menu::Player::unlimitedStamina.GetValue(), &Menu::Player::unlimitedStamina, OPTION },
+		{ "Player:Misc", "UnlimitedItems", Menu::Player::unlimitedItems.GetValue(), &Menu::Player::unlimitedItems, OPTION },
+		{ "Player:Misc", "OneHitKill", Menu::Player::oneHitKill.GetValue(), &Menu::Player::oneHitKill, OPTION },
+		{ "Player:Misc", "InvisibleToEnemies", Menu::Player::invisibleToEnemies.GetValue(), &Menu::Player::invisibleToEnemies, OPTION },
+		{ "Player:Misc", "DisableOutOfBoundsTimer", Menu::Player::disableOutOfBoundsTimer.GetValue(), &Menu::Player::disableOutOfBoundsTimer, OPTION },
+		{ "Player:Misc", "NightrunnerMode", Menu::Player::nightrunnerMode.GetValue(), &Menu::Player::nightrunnerMode, OPTION },
+		{ "Player:Misc", "OneHandedMode", Menu::Player::oneHandedMode.GetValue(), &Menu::Player::oneHandedMode, OPTION },
+		{ "Player:Misc", "AllowGrappleHookInSafezone", Menu::Player::allowGrappleHookInSafezone.GetValue(), &Menu::Player::allowGrappleHookInSafezone, OPTION },
+		{ "Player:PlayerJumpParameters", "DisableAirControl", Menu::Player::disableAirControl.GetValue(), &Menu::Player::disableAirControl, OPTION },
+		{ "Player:PlayerVariables", "Enabled", Menu::Player::playerVariables.GetValue(), &Menu::Player::playerVariables, OPTION },
+		{ "Player:PlayerVariables", "LastSaveSCRPath", Menu::Player::saveSCRPath, &Menu::Player::saveSCRPath, String },
+		{ "Player:PlayerVariables", "LastLoadSCRFilePath", Menu::Player::loadSCRFilePath, &Menu::Player::loadSCRFilePath, String },
+		{ "Weapon:Misc", "UnlimitedDurability", Menu::Weapon::unlimitedDurability.GetValue(), &Menu::Weapon::unlimitedDurability, OPTION },
+		{ "Weapon:Misc", "UnlimitedAmmo", Menu::Weapon::unlimitedAmmo.GetValue(), &Menu::Weapon::unlimitedAmmo, OPTION },
+		{ "Weapon:Misc", "NoSpread", Menu::Weapon::noSpread.GetValue(), &Menu::Weapon::noSpread, OPTION },
+		{ "Weapon:Misc", "NoRecoil", Menu::Weapon::noRecoil.GetValue(), &Menu::Weapon::noRecoil, OPTION },
+		{ "Weapon:Misc", "InstantReload", Menu::Weapon::instantReload.GetValue(), &Menu::Weapon::instantReload, OPTION },
+		{ "Camera:FreeCam", "Speed", Menu::Camera::freeCamSpeed, &Menu::Camera::freeCamSpeed, Float },
+		{ "Camera:FreeCam", "TeleportPlayerToCamera", Menu::Camera::teleportPlayerToCamera.GetValue(), &Menu::Camera::teleportPlayerToCamera, OPTION },
+		{ "Camera:ThirdPerson", "Enabled", Menu::Camera::thirdPersonCamera.GetValue(), &Menu::Camera::thirdPersonCamera, OPTION },
+		{ "Camera:ThirdPerson", "UseTPPModel", Menu::Camera::tpUseTPPModel.GetValue(), &Menu::Camera::tpUseTPPModel, OPTION },
+		{ "Camera:ThirdPerson", "DistanceBehindPlayer", Menu::Camera::tpDistanceBehindPlayer, &Menu::Camera::tpDistanceBehindPlayer, Float },
+		{ "Camera:ThirdPerson", "HeightAbovePlayer", Menu::Camera::tpHeightAbovePlayer, &Menu::Camera::tpHeightAbovePlayer, Float },
+		{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", Menu::Camera::tpHorizontalDistanceFromPlayer, &Menu::Camera::tpHorizontalDistanceFromPlayer, Float },
+		{ "Camera:Misc", "LensDistortion", Menu::Camera::lensDistortion, &Menu::Camera::lensDistortion, Float },
+		{ "Camera:Misc", "GoProMode", Menu::Camera::goProMode.GetValue(), &Menu::Camera::goProMode, OPTION },
+		{ "Camera:Misc", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.GetValue(), &Menu::Camera::disableSafezoneFOVReduction, OPTION },
+		{ "Camera:Misc", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.GetValue(), &Menu::Camera::disablePhotoModeLimits, OPTION },
+		{ "Camera:Misc", "DisableHeadCorrection", Menu::Camera::disableHeadCorrection.GetValue(), &Menu::Camera::disableHeadCorrection, OPTION },
+		{ "Teleport:SavedLocations", "SavedTeleportLocations", Menu::Teleport::savedTeleportLocationsStr, &Menu::Teleport::savedTeleportLocations, String},
+		{ "Misc:Misc", "DisableGamePauseWhileAFK", Menu::Misc::disableGamePauseWhileAFK.GetValue(), &Menu::Misc::disableGamePauseWhileAFK, OPTION },
+		{ "Misc:GameChecks", "DisableSavegameCRCCheck", Menu::Misc::disableSavegameCRCCheck.GetValue(), &Menu::Misc::disableSavegameCRCCheck, OPTION },
+		{ "Misc:GameChecks", "DisableDataPAKsCRCCheck", Menu::Misc::disableDataPAKsCRCCheck.GetValue(), &Menu::Misc::disableDataPAKsCRCCheck, OPTION },
+		{ "Misc:GameChecks", "IncreaseDataPAKsLimit", Menu::Misc::increaseDataPAKsLimit.GetValue(), &Menu::Misc::increaseDataPAKsLimit, OPTION },
+		{ "World:Time", "SlowMotionSpeed", Menu::World::slowMotionSpeed, &Menu::World::slowMotionSpeed, Float },
+		{ "World:Time", "SlowMotionTransitionTime", Menu::World::slowMotionTransitionTime, &Menu::World::slowMotionTransitionTime, Float },
+		{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook, &Menu::Debug::disableLowLevelMouseHook, OPTION },
+		{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning, &Menu::Debug::disableVftableScanning, OPTION },
 	});
 	std::vector<ConfigEntry> configVariables(configVariablesDefault.begin(), configVariablesDefault.end());
 	static constexpr const char* configFileName = "EGameTools.ini";
@@ -341,9 +181,9 @@ namespace EGT::Config {
 					entry.value = loadSCRFilePath;
 					Menu::Player::loadSCRFilePath = loadSCRFilePath;
 				} else if (entry.section == "Menu:Keybinds") {
-					const std::string toggleKey = strValue;
-					if (const auto it = std::ranges::find(virtualKeyCodes, toggleKey, &Config::VKey::name); it != virtualKeyCodes.end())
-						reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->ChangeKeyBind(it->code);
+					int keyCode = ImGui::KeyBindOption::ToKeyCodeVKeyMap(strValue);
+					if (keyCode != VK_INVALID)
+						reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->ChangeKeyBind(keyCode);
 				} else if (entry.key == "SavedTeleportLocations") {
 					Menu::Teleport::savedTeleportLocations = Menu::Teleport::ParseTeleportLocations(strValue);
 					Menu::Teleport::UpdateTeleportLocationVisualNames();
@@ -398,8 +238,9 @@ namespace EGT::Config {
 				case String:
 					strValue = reader.Get(entry.section.data(), entry.key.data(), std::any_cast<std::string>(entry.value));
 					if (entry.section == "Menu:Keybinds") {
-						if (const auto it = std::ranges::find(virtualKeyCodes, strValue, &Config::VKey::name); it != virtualKeyCodes.end())
-							reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->ChangeKeyBind(it->code);
+						int keyCode = ImGui::KeyBindOption::ToKeyCodeVKeyMap(strValue);
+						if (keyCode != VK_INVALID)
+							reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->ChangeKeyBind(keyCode);
 						break;
 					} else if (entry.key == "LastSaveSCRPath") {
 						Menu::Player::saveSCRPath = strValue;
@@ -456,14 +297,12 @@ namespace EGT::Config {
 					strValue = reader.Get(entry.section.data(), entry.key.data(), std::any_cast<std::string>(entry.value));
 
 					if (entry.section == "Menu:Keybinds") {
-						ImGui::KeyBindOption* option = reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr);
-
-						const auto itConfigVal = std::ranges::find(virtualKeyCodes, strValue, &Config::VKey::name);
-						const auto itMemVal = std::ranges::find(virtualKeyCodes, option->GetKeyBind(), &Config::VKey::code);
-						if (itConfigVal == virtualKeyCodes.end() || itMemVal == virtualKeyCodes.end())
+						int configKeyCode = ImGui::KeyBindOption::ToKeyCodeVKeyMap(strValue);
+						int memKeyCode = reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->GetKeyBind();
+						if (configKeyCode == VK_INVALID)
 							break;
 
-						if (strValue != itMemVal->name)
+						if (configKeyCode != memKeyCode)
 							return true;
 						break;
 					} else if (entry.key == "SavedTeleportLocations") {
@@ -495,10 +334,9 @@ namespace EGT::Config {
 				break;
 			case String:
 				if (entry.section == "Menu:Keybinds") {
-					ImGui::KeyBindOption* option = reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr);
-
-					if (const auto it = std::ranges::find(virtualKeyCodes, option->GetKeyBind(), &Config::VKey::code); it != virtualKeyCodes.end())
-						entry.value = std::string(it->name);
+					std::string keyString = reinterpret_cast<ImGui::KeyBindOption*>(entry.optionPtr)->ToStringVKeyMap();
+					if (!keyString.empty())
+						entry.value = keyString;
 					break;
 				} else if (entry.key == "SavedTeleportLocations") {
 					entry.value = Menu::Teleport::ConvertTeleportLocationsToStr(Menu::Teleport::savedTeleportLocations);
