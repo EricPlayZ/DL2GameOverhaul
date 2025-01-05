@@ -368,7 +368,7 @@ namespace EGT::Config {
 		return std::filesystem::exists(configFileName);
 	}
 	static void CreateConfig() {
-		SPDLOG_WARN("{} does not exist (will create now); using default config values", configFileName);
+		SPDLOG_INFO("{} does not exist (will create now); using default config values", configFileName);
 		LoadAndWriteDefaultConfig();
 	}
 	static void ReadConfig(const bool configUpdate = false) {

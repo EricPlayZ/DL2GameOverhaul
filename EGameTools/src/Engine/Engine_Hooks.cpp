@@ -57,7 +57,7 @@ namespace EGT::Engine {
 		static std::vector<std::string> cachedUserModDirs{};
 		static EGSDK::Utils::Time::Timer timeSinceCache{ 0 };
 		static void CacheUserModDirs() {
-			SPDLOG_WARN("Recaching user mod directories");
+			SPDLOG_INFO("Recaching user mod directories");
 
 			if (!cachedUserModDirs.empty())
 				cachedUserModDirs.clear();
@@ -104,7 +104,7 @@ namespace EGT::Engine {
 					
 					finalPath.erase(0, userModFilesFullPath.size() + 1); // erase entire path until mod folder
 					const char* filePath2 = finalPath.c_str();
-					SPDLOG_WARN("Loading user mod file \"{}\"", finalPath.c_str());
+					SPDLOG_INFO("Loading user mod file \"{}\"", finalPath.c_str());
 
 					DWORD64 finalAddr = reinterpret_cast<DWORD64>(filePath2);
 					if (firstByte != 0x0)
@@ -172,7 +172,7 @@ namespace EGT::Engine {
 					pathPtr.pakPath = pakPath.c_str();
 					pathPtr.fullPakPath = fullPakPath.c_str();
 
-					SPDLOG_WARN("Loading user PAK mod file \"{}\"", pakPath.c_str());
+					SPDLOG_INFO("Loading user PAK mod file \"{}\"", pakPath.c_str());
 					if (!fs::mount(&pathPtr, 1, nullptr))
 						SPDLOG_ERROR("fs::mount returned 0! Something went wrong with loading user PAK mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters, and make sure the file is valid!", pakPath.c_str());
 				}

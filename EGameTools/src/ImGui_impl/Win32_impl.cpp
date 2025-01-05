@@ -7,22 +7,6 @@
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Debug.h>
 
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-// TODO: FIX BOOLEAN LOGIC FOR LOW LEVEL MOUSE HOOK
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace EGT::ImGui_impl {
@@ -158,7 +142,12 @@ namespace EGT::ImGui_impl {
 			UnhookWindowsHookEx(oMouseProc);
 			oMouseProc = nullptr;
 		}
-		void ToggleMouseHook(bool value) { value ? EnableMouseHook() : DisableMouseHook(); }
+		void ToggleMouseHook(bool disableLowLevelMouseHook) {
+			if (disableLowLevelMouseHook)
+				DisableMouseHook();
+			else
+				EnableMouseHook();
+		}
 
 		void Init(HWND hwnd) {
 			gHwnd = hwnd;

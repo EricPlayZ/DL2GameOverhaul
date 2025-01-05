@@ -108,16 +108,16 @@ namespace EGSDK::Core {
 		SetUnhandledExceptionFilter(CrashHandler);
 #endif
 
-		SPDLOG_WARN("Getting game version");
+		SPDLOG_INFO("Getting game version");
 		GameVersionCheck();
 
-		SPDLOG_WARN("Initializing hooks");
+		SPDLOG_INFO("Initializing hooks");
 		for (auto& hook : (*EGSDK::Utils::Hook::HookBase::GetInstances())[hModule]) {
 			threads.emplace_back([&hook]() {
 				maxHookThreads.acquire();
 
 				if (hook->IsHooking()) {
-					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
 					while (hook->IsHooking())
 						Sleep(10);
 
@@ -126,7 +126,7 @@ namespace EGSDK::Core {
 				} else if (hook->IsHooked())
 					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				else {
-					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
 					if (hook->HookLoop())
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
@@ -135,7 +135,7 @@ namespace EGSDK::Core {
 			}).detach();
 		}
 
-		SPDLOG_WARN("Sorting Player Variables");
+		SPDLOG_INFO("Sorting Player Variables");
 		threads.emplace_back([]() {
 			if (GamePH::PlayerVariables::SortPlayerVars())
 				SPDLOG_INFO("Player Variables sorted");
@@ -163,9 +163,9 @@ namespace EGSDK::Core {
 	void Cleanup() {
 		exiting = true;
 
-		SPDLOG_WARN("Game requested exit, running cleanup");
+		SPDLOG_INFO("Game requested exit, running cleanup");
 
-		SPDLOG_WARN("Unhooking everything");
+		SPDLOG_INFO("Unhooking everything");
 		MH_DisableHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
 		SPDLOG_INFO("Unhooked everything");

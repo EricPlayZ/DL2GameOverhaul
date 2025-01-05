@@ -84,7 +84,7 @@ namespace EGT::Core {
 				EGT::ImGui_impl::D3D12::Init();
 				break;
 			default:
-				SPDLOG_WARN("Unknown renderer type");
+				SPDLOG_ERROR("Unknown renderer type");
 				break;
 			}
 
@@ -178,7 +178,7 @@ namespace EGT::Core {
 				}
 			}
 
-			SPDLOG_WARN("Creating symlink \"EGameTools\" for \"Dying Light 2\\ph\\source\\data\\EGameTools\" folder");
+			SPDLOG_INFO("Creating symlink \"EGameTools\" for \"Dying Light 2\\ph\\source\\data\\EGameTools\" folder");
 
 			std::string symlinkPath = EGSDK::Utils::Files::GetCurrentProcDirectory() + "\\EGameTools";
 			SPDLOG_DEBUG("SymlinkPath: {}", symlinkPath);
@@ -286,17 +286,17 @@ namespace EGT::Core {
 		SetUnhandledExceptionFilter(CrashHandler);
 #endif
 
-		SPDLOG_WARN("Running game version checks");
+		SPDLOG_INFO("Running game version checks");
 		GameVersionCheck();
 
-		SPDLOG_WARN("Initializing config");
+		SPDLOG_INFO("Initializing config");
 		Config::InitConfig();
 		threads.emplace_back(Config::ConfigLoop);
 
-		SPDLOG_WARN("Setting vftable scanning to: {}", Menu::Debug::disableVftableScanning);
+		SPDLOG_INFO("Setting vftable scanning to: {}", Menu::Debug::disableVftableScanning);
 		EGSDK::ClassHelpers::SetIsVftableScanningDisabled(Menu::Debug::disableVftableScanning);
 
-		SPDLOG_WARN("Creating symlink for loading files");
+		SPDLOG_INFO("Creating symlink for loading files");
 		CreateSymlinkForLoadingFiles();
 
 		SPDLOG_INFO("Initializing hooks");
@@ -305,7 +305,7 @@ namespace EGT::Core {
 				maxHookThreads.acquire();
 
 				if (hook->IsHooking()) {
-					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
 					while (hook->IsHooking())
 						Sleep(10);
 
@@ -314,7 +314,7 @@ namespace EGT::Core {
 				} else if (hook->IsHooked())
 					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				else {
-					SPDLOG_WARN("Hooking \"{}\"", hook->GetName().data());
+					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
 					if (hook->HookLoop())
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
@@ -323,7 +323,7 @@ namespace EGT::Core {
 			}).detach();
 		}
 
-		SPDLOG_WARN("Hooking DX11/DX12 renderer");
+		SPDLOG_INFO("Hooking DX11/DX12 renderer");
 		threads.emplace_back([]() {
 			if (LoopHookRenderer())
 				SPDLOG_INFO("Hooked \"DX11/DX12 renderer\"!");
@@ -351,12 +351,12 @@ namespace EGT::Core {
 	void Cleanup() {
 		exiting = true;
 
-		SPDLOG_WARN("Game requested exit, running cleanup");
-		SPDLOG_WARN("Saving config to file");
+		SPDLOG_INFO("Game requested exit, running cleanup");
+		SPDLOG_INFO("Saving config to file");
 		Config::SaveConfig();
 		SPDLOG_INFO("Config saved to file");
 
-		SPDLOG_WARN("Unhooking everything");
+		SPDLOG_INFO("Unhooking everything");
 		MH_DisableHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
 		SPDLOG_INFO("Unhooked everything");

@@ -288,7 +288,7 @@ namespace EGT::Menu {
         io.FontDefault = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRudaBold, sizeof(g_FontRudaBold), 12.0f + 6.0f, &fontConfig);
         io.Fonts->Build();
 
-        SPDLOG_WARN("Loading EGameTools logo texture");
+        SPDLOG_INFO("Loading EGameTools logo texture");
         EGTLogoTexture = EGT::Utils::Texture::LoadImGuiTexture(g_EGTWhiteLogo, sizeof(g_EGTWhiteLogo));
         SPDLOG_INFO("Loaded EGameTools logo");
     }
