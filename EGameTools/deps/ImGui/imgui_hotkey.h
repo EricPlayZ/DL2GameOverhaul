@@ -1,5 +1,4 @@
 #pragma once
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <ImGui\imgui.h>
 #include <set>
 #include <EGSDK\Utils\Time.h>

@@ -1,6 +1,4 @@
-﻿#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <spdlog\spdlog.h>
 #include <ImGui\imgui_hotkey.h>
 #include <EGSDK\Engine\CInput.h>

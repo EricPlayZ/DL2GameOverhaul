@@ -1,5 +1,4 @@
 #pragma once
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <ImGui\imgui_internal.h>
 #include <ImGui\imgui_hotkey.h>
 

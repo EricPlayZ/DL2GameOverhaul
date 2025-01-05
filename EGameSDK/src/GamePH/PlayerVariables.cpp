@@ -1,5 +1,3 @@
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Offsets.h>

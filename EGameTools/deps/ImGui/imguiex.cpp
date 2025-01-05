@@ -1,4 +1,3 @@
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <ImGui\imgui_hotkey.h>
 #include <ImGui\imgui_internal.h>
 
