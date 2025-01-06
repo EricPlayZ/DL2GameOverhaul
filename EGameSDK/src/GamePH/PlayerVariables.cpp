@@ -94,7 +94,7 @@ namespace EGSDK::GamePH {
 				auto floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
 				floatPlayerVar->SetValues(value);
 			} else if constexpr (std::is_same_v<T, bool>) {
-				auto boolPlayerVar = dynamic_cast<BoolPlayerVariable*>(playerVar);
+				auto boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
 				boolPlayerVar->SetValues(value);
 			}
 		}
@@ -165,6 +165,13 @@ namespace EGSDK::GamePH {
 			}
 		}
 	}
+	static void processPlayerVarSafe(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVarPtr) {
+		__try {
+			processPlayerVar(playerVarsGetter, playerVarPtr);
+		} __except (EXCEPTION_EXECUTE_HANDLER) {
+			SPDLOG_ERROR("Failed to process player variable: {}", playerVarPtr->GetName());
+		}
+	}
 
 	void PlayerVariables::GetPlayerVars() {
 		if (gotPlayerVars)
@@ -174,13 +181,8 @@ namespace EGSDK::GamePH {
 		if (!Get())
 			return;
 
-		for (auto& playerVarPtr : playerVars) {
-			__try {
-				processPlayerVar(reinterpret_cast<DWORD64*(*)()>(&Get), playerVarPtr);
-			} __except (EXCEPTION_EXECUTE_HANDLER) {
-				SPDLOG_ERROR("Failed to process player variable: {}", playerVarPtr->GetName());
-			}
-		}
+		for (auto& playerVarPtr : playerVars)
+			processPlayerVarSafe(reinterpret_cast<DWORD64*(*)()>(&Get), playerVarPtr);
 
 		gotPlayerVars = true;
 	}

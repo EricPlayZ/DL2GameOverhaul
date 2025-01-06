@@ -59,6 +59,13 @@ namespace EGSDK::GamePH {
 
 	class EGameSDK_API PlayerVarVector {
 	public:
+		PlayerVarVector() = default;
+		PlayerVarVector(const PlayerVarVector&) = delete; // Prevent copying
+		PlayerVarVector& operator=(const PlayerVarVector&) = delete; // Prevent assignment
+
+		PlayerVarVector(PlayerVarVector&&) = default; // Allow moving
+		PlayerVarVector& operator=(PlayerVarVector&&) = default; // Allow move assignment
+
 		std::unique_ptr<PlayerVariable>& emplace_back(std::unique_ptr<PlayerVariable> playerVar) {
 			_playerVars.emplace_back(std::move(playerVar));
 			return _playerVars.back();
