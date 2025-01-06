@@ -44,13 +44,22 @@ namespace EGSDK::GamePH {
 	FloatPlayerVariable::FloatPlayerVariable(const std::string& name) : PlayerVariable(name) {
 		SetType(PlayerVarType::Float);
 	}
+	void FloatPlayerVariable::SetValues(float value) {
+		this->value = value;
+		this->defaultValue = value;
+	}
 	BoolPlayerVariable::BoolPlayerVariable(const std::string& name) : PlayerVariable(name) {
 		SetType(PlayerVarType::Bool);
 	}
+	void BoolPlayerVariable::SetValues(bool value) {
+		this->value = value;
+		this->defaultValue = value;
+	}
 
-	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::playerVars{};
-	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::defaultPlayerVars{};
-	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::customDefaultPlayerVars{};
+	PlayerVarVector PlayerVariables::playerVars{};
+	PlayerVarVector PlayerVariables::customPlayerVars{};
+	PlayerVarVector PlayerVariables::defaultPlayerVars{};
+	PlayerVarVector PlayerVariables::customDefaultPlayerVars{};
 	bool PlayerVariables::gotPlayerVars = false;
 	static bool sortedPlayerVars = false;
 
@@ -58,29 +67,23 @@ namespace EGSDK::GamePH {
 	std::unordered_map<std::string, bool> PlayerVariables::prevBoolValueMap{};
 
 	template <typename T>
-	static void updateDefaultVar(std::vector<std::unique_ptr<PlayerVariable>>& defaultVars, const std::string& name, T value, T defaultValue) {
+	static void updateDefaultVar(PlayerVarVector& defaultVars, const std::string& name, T value, T defaultValue) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
-		auto playerVarIt = std::find_if(defaultVars.begin(), defaultVars.end(), [&name](const auto& playerVar) {
-			return playerVar->GetName() == name;
-		});
-		if (playerVarIt == defaultVars.end()) {
+		auto playerVar = defaultVars.Find(name);
+		if (!playerVar) {
             if constexpr (std::is_same_v<T, std::string>) {
 				auto stringPlayerVar = std::make_unique<StringPlayerVariable>(name);
-				stringPlayerVar->value = value;
-				stringPlayerVar->defaultValue = defaultValue;
 				defaultVars.emplace_back(std::move(stringPlayerVar));
             }
             else if constexpr (std::is_same_v<T, float>) {
 				auto floatPlayerVar = std::make_unique<FloatPlayerVariable>(name);
-				floatPlayerVar->value = value;
-				floatPlayerVar->defaultValue = defaultValue;
+				floatPlayerVar->SetValues(value);
 				defaultVars.emplace_back(std::move(floatPlayerVar));
             }
             else if constexpr (std::is_same_v<T, bool>) {
 				auto boolPlayerVar = std::make_unique<BoolPlayerVariable>(name);
-				boolPlayerVar->value = value;
-				boolPlayerVar->defaultValue = defaultValue;
+				boolPlayerVar->SetValues(value);
 				defaultVars.emplace_back(std::move(boolPlayerVar));
             }
 		} else {
@@ -88,17 +91,15 @@ namespace EGSDK::GamePH {
 				// TO IMPLEMENT
 				return;
 			} else if constexpr (std::is_same_v<T, float>) {
-				auto floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVarIt->get());
-				floatPlayerVar->value = value;
-				floatPlayerVar->defaultValue = defaultValue;
+				auto floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
+				floatPlayerVar->SetValues(value);
 			} else if constexpr (std::is_same_v<T, bool>) {
-				auto boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVarIt->get());
-				boolPlayerVar->value = value;
-				boolPlayerVar->defaultValue = defaultValue;
+				auto boolPlayerVar = dynamic_cast<BoolPlayerVariable*>(playerVar);
+				boolPlayerVar->SetValues(value);
 			}
 		}
 	}
-	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVar) {
+	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVarPtr) {
 		static int offset = 0;
 		int offsetDif = 0;
 		while (true) {
@@ -112,46 +113,47 @@ namespace EGSDK::GamePH {
 				continue;
 			}
 
-			std::string varName = playerVar->GetName();
-			PlayerVarType varType = playerVar->GetType();
+			std::string varName = playerVarPtr->GetName();
+			PlayerVarType varType = playerVarPtr->GetType();
 
-			switch (playerVar->GetType()) {
-			case PlayerVarType::String: {
+			switch (playerVarPtr->GetType()) {
+			case PlayerVarType::String:
+			{
 				if (vTableName != "StringPlayerVariable")
 					return;
 
 				StringPlayerVariable* stringPlayerVar = reinterpret_cast<StringPlayerVariable*>(playerVarsGetter() + offset);
-				playerVar.reset(stringPlayerVar);
-				playerVar->SetName(varName);
-				playerVar->SetType(varType);
+				playerVarPtr.reset(stringPlayerVar);
+				playerVarPtr->SetName(varName);
+				playerVarPtr->SetType(varType);
 				// TO IMPLEMENT
 
 				offset += STRING_SIZE_OFFSET;
 				return;
 			}
-			case PlayerVarType::Float: {
+			case PlayerVarType::Float:
+			{
 				if (vTableName != "FloatPlayerVariable")
 					return;
 
 				FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVarsGetter() + offset);
-				playerVar.reset(floatPlayerVar);
-				playerVar->SetName(varName);
-				playerVar->SetType(varType);
-				updateDefaultVar(PlayerVariables::defaultPlayerVars, varName, floatPlayerVar->value.data, floatPlayerVar->defaultValue.data);
+				playerVarPtr.reset(floatPlayerVar);
+				playerVarPtr->SetName(varName);
+				playerVarPtr->SetType(varType);
 				updateDefaultVar(PlayerVariables::customDefaultPlayerVars, varName, floatPlayerVar->value.data, floatPlayerVar->defaultValue.data);
 
 				offset += FLOAT_SIZE_OFFSET;
 				return;
 			}
-			case PlayerVarType::Bool: {
+			case PlayerVarType::Bool:
+			{
 				if (vTableName != "BoolPlayerVariable")
 					return;
 
 				BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVarsGetter() + offset);
-				playerVar.reset(boolPlayerVar);
-				playerVar->SetName(varName);
-				playerVar->SetType(varType);
-				updateDefaultVar(PlayerVariables::defaultPlayerVars, varName, boolPlayerVar->value.data, boolPlayerVar->defaultValue.data);
+				playerVarPtr.reset(boolPlayerVar);
+				playerVarPtr->SetName(varName);
+				playerVarPtr->SetType(varType);
 				updateDefaultVar(PlayerVariables::customDefaultPlayerVars, varName, boolPlayerVar->value.data, boolPlayerVar->defaultValue.data);
 
 				offset += BOOL_SIZE_OFFSET;
@@ -172,11 +174,11 @@ namespace EGSDK::GamePH {
 		if (!Get())
 			return;
 
-		for (auto& var : playerVars) {
+		for (auto& playerVarPtr : playerVars) {
 			__try {
-				processPlayerVar(reinterpret_cast<DWORD64*(*)()>(&Get), var);
+				processPlayerVar(reinterpret_cast<DWORD64*(*)()>(&Get), playerVarPtr);
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
-				SPDLOG_ERROR("Failed to process player variable: {}", var->GetName());
+				SPDLOG_ERROR("Failed to process player variable: {}", playerVarPtr->GetName());
 			}
 		}
 
