@@ -107,7 +107,7 @@ namespace EGT::Menu {
 				static bool haveResetAntizinDrainBlocked = true;
 				if (ImGui::SliderFloat("Time", &time, 0.01f, 24.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp)) {
 					if (haveResetAntizinDrainBlocked)
-						previousAntizinDrainBlocked = EGSDK::GamePH::PlayerVariables::GetPlayerVar<bool>("AntizinDrainBlocked");
+						previousAntizinDrainBlocked = EGSDK::GamePH::PlayerVariables::GetPlayerVarValue<bool>("AntizinDrainBlocked");
 					EGSDK::GamePH::PlayerVariables::ChangePlayerVar("AntizinDrainBlocked", true);
 					haveResetAntizinDrainBlocked = false;
 

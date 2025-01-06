@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <algorithm>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Offsets.h>
 #include <EGSDK\GamePH\PlayerState.h>
@@ -6,59 +7,160 @@
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::GamePH {
-	static const int FLOAT_VAR_OFFSET = 3;
-	static const int BOOL_VAR_OFFSET = 2;
-	static const int VAR_LOC_OFFSET = 1;
+	static constexpr int STRING_SIZE_OFFSET = 3;
+	static constexpr int FLOAT_SIZE_OFFSET = 3;
+	static constexpr int BOOL_SIZE_OFFSET = 2;
 
-	std::vector<std::pair<std::string, std::pair<void*, std::string>>> PlayerVariables::playerVars;
-	std::vector<std::pair<std::string, std::pair<std::any, std::string>>> PlayerVariables::playerVarsDefault;
-	std::vector<std::pair<std::string, std::pair<std::any, std::string>>> PlayerVariables::playerCustomVarsDefault;
+	std::unordered_map<PlayerVariable*, std::string> PlayerVariable::playerVarNames{};
+	std::unordered_map<PlayerVariable*, PlayerVarType> PlayerVariable::playerVarTypes{};
+	PlayerVariable::PlayerVariable(const std::string& name) {
+		playerVarNames[this] = name;
+		playerVarTypes[this] = PlayerVarType::NONE;
+	}
+    const char* PlayerVariable::GetName() {
+        auto it = playerVarNames.find(this);
+        if (it != playerVarNames.end()) {
+            return it->second.c_str();
+        }
+        return nullptr;
+    }
+	void PlayerVariable::SetName(const std::string& newName) {
+		playerVarNames[this] = newName;
+	}
+	PlayerVarType PlayerVariable::GetType() {
+		auto it = playerVarTypes.find(this);
+		if (it != playerVarTypes.end()) {
+			return it->second;
+		}
+		return PlayerVarType::NONE;
+	}
+	void PlayerVariable::SetType(PlayerVarType newType) {
+		playerVarTypes[this] = newType;
+	}
+
+	StringPlayerVariable::StringPlayerVariable(const std::string& name) : PlayerVariable(name) {
+		SetType(PlayerVarType::String);
+	}
+	FloatPlayerVariable::FloatPlayerVariable(const std::string& name) : PlayerVariable(name) {
+		SetType(PlayerVarType::Float);
+	}
+	BoolPlayerVariable::BoolPlayerVariable(const std::string& name) : PlayerVariable(name) {
+		SetType(PlayerVarType::Bool);
+	}
+
+	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::playerVars{};
+	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::defaultPlayerVars{};
+	std::vector<std::unique_ptr<PlayerVariable>> PlayerVariables::customDefaultPlayerVars{};
 	bool PlayerVariables::gotPlayerVars = false;
 	static bool sortedPlayerVars = false;
 
+	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
+	std::unordered_map<std::string, bool> PlayerVariables::prevBoolValueMap{};
+
 	template <typename T>
-	static void updateDefaultVar(std::vector<std::pair<std::string, std::pair<std::any, std::string>>>& defaultVars, const std::string& varName, T varValue) {
-		static_assert(std::is_same<T, float>::value || std::is_same<T, bool>::value, "Invalid type: value must be float or bool");
+	static void updateDefaultVar(std::vector<std::unique_ptr<PlayerVariable>>& defaultVars, const std::string& name, T value, T defaultValue) {
+		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
-		auto it = std::find_if(defaultVars.begin(), defaultVars.end(), [&varName](const auto& pair) {
-			return pair.first == varName;
+		auto playerVarIt = std::find_if(defaultVars.begin(), defaultVars.end(), [&name](const auto& playerVar) {
+			return playerVar->GetName() == name;
 		});
-		if (it == defaultVars.end())
-			return;
-
-		it->second.first.template emplace<T>(varValue);
+		if (playerVarIt == defaultVars.end()) {
+            if constexpr (std::is_same_v<T, std::string>) {
+				auto stringPlayerVar = std::make_unique<StringPlayerVariable>(name);
+				stringPlayerVar->value = value;
+				stringPlayerVar->defaultValue = defaultValue;
+				defaultVars.emplace_back(std::move(stringPlayerVar));
+            }
+            else if constexpr (std::is_same_v<T, float>) {
+				auto floatPlayerVar = std::make_unique<FloatPlayerVariable>(name);
+				floatPlayerVar->value = value;
+				floatPlayerVar->defaultValue = defaultValue;
+				defaultVars.emplace_back(std::move(floatPlayerVar));
+            }
+            else if constexpr (std::is_same_v<T, bool>) {
+				auto boolPlayerVar = std::make_unique<BoolPlayerVariable>(name);
+				boolPlayerVar->value = value;
+				boolPlayerVar->defaultValue = defaultValue;
+				defaultVars.emplace_back(std::move(boolPlayerVar));
+            }
+		} else {
+			if constexpr (std::is_same_v<T, std::string>) {
+				// TO IMPLEMENT
+				return;
+			} else if constexpr (std::is_same_v<T, float>) {
+				auto floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVarIt->get());
+				floatPlayerVar->value = value;
+				floatPlayerVar->defaultValue = defaultValue;
+			} else if constexpr (std::is_same_v<T, bool>) {
+				auto boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVarIt->get());
+				boolPlayerVar->value = value;
+				boolPlayerVar->defaultValue = defaultValue;
+			}
+		}
 	}
-	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::pair<std::string, std::pair<void*, std::string>>& var) {
+	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVar) {
 		static int offset = 0;
-		static const std::string floatPlayerVarClassName = "FloatPlayerVariable";
-		static const std::string boolPlayerVarClassName = "BoolPlayerVariable";
-
+		int offsetDif = 0;
 		while (true) {
-			const std::string vTableName = Utils::RTTI::GetVTableName(playerVarsGetter() + offset);
-			const bool isFloatPlayerVar = vTableName == floatPlayerVarClassName;
-			const bool isBoolPlayerVar = vTableName == boolPlayerVarClassName;
+			std::string vTableName = Utils::RTTI::GetVTableName(playerVarsGetter() + offset);
+			if (vTableName != "StringPlayerVariable" && vTableName != "FloatPlayerVariable" && vTableName != "BoolPlayerVariable") {
+				if (offsetDif > 150)
+					return;
 
-			if (isFloatPlayerVar || isBoolPlayerVar) {
-				var.second.first = playerVarsGetter() + offset + VAR_LOC_OFFSET;
-				const std::string& varName = var.first;
-
-				if (isFloatPlayerVar) {
-					float* varValue = reinterpret_cast<float*>(var.second.first);
-					updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
-					updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
-
-					offset += FLOAT_VAR_OFFSET;
-				} else {
-					bool* varValue = reinterpret_cast<bool*>(var.second.first);
-					updateDefaultVar(GamePH::PlayerVariables::playerVarsDefault, varName, *varValue);
-					updateDefaultVar(GamePH::PlayerVariables::playerCustomVarsDefault, varName, *varValue);
-
-					offset += BOOL_VAR_OFFSET;
-				}
-
-				break;
-			} else
 				offset += 1;
+				offsetDif += 1;
+				continue;
+			}
+
+			std::string varName = playerVar->GetName();
+			PlayerVarType varType = playerVar->GetType();
+
+			switch (playerVar->GetType()) {
+			case PlayerVarType::String: {
+				if (vTableName != "StringPlayerVariable")
+					return;
+
+				StringPlayerVariable* stringPlayerVar = reinterpret_cast<StringPlayerVariable*>(playerVarsGetter() + offset);
+				playerVar.reset(stringPlayerVar);
+				playerVar->SetName(varName);
+				playerVar->SetType(varType);
+				// TO IMPLEMENT
+
+				offset += STRING_SIZE_OFFSET;
+				return;
+			}
+			case PlayerVarType::Float: {
+				if (vTableName != "FloatPlayerVariable")
+					return;
+
+				FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVarsGetter() + offset);
+				playerVar.reset(floatPlayerVar);
+				playerVar->SetName(varName);
+				playerVar->SetType(varType);
+				updateDefaultVar(PlayerVariables::defaultPlayerVars, varName, floatPlayerVar->value.data, floatPlayerVar->defaultValue.data);
+				updateDefaultVar(PlayerVariables::customDefaultPlayerVars, varName, floatPlayerVar->value.data, floatPlayerVar->defaultValue.data);
+
+				offset += FLOAT_SIZE_OFFSET;
+				return;
+			}
+			case PlayerVarType::Bool: {
+				if (vTableName != "BoolPlayerVariable")
+					return;
+
+				BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVarsGetter() + offset);
+				playerVar.reset(boolPlayerVar);
+				playerVar->SetName(varName);
+				playerVar->SetType(varType);
+				updateDefaultVar(PlayerVariables::defaultPlayerVars, varName, boolPlayerVar->value.data, boolPlayerVar->defaultValue.data);
+				updateDefaultVar(PlayerVariables::customDefaultPlayerVars, varName, boolPlayerVar->value.data, boolPlayerVar->defaultValue.data);
+
+				offset += BOOL_SIZE_OFFSET;
+				return;
+			}
+			default:
+				offset += 1;
+				return;
+			}
 		}
 	}
 
@@ -74,7 +176,7 @@ namespace EGSDK::GamePH {
 			__try {
 				processPlayerVar(reinterpret_cast<DWORD64*(*)()>(&Get), var);
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
-				SPDLOG_ERROR("Failed to process player variable: {}", var.first);
+				SPDLOG_ERROR("Failed to process player variable: {}", var->GetName());
 			}
 		}
 
@@ -83,12 +185,13 @@ namespace EGSDK::GamePH {
 
 #pragma region Player Variables Sorting
 	struct VarTypeFieldMeta {
-		PlayerVariables::PlayerVarType type;
+		PlayerVarType type;
 		std::string_view className;
 	};
 	const std::vector<VarTypeFieldMeta> varTypeFields = {
-		{ PlayerVariables::PlayerVarType::Float, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<FloatPlayerVariable>" },
-		{ PlayerVariables::PlayerVarType::Bool, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<BoolPlayerVariable>" }
+		{ PlayerVarType::String, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<StringPlayerVariable>" },
+		{ PlayerVarType::Float, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<FloatPlayerVariable>" },
+		{ PlayerVarType::Bool, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<BoolPlayerVariable>" }
 	};
 
 	static bool isRetInstruction(BYTE* address) {
@@ -130,8 +233,8 @@ namespace EGSDK::GamePH {
 
 		return playerVarName;
 	}
-	static PlayerVariables::PlayerVarType getPlayerVarType(BYTE*& funcAddress, DWORD64 startOfFunc) {
-		PlayerVariables::PlayerVarType playerVarType = PlayerVariables::PlayerVarType::NONE;
+	static PlayerVarType getPlayerVarType(BYTE*& funcAddress, DWORD64 startOfFunc) {
+		PlayerVarType playerVarType = PlayerVarType::NONE;
 
 		while (!playerVarType && !isRetInstruction(funcAddress) && isBelowFuncSizeLimit(funcAddress, startOfFunc, MAX_FUNC_SIZE)) {
 			// call LoadPlayerXVariable
@@ -141,33 +244,33 @@ namespace EGSDK::GamePH {
 			}
 
 			DWORD64 startOfLoadVarFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(funcAddress), 1);
-			for (const auto& varType : varTypeFields) {
-				BYTE* loadVarFuncAddress = reinterpret_cast<BYTE*>(startOfLoadVarFunc);
-				DWORD64 metaVTAddrFromFunc = 0;
+			BYTE* loadVarFuncAddress = reinterpret_cast<BYTE*>(startOfLoadVarFunc);
+			DWORD64 metaVTAddrFromFunc = 0;
 
-				while (!metaVTAddrFromFunc && !isRetInstruction(loadVarFuncAddress) && isBelowFuncSizeLimit(loadVarFuncAddress, startOfLoadVarFunc, MAX_LOAD_VAR_FUNC_SIZE)) {
-					// lea rax, typedFieldMetaVT
-					if (!isLeaInstruction(loadVarFuncAddress, 0x48, 0x05)) {
-						loadVarFuncAddress++;
-						continue;
-					}
-
-					metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
-					if (Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc)) != varType.className) {
-						metaVTAddrFromFunc = 0;
-						loadVarFuncAddress++;
-						continue;
-					}
+			while (!metaVTAddrFromFunc && !isRetInstruction(loadVarFuncAddress) && isBelowFuncSizeLimit(loadVarFuncAddress, startOfLoadVarFunc, MAX_LOAD_VAR_FUNC_SIZE)) {
+				// lea rax, typedFieldMetaVT
+				if (!isLeaInstruction(loadVarFuncAddress, 0x48, 0x05)) {
+					loadVarFuncAddress++;
+					continue;
 				}
 
-				if (Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc)) == varType.className) {
-					playerVarType = varType.type;
-					break;
+				metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
+				std::string vTableName = Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc));
+				auto varTypeIt = std::find_if(varTypeFields.begin(), varTypeFields.end(), [&vTableName](const auto& varType) {
+					return varType.className == vTableName;
+				});
+				if (varTypeIt == varTypeFields.end()) {
+					metaVTAddrFromFunc = 0;
+					loadVarFuncAddress++;
+					continue;
 				}
+
+				playerVarType = varTypeIt->type;
+				break;
 			}
 
 			// if it's still NONE after seeing the function doesnt reference any of the variables, break so the loop stops
-			if (playerVarType == PlayerVariables::PlayerVarType::NONE)
+			if (playerVarType == PlayerVarType::NONE)
 				break;
 		}
 
@@ -186,24 +289,20 @@ namespace EGSDK::GamePH {
 				continue;
 
 			PlayerVarType playerVarType = getPlayerVarType(funcAddress, startOfFunc);
-			if (!playerVarType)
-				continue;
-
-			std::string varType{};
 			switch (playerVarType) {
+			case PlayerVarType::String:
+				playerVars.emplace_back(std::make_unique<StringPlayerVariable>(playerVarName));
+				break;
 			case PlayerVarType::Float:
-				varType = "float";
+				playerVars.emplace_back(std::make_unique<FloatPlayerVariable>(playerVarName));
 				break;
 			case PlayerVarType::Bool:
-				varType = "bool";
+				playerVars.emplace_back(std::make_unique<BoolPlayerVariable>(playerVarName));
 				break;
 			default:
+				//playerVars.emplace_back(std::make_unique<PlayerVariable>(playerVarName));
 				break;
 			}
-
-			PlayerVariables::playerVars.emplace_back(playerVarName, std::make_pair(nullptr, varType));
-			PlayerVariables::playerVarsDefault.emplace_back(playerVarName, std::make_pair(varType == "float" ? 0.0f : false, varType));
-			PlayerVariables::playerCustomVarsDefault.emplace_back(playerVarName, std::make_pair(varType == "float" ? 0.0f : false, varType));
 		}
 
 		sortedPlayerVars = true;
@@ -211,12 +310,9 @@ namespace EGSDK::GamePH {
 	}
 #pragma endregion
 
-	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
-	std::unordered_map<std::string, bool> PlayerVariables::prevBoolValueMap{};
-
 	static PlayerVariables* GetOffset_PlayerVariables() {
-		PlayerState* pPlayerState = PlayerState::Get();
-		return pPlayerState ? pPlayerState->pPlayerVariables : nullptr;
+		PlayerState* playerState = PlayerState::Get();
+		return playerState ? playerState->playerVariables : nullptr;
 	}
 	PlayerVariables* PlayerVariables::Get() {
 		return ClassHelpers::SafeGetter<PlayerVariables>(GetOffset_PlayerVariables, false, false);

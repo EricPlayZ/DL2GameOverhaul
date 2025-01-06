@@ -10,7 +10,8 @@ namespace EGSDK::Utils {
 		extern EGameSDK_API float round_decimal(float value, int decimal_places = 2);
 
 		extern EGameSDK_API bool str_replace(std::string& str, const std::string& from, const std::string& to);
-		template <typename T> auto to_string(T val) {
+		template <typename T>
+		auto to_string(T val) {
 			if constexpr (std::is_same<T, std::string>::value)
 				return static_cast<std::string>(val);
 			else

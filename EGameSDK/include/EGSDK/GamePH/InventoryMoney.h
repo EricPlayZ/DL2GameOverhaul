@@ -4,6 +4,8 @@
 namespace EGSDK::GamePH {
 	class EGameSDK_API InventoryMoney {
 	public:
-		ClassHelpers::buffer<0x38, int> oldWorldMoney;
+		union {
+			ClassHelpers::buffer<0x38, int> oldWorldMoney;
+		};
 	};
 }
