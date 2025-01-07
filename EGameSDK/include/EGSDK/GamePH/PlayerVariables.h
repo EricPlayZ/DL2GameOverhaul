@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <mutex>
 #include <EGSDK\ClassHelpers.h>
 #include <EGSDK\Utils\Values.h>
 
@@ -34,7 +35,7 @@ namespace EGSDK::GamePH {
 			EGSDK::ClassHelpers::buffer<0x8, const char*> value; // remove 0x2 bit to access ptr
 			EGSDK::ClassHelpers::buffer<0x10, const char*> defaultValue; // remove 0x2 bit to access ptr
 		};
-		StringPlayerVariable(const std::string& name);
+		explicit StringPlayerVariable(const std::string& name);
 	};
 	class EGameSDK_API FloatPlayerVariable : public PlayerVariable {
 	public:
@@ -42,7 +43,7 @@ namespace EGSDK::GamePH {
 			EGSDK::ClassHelpers::buffer<0x8, float> value;
 			EGSDK::ClassHelpers::buffer<0xC, float> defaultValue;
 		};
-		FloatPlayerVariable(const std::string& name);
+		explicit FloatPlayerVariable(const std::string& name);
 
 		void SetValues(float value);
 	};
@@ -52,7 +53,7 @@ namespace EGSDK::GamePH {
 			EGSDK::ClassHelpers::buffer<0x8, bool> value;
 			EGSDK::ClassHelpers::buffer<0x9, bool> defaultValue;
 		};
-		BoolPlayerVariable(const std::string& name);
+		explicit BoolPlayerVariable(const std::string& name);
 
 		void SetValues(bool value);
 	};
@@ -60,50 +61,24 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerVarVector {
 	public:
 		PlayerVarVector() = default;
-		PlayerVarVector(const PlayerVarVector&) = delete; // Prevent copying
-		PlayerVarVector& operator=(const PlayerVarVector&) = delete; // Prevent assignment
+		PlayerVarVector(const PlayerVarVector&) = delete;
+		PlayerVarVector& operator=(const PlayerVarVector&) = delete;
 
-		PlayerVarVector(PlayerVarVector&&) = default; // Allow moving
-		PlayerVarVector& operator=(PlayerVarVector&&) = default; // Allow move assignment
+		PlayerVarVector(PlayerVarVector&&) noexcept = default;
+		PlayerVarVector& operator=(PlayerVarVector&&) noexcept = default;
 
-		std::unique_ptr<PlayerVariable>& emplace_back(std::unique_ptr<PlayerVariable> playerVar) {
-			_playerVars.emplace_back(std::move(playerVar));
-			return _playerVars.back();
-		}
-		auto begin() {
-			return _playerVars.begin();
-		}
-		auto end() {
-			return _playerVars.end();
-		}
-		bool none_of(const std::string& name) {
-			return std::none_of(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
-				return playerVar->GetName() == name;
-			});
-		}
+		std::unique_ptr<PlayerVariable>& emplace_back(std::unique_ptr<PlayerVariable> playerVar);
+		auto begin();
+		auto end();
+		bool none_of(const std::string& name);
 
-		auto FindIter(const std::string& name) {
-			auto playerVarIt = std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
-				return playerVar->GetName() == name;
-			});
-			return playerVarIt;
-		}
-		std::unique_ptr<PlayerVariable>* FindPtr(const std::string& name) {
-			auto playerVarIt = FindIter(name);
-			return playerVarIt == _playerVars.end() ? nullptr : &*playerVarIt;
-		}
-		PlayerVariable* Find(const std::string& name) {
-			auto playerVarPtr = FindPtr(name);
-			return playerVarPtr == nullptr ? nullptr : playerVarPtr->get();
-		}
-		auto Erase(const std::string& name) {
-			auto playerVarIt = FindIter(name);
-			if (playerVarIt != _playerVars.end())
-				return _playerVars.erase(playerVarIt);
-			return _playerVars.end();
-		}
-
+		auto FindIter(const std::string& name);
+		std::unique_ptr<PlayerVariable>* FindPtr(const std::string& name);
+		PlayerVariable* Find(const std::string& name);
+		auto Erase(const std::string& name);
+	private:
 		std::vector<std::unique_ptr<PlayerVariable>> _playerVars{};
+		mutable std::mutex _mutex;
 	};
 
 	class EGameSDK_API PlayerVariables {
@@ -340,7 +315,7 @@ namespace EGSDK::GamePH {
 			if (!gotPlayerVars)
 				return false;
 
-			return prevBoolValueMap.find(name) != prevBoolValueMap.end() && !prevBoolValueMap[name];
+			return prevBoolValueMap.find(name) != prevBoolValueMap.end() && prevBoolValueMap[name];
 		}
 
 		static PlayerVariables* Get();

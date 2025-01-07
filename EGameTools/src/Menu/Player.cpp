@@ -139,41 +139,6 @@ namespace EGT::Menu {
 					break;
 				}
 			}
-
-			/*auto customPlayerVarBeginIt = EGSDK::GamePH::PlayerVariables::customPlayerVars.begin();
-			for (auto& customPlayerVarIt = customPlayerVarBeginIt; customPlayerVarIt != EGSDK::GamePH::PlayerVariables::customPlayerVars.end(); ++customPlayerVarIt) {
-				auto customPlayerVar = customPlayerVarIt->get();
-				try {
-					auto defPlayerVar = &EGSDK::GamePH::PlayerVariables::defaultPlayerVars.at(playerVarIt - playerVarBeginIt);
-
-					switch (playerVar->GetType()) {
-					case EGSDK::GamePH::PlayerVarType::String:
-						// TO IMPLEMENT
-						break;
-					case EGSDK::GamePH::PlayerVarType::Float: {
-						EGSDK::GamePH::FloatPlayerVariable* floatPlayerVar = reinterpret_cast<EGSDK::GamePH::FloatPlayerVariable*>(playerVar);
-						EGSDK::GamePH::FloatPlayerVariable* defFloatPlayerVar = reinterpret_cast<EGSDK::GamePH::FloatPlayerVariable*>(defPlayerVar->get());
-
-						if (!EGSDK::Utils::Values::are_samef(floatPlayerVar->value, floatPlayerVar->defaultValue) && !EGSDK::Utils::Values::are_samef(floatPlayerVar->defaultValue, defFloatPlayerVar->value))
-							floatPlayerVar->value = floatPlayerVar->defaultValue;
-						break;
-					}
-					case EGSDK::GamePH::PlayerVarType::Bool: {
-						EGSDK::GamePH::BoolPlayerVariable* boolPlayerVar = reinterpret_cast<EGSDK::GamePH::BoolPlayerVariable*>(playerVar);
-						EGSDK::GamePH::BoolPlayerVariable* defBoolPlayerVar = reinterpret_cast<EGSDK::GamePH::BoolPlayerVariable*>(defPlayerVar->get());
-
-						if (!EGSDK::Utils::Values::are_samef(boolPlayerVar->value, boolPlayerVar->defaultValue) && !EGSDK::Utils::Values::are_samef(boolPlayerVar->defaultValue, defBoolPlayerVar->value))
-							boolPlayerVar->value = boolPlayerVar->defaultValue;
-						break;
-					}
-					default:
-						break;
-					}
-				} catch (std::exception& e) {
-					UNREFERENCED_PARAMETER(e);
-					SPDLOG_ERROR("PlayerVarsUpdate() threw an exception! Restart the game to fix this error. If the error still happens, please open a bug report.");
-				}
-			}*/
 		}
 		static void PlayerHealthUpdate() {
 			EGSDK::GamePH::PlayerHealthModule* playerHealthModule = EGSDK::GamePH::PlayerHealthModule::Get();
@@ -397,8 +362,14 @@ namespace EGT::Menu {
 				break;
 			}
 
-			if (!restoreVarsToSavedVarsEnabled)
+			if (!restoreVarsToSavedVarsEnabled) {
 				defVars.Erase(name);
+				auto customPlayerVar = EGSDK::GamePH::PlayerVariables::customPlayerVars.Find(name);
+				if (!customPlayerVar)
+					return;
+
+				EGSDK::GamePH::PlayerVariables::customPlayerVars.Erase(name);
+			}
 		}
 
 		static bool shouldDisplayVariable(const std::unique_ptr<EGSDK::GamePH::PlayerVariable>& playerVarPtr, const std::string& searchFilter) {
@@ -440,32 +411,37 @@ namespace EGT::Menu {
 			ImGui::PopStyleColor();
 		}
 		static void renderPlayerVariable(const std::unique_ptr<EGSDK::GamePH::PlayerVariable>& playerVarPtr) {
-			switch (playerVarPtr->GetType()) {
-			case EGSDK::GamePH::PlayerVarType::String:
-				// TO IMPLEMENT
-				break;
-			case EGSDK::GamePH::PlayerVarType::Float: {
-				EGSDK::GamePH::FloatPlayerVariable* floatPlayerVar = reinterpret_cast<EGSDK::GamePH::FloatPlayerVariable*>(playerVarPtr.get());
-				float newValue = floatPlayerVar->value;
-				if (ImGui::InputFloat(floatPlayerVar->GetName(), &newValue))
-					EGSDK::GamePH::PlayerVariables::ChangePlayerVarFromList(floatPlayerVar->GetName(), newValue, playerVarPtr.get());
-				break;
-			}
-			case EGSDK::GamePH::PlayerVarType::Bool: {
-				EGSDK::GamePH::BoolPlayerVariable* boolPlayerVar = reinterpret_cast<EGSDK::GamePH::BoolPlayerVariable*>(playerVarPtr.get());
-				bool newValue = boolPlayerVar->value;
-				if (ImGui::Checkbox(boolPlayerVar->GetName(), &newValue))
-					EGSDK::GamePH::PlayerVariables::ChangePlayerVarFromList(boolPlayerVar->GetName(), newValue, playerVarPtr.get());
-				break;
-			}
-			default:
-				break;
+			ImGui::BeginDisabled(EGSDK::GamePH::PlayerVariables::IsPlayerVarManagedByBool(playerVarPtr->GetName()));
+			{
+				switch (playerVarPtr->GetType()) {
+				case EGSDK::GamePH::PlayerVarType::String:
+					// TO IMPLEMENT
+					break;
+				case EGSDK::GamePH::PlayerVarType::Float: {
+					EGSDK::GamePH::FloatPlayerVariable* floatPlayerVar = reinterpret_cast<EGSDK::GamePH::FloatPlayerVariable*>(playerVarPtr.get());
+					float newValue = floatPlayerVar->value;
+					if (ImGui::InputFloat(floatPlayerVar->GetName(), &newValue))
+						EGSDK::GamePH::PlayerVariables::ChangePlayerVarFromList(floatPlayerVar->GetName(), newValue, playerVarPtr.get());
+					break;
+				}
+				case EGSDK::GamePH::PlayerVarType::Bool: {
+					EGSDK::GamePH::BoolPlayerVariable* boolPlayerVar = reinterpret_cast<EGSDK::GamePH::BoolPlayerVariable*>(playerVarPtr.get());
+					bool newValue = boolPlayerVar->value;
+					if (ImGui::Checkbox(boolPlayerVar->GetName(), &newValue))
+						EGSDK::GamePH::PlayerVariables::ChangePlayerVarFromList(boolPlayerVar->GetName(), newValue, playerVarPtr.get());
+					break;
+				}
+				default:
+					break;
+				}
+				ImGui::EndDisabled();
 			}
 
 			ImGui::SameLine();
 			static std::string restoreBtnName{};
 			restoreBtnName = "Restore##" + std::string(playerVarPtr->GetName());
-			ImGui::BeginDisabled(EGSDK::GamePH::PlayerVariables::customPlayerVars.none_of(playerVarPtr->GetName()));
+			
+			ImGui::BeginDisabled(EGSDK::GamePH::PlayerVariables::customPlayerVars.none_of(playerVarPtr->GetName()) || EGSDK::GamePH::PlayerVariables::IsPlayerVarManagedByBool(playerVarPtr->GetName()));
 			{
 				if (ImGui::Button(restoreBtnName.c_str(), "Restores player variable to default"))
 					RestoreVariableToDefault(playerVarPtr->GetName());
@@ -614,11 +590,11 @@ namespace EGT::Menu {
 		Tab Tab::instance{};
 		void Tab::Update() {
 			PlayerPositionUpdate();
-			PlayerVarsUpdate();
 			PlayerHealthUpdate();
 			PlayerImmunityUpdate();
 			UpdateDisabledOptions();
 			UpdatePlayerVars();
+			PlayerVarsUpdate();
 			HandleToggles();
 		}
 		void Tab::Render() {
