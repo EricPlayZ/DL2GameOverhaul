@@ -77,8 +77,8 @@ namespace EGSDK::GamePH {
 		PlayerVarVector& operator=(PlayerVarVector&&) noexcept = default;
 
 		std::unique_ptr<PlayerVariable>& emplace_back(std::unique_ptr<PlayerVariable> playerVar);
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator begin();
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator end();
+		std::vector<std::unique_ptr<PlayerVariable>>::iterator beginUnsafe();
+		std::vector<std::unique_ptr<PlayerVariable>>::iterator endUnsafe();
 		bool empty();
 		bool none_of(const std::string& name);
 
@@ -86,7 +86,12 @@ namespace EGSDK::GamePH {
 		std::unique_ptr<PlayerVariable>* FindPtr(const std::string& name);
 		PlayerVariable* Find(const std::string& name);
 		std::vector<std::unique_ptr<PlayerVariable>>::iterator Erase(const std::string& name);
+
+		template <typename Callable, typename... Args>
+		void ForEach(Callable&& func, Args&&... args);
 	private:
+		std::vector<std::unique_ptr<PlayerVariable>>::iterator FindIterUnsafe(const std::string& name);
+
 		std::vector<std::unique_ptr<PlayerVariable>> _playerVars{};
 		mutable std::mutex _mutex{};
 	};

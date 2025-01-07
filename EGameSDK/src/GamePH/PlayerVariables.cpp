@@ -95,15 +95,16 @@ namespace EGSDK::GamePH {
 		_playerVars.emplace_back(std::move(playerVar));
 		return _playerVars.back();
 	}
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::begin() {
-		std::lock_guard<std::mutex> lock(_mutex);
+	// Unsafe function: Assumes the caller has locked _mutex
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::beginUnsafe() {
 		return _playerVars.begin();
 	}
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::end() {
-		std::lock_guard<std::mutex> lock(_mutex);
+	// Unsafe function: Assumes the caller has locked _mutex
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::endUnsafe() {
 		return _playerVars.end();
 	}
 	bool PlayerVarVector::empty() {
+		std::lock_guard<std::mutex> lock(_mutex);
 		return _playerVars.empty();
 	}
 	bool PlayerVarVector::none_of(const std::string& name) {
@@ -113,29 +114,41 @@ namespace EGSDK::GamePH {
 		});
 	}
 
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIter(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
+	// Unsafe function: Assumes the caller has locked _mutex
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIterUnsafe(const std::string& name) {
+		return std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
 			return playerVar->GetName() == name;
 		});
-		return playerVarIt;
+	}
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIter(const std::string& name) {
+		std::lock_guard<std::mutex> lock(_mutex);
+		return std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
+			return playerVar->GetName() == name;
+		});
 	}
 	std::unique_ptr<PlayerVariable>* PlayerVarVector::FindPtr(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = FindIter(name);
+		auto playerVarIt = FindIterUnsafe(name);
 		return playerVarIt == _playerVars.end() ? nullptr : &*playerVarIt;
 	}
 	PlayerVariable* PlayerVarVector::Find(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarPtr = FindPtr(name);
-		return !playerVarPtr ? nullptr : playerVarPtr->get();
+		auto playerVarIt = FindIterUnsafe(name);
+		return playerVarIt == _playerVars.end() ? nullptr : playerVarIt->get();
 	}
 	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::Erase(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = FindIter(name);
+		auto playerVarIt = FindIterUnsafe(name);
 		if (playerVarIt != _playerVars.end())
 			return _playerVars.erase(playerVarIt);
 		return _playerVars.end();
+	}
+
+	template <typename Callable, typename... Args>
+	void PlayerVarVector::ForEach(Callable&& func, Args&&... args) {
+		std::lock_guard<std::mutex> lock(_mutex);
+		for (auto& playerVar : _playerVars)
+			func(playerVar, std::forward<Args>(args)...);
 	}
 
 	PlayerVarVector PlayerVariables::playerVars{};
@@ -247,13 +260,17 @@ namespace EGSDK::GamePH {
 			}
 		}
 	}
-	static void processPlayerVarSafe(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVarPtr) {
+	static void processPlayerVarSafe(std::unique_ptr<PlayerVariable>& playerVarPtr, DWORD64*(*playerVarsGetter)()) {
 		__try {
 			processPlayerVar(playerVarsGetter, playerVarPtr);
 		} __except (EXCEPTION_EXECUTE_HANDLER) {
 			SPDLOG_ERROR("Failed to process player variable: {}", playerVarPtr->GetName());
 		}
 	}
+	template EGameSDK_API void PlayerVarVector::ForEach<decltype(processPlayerVarSafe)>(
+		void(*func)(std::unique_ptr<PlayerVariable>& playerVarPtr, DWORD64*(*playerVarsGetter)()),
+		DWORD64*(*playerVarsGetter)()
+	);
 
 	void PlayerVariables::GetPlayerVars() {
 		if (gotPlayerVars)
@@ -263,9 +280,7 @@ namespace EGSDK::GamePH {
 		if (!Get())
 			return;
 
-		for (auto& playerVarPtr : playerVars)
-			processPlayerVarSafe(reinterpret_cast<DWORD64*(*)()>(&Get), playerVarPtr);
-
+		playerVars.ForEach(processPlayerVarSafe, reinterpret_cast<DWORD64*(*)()>(&Get));
 		gotPlayerVars = true;
 	}
 
