@@ -7,19 +7,9 @@
 
 namespace EGSDK::Utils {
     namespace Values {
-        bool str_ends_with_ci(const std::string& text, const std::string& substr) {
-            if (substr.length() > text.length())
-                return false;
-
-            return std::equal(substr.rbegin(), substr.rend(), text.rbegin(), [](char ch1, char ch2) {
-                return std::toupper(ch1) == std::toupper(ch2);
-            });
-        }
-
         __forceinline bool are_samef(float a, float b, float precision) {
             return std::fabs(a - b) < precision;
         }
-
         float round_decimal(float value, int decimal_places) {
             float multiplier = 1.0f;
             for (int i = 0; i < decimal_places; ++i)
@@ -28,6 +18,14 @@ namespace EGSDK::Utils {
             return std::round(value * multiplier) / multiplier;
         }
 
+        bool str_ends_with_ci(const std::string& text, const std::string& substr) {
+            if (substr.length() > text.length())
+                return false;
+
+            return std::equal(substr.rbegin(), substr.rend(), text.rbegin(), [](char ch1, char ch2) {
+                return std::toupper(ch1) == std::toupper(ch2);
+            });
+        }
         bool str_replace(std::string& str, const std::string& from, const std::string& to) {
             size_t start_pos = str.find(from);
             if (start_pos == std::string::npos)
@@ -36,8 +34,13 @@ namespace EGSDK::Utils {
             str.replace(start_pos, from.length(), to);
             return true;
         }
+        std::string to_lower(const std::string& str) {
+            std::string lowerStr = str;
+            std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), tolower);
+            return lowerStr;
+        }
 
-        std::string GetSimpleTypeName(std::string fullName) {
+        std::string GetSimpleRTTITypeName(std::string fullName) {
             static const std::string class_prefix = "class ";
             static const std::string struct_prefix = "struct ";
             static const std::string enum_prefix = "enum ";

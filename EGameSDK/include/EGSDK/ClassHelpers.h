@@ -50,7 +50,7 @@ namespace EGSDK {
             if (!checkForVTable || IsVftableScanningDisabled())
                 return ptr;
 
-            static const std::string expectedVtableName = Utils::Values::GetSimpleTypeName(typeid(T).name());
+            static const std::string expectedVtableName = Utils::Values::GetSimpleRTTITypeName(typeid(T).name());
             if (Utils::RTTI::GetVTableNameFromVTPtr(*reinterpret_cast<T**>(ptr)) != expectedVtableName)
                 return nullptr;
 

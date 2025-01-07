@@ -21,7 +21,7 @@ namespace EGT::Menu {
 		static constexpr float baseWeaponRecoilMul = 1.0f;
 		static constexpr float baseWeaponReloadMul = 1.0f;
 
-		static void UpdatePlayerVars() {
+		static void PlayerVarsUpdate() {
 			if (!EGSDK::GamePH::PlayerVariables::gotPlayerVars)
 				return;
 
@@ -94,7 +94,7 @@ namespace EGT::Menu {
 		void Tab::Update() {
 			if (!Menu::menuToggle.GetValue())
 				UpdateWeaponDurability(true);
-			UpdatePlayerVars();
+			PlayerVarsUpdate();
 		}
 		void Tab::Render() {
 			ImGui::SeparatorText("Current Weapon##Weapon");

@@ -161,7 +161,7 @@ namespace EGT::Menu {
 					EGSDK::GamePH::ShowTPPModel(false);
 			}
 		}
-		static void UpdatePlayerVars() {
+		static void PlayerVarsUpdate() {
 			if (!EGSDK::GamePH::PlayerVariables::gotPlayerVars)
 				return;
 
@@ -205,7 +205,7 @@ namespace EGT::Menu {
 			UpdateFOV();
 			FreeCamUpdate();
 			UpdateTPPModel();
-			UpdatePlayerVars();
+			PlayerVarsUpdate();
 			UpdateDisabledOptions();
 			HandleToggles();
 		}

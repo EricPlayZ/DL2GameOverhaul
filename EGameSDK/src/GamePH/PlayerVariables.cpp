@@ -13,11 +13,15 @@ namespace EGSDK::GamePH {
 
 	std::unordered_map<PlayerVariable*, std::string> PlayerVariable::playerVarNames{};
 	std::unordered_map<PlayerVariable*, PlayerVarType> PlayerVariable::playerVarTypes{};
+	std::mutex PlayerVariable::mutex{};
+
 	PlayerVariable::PlayerVariable(const std::string& name) {
+		std::lock_guard<std::mutex> lock(mutex);
 		playerVarNames[this] = name;
 		playerVarTypes[this] = PlayerVarType::NONE;
 	}
     const char* PlayerVariable::GetName() {
+		std::lock_guard<std::mutex> lock(mutex);
         auto it = playerVarNames.find(this);
         if (it != playerVarNames.end()) {
             return it->second.c_str();
@@ -25,9 +29,11 @@ namespace EGSDK::GamePH {
         return nullptr;
     }
 	void PlayerVariable::SetName(const std::string& newName) {
+		std::lock_guard<std::mutex> lock(mutex);
 		playerVarNames[this] = newName;
 	}
 	PlayerVarType PlayerVariable::GetType() {
+		std::lock_guard<std::mutex> lock(mutex);
 		auto it = playerVarTypes.find(this);
 		if (it != playerVarTypes.end()) {
 			return it->second;
@@ -35,14 +41,36 @@ namespace EGSDK::GamePH {
 		return PlayerVarType::NONE;
 	}
 	void PlayerVariable::SetType(PlayerVarType newType) {
+		std::lock_guard<std::mutex> lock(mutex);
 		playerVarTypes[this] = newType;
 	}
 
 	StringPlayerVariable::StringPlayerVariable(const std::string& name) : PlayerVariable(name) {
 		SetType(PlayerVarType::String);
 	}
+	const char* StringPlayerVariable::GetValue() {
+		return reinterpret_cast<const char*>(reinterpret_cast<DWORD64>(this->value.data) & 0x1FFFFFFFFFFFFFFF);
+	}
+	const char* StringPlayerVariable::GetDefaultValue() {
+		return reinterpret_cast<const char*>(reinterpret_cast<DWORD64>(this->defaultValue.data) & 0x1FFFFFFFFFFFFFFF);
+	}
+	void StringPlayerVariable::SetValues(const std::string& value) {
+		DWORD64 firstByte = (reinterpret_cast<DWORD64>(this->value.data) >> 56) & 0xFF;
+		DWORD64 newValueAddr = reinterpret_cast<DWORD64>(value.c_str());
+		if (firstByte != 0x0)
+			newValueAddr |= (firstByte << 56);
+
+		this->value = reinterpret_cast<const char*>(newValueAddr);
+		this->defaultValue = reinterpret_cast<const char*>(newValueAddr);
+	}
 	FloatPlayerVariable::FloatPlayerVariable(const std::string& name) : PlayerVariable(name) {
 		SetType(PlayerVarType::Float);
+	}
+	float FloatPlayerVariable::GetValue() {
+		return this->value.data;
+	}
+	float FloatPlayerVariable::GetDefaultValue() {
+		return this->defaultValue.data;
 	}
 	void FloatPlayerVariable::SetValues(float value) {
 		this->value = value;
@@ -50,6 +78,12 @@ namespace EGSDK::GamePH {
 	}
 	BoolPlayerVariable::BoolPlayerVariable(const std::string& name) : PlayerVariable(name) {
 		SetType(PlayerVarType::Bool);
+	}
+	bool BoolPlayerVariable::GetValue() {
+		return this->value.data;
+	}
+	bool BoolPlayerVariable::GetDefaultValue() {
+		return this->defaultValue.data;
 	}
 	void BoolPlayerVariable::SetValues(bool value) {
 		this->value = value;
@@ -61,13 +95,16 @@ namespace EGSDK::GamePH {
 		_playerVars.emplace_back(std::move(playerVar));
 		return _playerVars.back();
 	}
-	auto PlayerVarVector::begin() {
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::begin() {
 		std::lock_guard<std::mutex> lock(_mutex);
 		return _playerVars.begin();
 	}
-	auto PlayerVarVector::end() {
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::end() {
 		std::lock_guard<std::mutex> lock(_mutex);
 		return _playerVars.end();
+	}
+	bool PlayerVarVector::empty() {
+		return _playerVars.empty();
 	}
 	bool PlayerVarVector::none_of(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
@@ -76,7 +113,7 @@ namespace EGSDK::GamePH {
 		});
 	}
 
-	auto PlayerVarVector::FindIter(const std::string& name) {
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIter(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
 		auto playerVarIt = std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
 			return playerVar->GetName() == name;
@@ -93,7 +130,7 @@ namespace EGSDK::GamePH {
 		auto playerVarPtr = FindPtr(name);
 		return !playerVarPtr ? nullptr : playerVarPtr->get();
 	}
-	auto PlayerVarVector::Erase(const std::string& name) {
+	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::Erase(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
 		auto playerVarIt = FindIter(name);
 		if (playerVarIt != _playerVars.end())
@@ -105,7 +142,7 @@ namespace EGSDK::GamePH {
 	PlayerVarVector PlayerVariables::customPlayerVars{};
 	PlayerVarVector PlayerVariables::defaultPlayerVars{};
 	PlayerVarVector PlayerVariables::customDefaultPlayerVars{};
-	bool PlayerVariables::gotPlayerVars = false;
+	std::atomic<bool> PlayerVariables::gotPlayerVars = false;
 	static bool sortedPlayerVars = false;
 
 	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
@@ -369,11 +406,9 @@ namespace EGSDK::GamePH {
 			return -404.0f;
 		else if constexpr (std::is_same_v<T, bool>)
 			return false;
-		else
-			return T();
 	}
 	template <typename T>
-	static T GetPlayerVarValue(const std::string& name) {
+	T PlayerVariables::GetPlayerVarValue(const std::string& name) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
 		if (!gotPlayerVars)
@@ -383,175 +418,103 @@ namespace EGSDK::GamePH {
 		if (!playerVar)
 			return getDefaultValue<T>();
 
-		if constexpr (std::is_same_v<T, std::string>) {
-			StringPlayerVariable* stringPlayerVar = reinterpret_cast<StringPlayerVariable*>(playerVar);
-			return stringPlayerVar->value.data;
-		} else if constexpr (std::is_same_v<T, float>) {
-			FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
-			return floatPlayerVar->value.data;
-		} else if constexpr (std::is_same_v<T, bool>) {
-			BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
-			return boolPlayerVar->value.data;
-		}
+		if constexpr (std::is_same_v<T, std::string>)
+			return reinterpret_cast<StringPlayerVariable*>(playerVar)->value.data;
+		else if constexpr (std::is_same_v<T, float>)
+			return reinterpret_cast<FloatPlayerVariable*>(playerVar)->value.data;
+		else if constexpr (std::is_same_v<T, bool>)
+			return reinterpret_cast<BoolPlayerVariable*>(playerVar)->value.data;
 	}
 	template <typename T>
-	static void ChangePlayerVar(const std::string& name, const T value) {
+	void PlayerVariables::ChangePlayerVar(const std::string& name, const T value, PlayerVariable* playerVar) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
 		if (!gotPlayerVars)
 			return;
 
-		auto playerVar = playerVars.Find(name);
+		if (!playerVar)
+			playerVar = playerVars.Find(name);
 		if (!playerVar)
 			return;
 
 		if constexpr (std::is_same_v<T, std::string>) {
 			switch (playerVar->GetType()) {
-			case PlayerVarType::String:
-				// TO IMPLEMENT
-				break;
-			case PlayerVarType::Float:
-			{
-				std::string valueStr = Utils::Values::to_string(value);
-				float actualValue = std::stof(valueStr);
-
-				FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
-				floatPlayerVar->SetValues(actualValue);
-				break;
-			}
-			case PlayerVarType::Bool:
-			{
-				std::string valueStr = Utils::Values::to_string(value);
-				bool actualValue = valueStr == "true";
-
-				BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
-				boolPlayerVar->SetValues(actualValue);
-				break;
-			}
-			default:
-				break;
+				case PlayerVarType::String:
+					break; // TO IMPLEMENT
+				case PlayerVarType::Float:
+					ChangePlayerVar<float>(name, std::stof(Utils::Values::to_string(value)), playerVar);
+					break;
+				case PlayerVarType::Bool:
+					ChangePlayerVar<bool>(name, std::stof(Utils::Values::to_string(value)), playerVar);
+					break;
+				default:
+					break;
 			}
 		} else if constexpr (std::is_same_v<T, float>) {
-			if (playerVar->GetType() != PlayerVarType::Float)
-				return;
-
-			FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
-			floatPlayerVar->SetValues(value);
+			if (playerVar->GetType() == PlayerVarType::Float)
+				reinterpret_cast<FloatPlayerVariable*>(playerVar)->SetValues(value);
 		} else if constexpr (std::is_same_v<T, bool>) {
-			if (playerVar->GetType() != PlayerVarType::Bool)
-				return;
-
-			BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
-			boolPlayerVar->SetValues(value);
+			if (playerVar->GetType() == PlayerVarType::Bool)
+				reinterpret_cast<BoolPlayerVariable*>(playerVar)->SetValues(value);
 		}
 	}
 	template <typename T>
-	static void ChangePlayerVarFromList(const std::string& name, const T value, PlayerVariable* playerVar = nullptr) {
+	void PlayerVariables::ChangePlayerVarFromList(const std::string& name, const T value, PlayerVariable* playerVar) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
 		if (!gotPlayerVars)
 			return;
 
-		if (!playerVar) {
+		if (!playerVar)
 			playerVar = playerVars.Find(name);
-			if (!playerVar)
-				return;
-		}
+		if (!playerVar)
+			return;
 
 		auto customPlayerVar = customPlayerVars.Find(name);
 		auto defPlayerVar = defaultPlayerVars.Find(name);
 
 		if constexpr (std::is_same_v<T, std::string>) {
 			switch (playerVar->GetType()) {
-			case PlayerVarType::String:
-				// TO IMPLEMENT
-				break;
-			case PlayerVarType::Float:
-			{
-				if (!customPlayerVar)
-					customPlayerVar = customPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
-				std::string valueStr = Utils::Values::to_string(value);
-				float actualValue = std::stof(valueStr);
-
-				FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
-				FloatPlayerVariable* customFloatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(customPlayerVar);
-
-				if (!defPlayerVar) {
-					defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
-
-					FloatPlayerVariable* defFloatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(defPlayerVar);
-					defFloatPlayerVar->SetValues(floatPlayerVar->value);
-				}
-
-				floatPlayerVar->SetValues(actualValue);
-				customFloatPlayerVar->SetValues(actualValue);
-				break;
-			}
-			case PlayerVarType::Bool:
-			{
-				if (!customPlayerVar)
-					customPlayerVar = customPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
-				std::string valueStr = Utils::Values::to_string(value);
-				bool actualValue = valueStr == "true";
-
-				BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
-				BoolPlayerVariable* customBoolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(customPlayerVar);
-
-				if (!defPlayerVar) {
-					defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
-
-					BoolPlayerVariable* defBoolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(defPlayerVar);
-					defBoolPlayerVar->SetValues(boolPlayerVar->value);
-				}
-
-				boolPlayerVar->SetValues(actualValue);
-				customBoolPlayerVar->SetValues(actualValue);
-				break;
-			}
-			default:
-				break;
+				case PlayerVarType::String:
+					break; // TO IMPLEMENT
+				case PlayerVarType::Float:
+					ChangePlayerVarFromList<float>(name, std::stof(Utils::Values::to_string(value)), playerVar);
+					break;
+				case PlayerVarType::Bool:
+					ChangePlayerVarFromList<bool>(name, std::stof(Utils::Values::to_string(value)), playerVar);
+					break;
+				default:
+					break;
 			}
 		} else if constexpr (std::is_same_v<T, float>) {
 			if (playerVar->GetType() != PlayerVarType::Float)
 				return;
 			if (!customPlayerVar)
 				customPlayerVar = customPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
-
-			FloatPlayerVariable* floatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(playerVar);
-			FloatPlayerVariable* customFloatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(customPlayerVar);
-
 			if (!defPlayerVar) {
 				defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
-
-				FloatPlayerVariable* defFloatPlayerVar = reinterpret_cast<FloatPlayerVariable*>(defPlayerVar);
-				defFloatPlayerVar->SetValues(floatPlayerVar->value);
+				reinterpret_cast<FloatPlayerVariable*>(defPlayerVar)->SetValues(reinterpret_cast<FloatPlayerVariable*>(playerVar)->value);
 			}
 
-			floatPlayerVar->SetValues(value);
-			customFloatPlayerVar->SetValues(value);
+			reinterpret_cast<FloatPlayerVariable*>(playerVar)->SetValues(value);
+			reinterpret_cast<FloatPlayerVariable*>(customPlayerVar)->SetValues(value);
 		} else if constexpr (std::is_same_v<T, bool>) {
 			if (playerVar->GetType() != PlayerVarType::Bool)
 				return;
 			if (!customPlayerVar)
 				customPlayerVar = customPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
-
-			BoolPlayerVariable* boolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(playerVar);
-			BoolPlayerVariable* customBoolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(customPlayerVar);
-
 			if (!defPlayerVar) {
 				defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
-
-				BoolPlayerVariable* defBoolPlayerVar = reinterpret_cast<BoolPlayerVariable*>(defPlayerVar);
-				defBoolPlayerVar->SetValues(boolPlayerVar->value);
+				reinterpret_cast<BoolPlayerVariable*>(defPlayerVar)->SetValues(reinterpret_cast<BoolPlayerVariable*>(playerVar)->value);
 			}
 
-			boolPlayerVar->SetValues(value);
-			customBoolPlayerVar->SetValues(value);
+			reinterpret_cast<BoolPlayerVariable*>(playerVar)->SetValues(value);
+			reinterpret_cast<BoolPlayerVariable*>(customPlayerVar)->SetValues(value);
 		}
 	}
 
 	template <typename T>
-	static void ManagePlayerVarByBool(const std::string& name, const T valueIfTrue, const T valueIfFalse, bool boolVal, bool usePreviousVal = true) {
+	void PlayerVariables::ManagePlayerVarByBool(const std::string& name, const T valueIfTrue, const T valueIfFalse, bool boolVal, bool usePreviousVal) {
 		if (!gotPlayerVars)
 			return;
 
@@ -572,12 +535,26 @@ namespace EGSDK::GamePH {
 			prevPlayerVarValueMap.erase(name);
 		}
 	}
-	static bool IsPlayerVarManagedByBool(const std::string& name) {
+	bool PlayerVariables::IsPlayerVarManagedByBool(const std::string& name) {
 		if (!gotPlayerVars)
 			return false;
 
 		return prevBoolValueMap.find(name) != prevBoolValueMap.end() && prevBoolValueMap[name];
 	}
+
+	template EGameSDK_API std::string PlayerVariables::GetPlayerVarValue<std::string>(const std::string& name);
+	template EGameSDK_API float PlayerVariables::GetPlayerVarValue<float>(const std::string& name);
+	template EGameSDK_API bool PlayerVariables::GetPlayerVarValue<bool>(const std::string& name);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVar<std::string>(const std::string& name, const std::string value, PlayerVariable* playerVar);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVar<float>(const std::string& name, const float value, PlayerVariable* playerVar);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVar<bool>(const std::string& name, const bool value, PlayerVariable* playerVar);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVarFromList<std::string>(const std::string& name, const std::string value, PlayerVariable* playerVar);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVarFromList<float>(const std::string& name, const float value, PlayerVariable* playerVar);
+	template EGameSDK_API void PlayerVariables::ChangePlayerVarFromList<bool>(const std::string& name, const bool value, PlayerVariable* playerVar);
+
+	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool(const std::string& name, const std::string valueIfTrue, const std::string valueIfFalse, bool boolVal, bool usePreviousVal);
+	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool<float>(const std::string& name, const float valueIfTrue, const float valueIfFalse, bool boolVal, bool usePreviousVal);
+	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool<bool>(const std::string& name, const bool valueIfTrue, const bool valueIfFalse, bool boolVal, bool usePreviousVal);
 
 	static PlayerVariables* GetOffset_PlayerVariables() {
 		PlayerState* playerState = PlayerState::Get();
