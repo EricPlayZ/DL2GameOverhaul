@@ -11,7 +11,7 @@ namespace EGT::Menu {
 		extern float slowMotionSpeed;
 		extern float slowMotionTransitionTime;
 
-		extern EGSDK::GamePH::TimeWeather::EWeather::TYPE weather;
+		extern EGSDK::GamePH::TimeWeather::EWeather weather;
 
 		class Tab : MenuTab {
 		public:

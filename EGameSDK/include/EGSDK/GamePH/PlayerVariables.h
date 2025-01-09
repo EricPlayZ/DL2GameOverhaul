@@ -4,6 +4,7 @@
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <functional>
 #include <EGSDK\ClassHelpers.h>
 #include <EGSDK\Utils\Values.h>
 
@@ -88,7 +89,11 @@ namespace EGSDK::GamePH {
 		std::vector<std::unique_ptr<PlayerVariable>>::iterator Erase(const std::string& name);
 
 		template <typename Callable, typename... Args>
-		void ForEach(Callable&& func, Args&&... args);
+		void ForEach(Callable&& func, Args&&... args) {
+			std::lock_guard<std::mutex> lock(_mutex);
+			for (auto& playerVar : _playerVars)
+				func(playerVar, std::forward<Args>(args)...);
+		}
 	private:
 		std::vector<std::unique_ptr<PlayerVariable>>::iterator FindIterUnsafe(const std::string& name);
 

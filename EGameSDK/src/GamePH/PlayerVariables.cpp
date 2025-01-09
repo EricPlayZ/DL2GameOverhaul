@@ -144,13 +144,6 @@ namespace EGSDK::GamePH {
 		return _playerVars.end();
 	}
 
-	template <typename Callable, typename... Args>
-	void PlayerVarVector::ForEach(Callable&& func, Args&&... args) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		for (auto& playerVar : _playerVars)
-			func(playerVar, std::forward<Args>(args)...);
-	}
-
 	PlayerVarVector PlayerVariables::playerVars{};
 	PlayerVarVector PlayerVariables::customPlayerVars{};
 	PlayerVarVector PlayerVariables::defaultPlayerVars{};
@@ -267,10 +260,6 @@ namespace EGSDK::GamePH {
 			SPDLOG_ERROR("Failed to process player variable: {}", playerVarPtr->GetName());
 		}
 	}
-	template EGameSDK_API void PlayerVarVector::ForEach<decltype(processPlayerVarSafe)>(
-		void(*func)(std::unique_ptr<PlayerVariable>& playerVarPtr, DWORD64*(*playerVarsGetter)()),
-		DWORD64*(*playerVarsGetter)()
-	);
 
 	void PlayerVariables::GetPlayerVars() {
 		if (gotPlayerVars)

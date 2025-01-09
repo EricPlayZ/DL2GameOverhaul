@@ -18,5 +18,6 @@ namespace ImGui {
 	extern void TextCenteredColored(const char* text, const ImU32 col, const bool calculateWithScrollbar = true);
 	extern bool ButtonCentered(const char* label, const ImVec2 size = ImVec2(0.0f, 0.0f));
 	extern void SeparatorTextColored(const char* text, const ImU32 col);
+	extern void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...);
 	extern void Spacing(const ImVec2 size, const bool customPosOffset = false);
 }

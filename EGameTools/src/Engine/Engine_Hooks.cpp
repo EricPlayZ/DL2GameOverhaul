@@ -21,13 +21,15 @@ namespace EGT::Engine {
 			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded() || iLevel->IsTimerFrozen())
 				return MoveCameraFromForwardUpPosHook.pOriginal(pCBaseCamera, a3, a4, pos);
+			if (!pos)
+				return;
 
 			if (Menu::Camera::freeCam.GetValue() && switchedFreeCamByGamePause) {
 				switchedFreeCamByGamePause = false;
 				*pos = freeCamPosBeforeGamePause;
 				return MoveCameraFromForwardUpPosHook.pOriginal(pCBaseCamera, a3, a4, pos);
 			}
-			if (!Menu::Camera::thirdPersonCamera.GetValue() || Menu::Camera::photoMode.GetValue() || Menu::Camera::freeCam.GetValue() || !pos)
+			if ((!Menu::Camera::thirdPersonCamera.GetValue() && Menu::Camera::cameraOffset.isDefault()) || Menu::Camera::photoMode.GetValue() || Menu::Camera::freeCam.GetValue())
 				return MoveCameraFromForwardUpPosHook.pOriginal(pCBaseCamera, a3, a4, pos);
 
 			EGSDK::Engine::CBaseCamera* viewCam = static_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera());
@@ -37,13 +39,24 @@ namespace EGT::Engine {
 			EGSDK::Vector3 forwardVec{};
 			viewCam->GetForwardVector(&forwardVec);
 			const EGSDK::Vector3 normForwardVec = forwardVec.normalize();
+			EGSDK::Vector3 upVec{};
+			viewCam->GetUpVector(&upVec);
+			const EGSDK::Vector3 normUpVec = upVec.normalize();
 			EGSDK::Vector3 leftVec{};
 			viewCam->GetLeftVector(&leftVec);
 			const EGSDK::Vector3 normLeftVec = leftVec.normalize();
 
-			EGSDK::Vector3 newCamPos = *pos - normForwardVec * -Menu::Camera::tpDistanceBehindPlayer;
-			newCamPos.Y += Menu::Camera::tpHeightAbovePlayer - 1.5f;
-			newCamPos -= normLeftVec * Menu::Camera::tpHorizontalDistanceFromPlayer;
+			EGSDK::Vector3 newCamPos = *pos;
+
+			if (!Menu::Camera::cameraOffset.isDefault() && !Menu::Camera::thirdPersonCamera.GetValue()) {
+				newCamPos -= normLeftVec * Menu::Camera::cameraOffset.X;
+				newCamPos.Y += Menu::Camera::cameraOffset.Y;
+				newCamPos -= normForwardVec * -Menu::Camera::cameraOffset.Z;
+			} else if (Menu::Camera::thirdPersonCamera.GetValue()) {
+				newCamPos -= normForwardVec * -Menu::Camera::tpDistanceBehindPlayer;
+				newCamPos.Y += Menu::Camera::tpHeightAbovePlayer - 1.5f;
+				newCamPos -= normLeftVec * Menu::Camera::tpHorizontalDistanceFromPlayer;
+			}
 
 			*pos = newCamPos;
 

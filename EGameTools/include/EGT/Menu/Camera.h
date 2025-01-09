@@ -1,9 +1,11 @@
 #pragma once
+#include <EGSDK\Vector3.h>
 #include <EGT\Core\Core.h>
 #include <EGT\Menu\Menu.h>
 
 namespace EGT::Menu {
 	namespace Camera {
+		extern EGSDK::Vector3 cameraOffset;
 		extern int FOV;
 		
 		extern ImGui::Option photoMode;

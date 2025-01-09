@@ -60,16 +60,16 @@ namespace EGT::Menu {
 			EGSDK::GamePH::PlayerVariables::ManagePlayerVarByBool("BowPutArrowDuration", 0.0f, 0.137f, instantReload.GetValue(), true);
 		}
 		static void UpdateWeaponDurability(bool updateSlider) {
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded())
 				return;
-			EGSDK::GamePH::PlayerDI_PH* player = EGSDK::GamePH::PlayerDI_PH::Get();
+			auto player = EGSDK::GamePH::PlayerDI_PH::Get();
 			if (!player)
 				return;
-			EGSDK::GamePH::InventoryItem* weaponItem = player->GetCurrentWeapon(0);
+			auto weaponItem = player->GetCurrentWeapon(0);
 			if (!weaponItem)
 				return;
-			EGSDK::GamePH::ItemDescWithContext* weaponItemCtx = weaponItem->GetItemDescCtx();
+			auto weaponItemCtx = weaponItem->GetItemDescCtx();
 			if (!weaponItemCtx)
 				return;
 
@@ -77,13 +77,13 @@ namespace EGT::Menu {
 		}
 
 		static bool isWeaponInteractionDisabled() {
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded())
 				return true;
-			EGSDK::GamePH::PlayerDI_PH* player = EGSDK::GamePH::PlayerDI_PH::Get();
+			auto player = EGSDK::GamePH::PlayerDI_PH::Get();
 			if (!player)
 				return true;
-			EGSDK::GamePH::InventoryItem* weaponItem = player->GetCurrentWeapon(0);
+			auto weaponItem = player->GetCurrentWeapon(0);
 			if (!weaponItem || !weaponItem->GetItemDescCtx())
 				return true;
 
@@ -98,13 +98,9 @@ namespace EGT::Menu {
 		}
 		void Tab::Render() {
 			ImGui::SeparatorText("Current Weapon##Weapon");
-			ImGui::BeginDisabled(isWeaponInteractionDisabled() || currentWeaponDurability <= 0.0f); {
-				if (ImGui::SliderFloat("Weapon Durability", "Currently only works while your weapon is physically equipped in your hand", &currentWeaponDurability, 0.1f, 999.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp))
-					UpdateWeaponDurability(false);
-				else
-					UpdateWeaponDurability(true);
-				ImGui::EndDisabled();
-			}
+			ImGui::BeginDisabled(isWeaponInteractionDisabled() || currentWeaponDurability <= 0.0f);
+			UpdateWeaponDurability(!ImGui::SliderFloat("Weapon Durability", "Currently only works while your weapon is physically equipped in your hand", &currentWeaponDurability, 0.1f, 999.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp));
+			ImGui::EndDisabled();
 
 			ImGui::SeparatorText("Misc##Weapon");
 			ImGui::CheckboxHotkey("Unlimited Durability", &unlimitedDurability, "Enables unlimited durability for all weapons");

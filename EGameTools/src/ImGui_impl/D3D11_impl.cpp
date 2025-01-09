@@ -6,6 +6,7 @@
 #include <ImGui\backends\imgui_impl_dx11.h>
 #include <ImGui\backends\imgui_impl_win32.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
+#include <EGT\ImGui_impl\DeferredActions.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Init.h>
 
@@ -89,6 +90,8 @@ namespace EGT::ImGui_impl {
 
 					ImGui::EndFrame();
 					ImGui::Render();
+
+					DeferredActions::Process();
 
 					if (d3d11RenderTargetView)
 						d3d11DeviceContext->OMSetRenderTargets(1, &d3d11RenderTargetView, nullptr);

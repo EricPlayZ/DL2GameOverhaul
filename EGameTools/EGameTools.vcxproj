@@ -31,6 +31,7 @@
     <ClCompile Include="src\GamePH\GamePH_Hooks.cpp" />
     <ClCompile Include="src\ImGui_impl\D3D11_impl.cpp" />
     <ClCompile Include="src\ImGui_impl\D3D12_impl.cpp" />
+    <ClCompile Include="src\ImGui_impl\DeferredActions.cpp" />
     <ClCompile Include="src\ImGui_impl\Win32_impl.cpp" />
     <ClCompile Include="src\Menu\Camera.cpp" />
     <ClCompile Include="src\Menu\Debug.cpp" />
@@ -44,12 +45,16 @@
     <ClCompile Include="src\Utils\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\ImGui\imguiex.h" />
+    <ClInclude Include="deps\ImGui\imguiex_animation.h" />
+    <ClInclude Include="deps\ImGui\imgui_hotkey.h" />
     <ClInclude Include="include\EGT\Changelog.h" />
     <ClInclude Include="include\EGT\Config\Config.h" />
     <ClInclude Include="include\EGT\Core\Core.h" />
     <ClInclude Include="include\EGT\Engine\Engine_Hooks.h" />
     <ClInclude Include="include\EGT\ImGui_impl\D3D11_impl.h" />
     <ClInclude Include="include\EGT\ImGui_impl\D3D12_impl.h" />
+    <ClInclude Include="include\EGT\ImGui_impl\DeferredActions.h" />
     <ClInclude Include="include\EGT\ImGui_impl\Win32_impl.h" />
     <ClInclude Include="include\EGT\Menu\Camera.h" />
     <ClInclude Include="include\EGT\Menu\Debug.h" />

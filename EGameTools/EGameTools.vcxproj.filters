@@ -162,6 +162,9 @@
     <ClCompile Include="deps\ImGui\imguiex_animation.cpp">
       <Filter>deps\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="src\ImGui_impl\DeferredActions.cpp">
+      <Filter>src\ImGui_impl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EGT\Config\Config.h">
@@ -214,6 +217,18 @@
     </ClInclude>
     <ClInclude Include="include\EGT\Core\Core.h">
       <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGT\ImGui_impl\DeferredActions.h">
+      <Filter>include\ImGui_impl</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imgui_hotkey.h">
+      <Filter>deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imguiex.h">
+      <Filter>deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imguiex_animation.h">
+      <Filter>deps\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

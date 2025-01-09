@@ -221,6 +221,20 @@ namespace ImGui {
         SeparatorText(label);
         PopStyleColor();
     }
+    void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...) {
+        if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            va_list args;
+            va_start(args, fmt);
+            char buffer[512];
+            vsnprintf(buffer, sizeof(buffer), fmt, args);
+            va_end(args);
+
+            ImGui::Text("%s", buffer);
+            if (ImGui::Button("OK", ImVec2(120.0f, 0.0f)))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+    }
     void Spacing(const ImVec2 size, const bool customPosOffset) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)

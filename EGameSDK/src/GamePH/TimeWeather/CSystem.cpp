@@ -10,7 +10,7 @@ namespace EGSDK::GamePH {
 			Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetForcedWeather@CSystem@TimeWeather@@QEAAXW4TYPE@EWeather@@VApiDebugAccess@2@@Z", this, weather);
 		}
 		int CSystem::GetCurrentWeather() {
-			return Utils::Memory::SafeCallFunction<int>("engine_x64_rwdi.dll", "?GetCurrentWeather@CSystem@TimeWeather@@QEBA?AW4TYPE@EWeather@@XZ", EWeather::TYPE::Default, this);
+			return Utils::Memory::SafeCallFunction<int>("engine_x64_rwdi.dll", "?GetCurrentWeather@CSystem@TimeWeather@@QEBA?AW4TYPE@EWeather@@XZ", EWeather::Default, this);
 		}
 
 		static CSystem* GetOffset_CSystem() {

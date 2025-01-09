@@ -14,6 +14,7 @@
 
 namespace EGT::Menu {
 	namespace Camera {
+		EGSDK::Vector3 cameraOffset{};
 		int FOV = 57;
 
 		ImGui::Option photoMode{ false };
@@ -210,46 +211,56 @@ namespace EGT::Menu {
 			HandleToggles();
 		}
 		void Tab::Render() {
+			ImGui::SeparatorText("Camera");
+			
+
 			ImGui::SeparatorText("Free Camera");
-			ImGui::BeginDisabled(freeCam.GetChangesAreDisabled() || photoMode.GetValue()); {
-				ImGui::CheckboxHotkey("Enabled##FreeCam", &freeCam, "Enables free camera which allows you to travel anywhere with the camera");
-				ImGui::EndDisabled();
-			}
+			ImGui::BeginDisabled(freeCam.GetChangesAreDisabled() || photoMode.GetValue());
+			ImGui::CheckboxHotkey("Enabled##FreeCam", &freeCam, "Enables free camera which allows you to travel anywhere with the camera");
+			ImGui::EndDisabled();
+
 			ImGui::SameLine();
-			ImGui::BeginDisabled(teleportPlayerToCamera.GetChangesAreDisabled()); {
-				ImGui::CheckboxHotkey("Teleport Player to Camera", &teleportPlayerToCamera, "Teleports the player to the camera while Free Camera is activated");
-				ImGui::EndDisabled();
-			}
+
+			ImGui::BeginDisabled(teleportPlayerToCamera.GetChangesAreDisabled());
+			ImGui::CheckboxHotkey("Teleport Player to Camera", &teleportPlayerToCamera, "Teleports the player to the camera while Free Camera is activated");
+			ImGui::EndDisabled();
+
 			ImGui::SliderFloat("Speed##FreeCam", &freeCamSpeed, 0.1f, 200.0f, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 
 			ImGui::SeparatorText("Third Person Camera");
-			ImGui::BeginDisabled(thirdPersonCamera.GetChangesAreDisabled()); {
-				ImGui::CheckboxHotkey("Enabled##ThirdPerson", &thirdPersonCamera, "Enables the third person camera");
-				ImGui::EndDisabled();
-			}
+			ImGui::BeginDisabled(thirdPersonCamera.GetChangesAreDisabled());
+			ImGui::CheckboxHotkey("Enabled##ThirdPerson", &thirdPersonCamera, "Enables the third person camera");
+			ImGui::EndDisabled();
+
 			ImGui::SameLine();
-			ImGui::BeginDisabled(tpUseTPPModel.GetChangesAreDisabled()); {
-				ImGui::CheckboxHotkey("Use Third Person Player (TPP) Model", &tpUseTPPModel, "Uses Aiden's TPP (Third Person Player) model while the third person camera is enabled");
-				ImGui::EndDisabled();
-			}
+
+			ImGui::BeginDisabled(tpUseTPPModel.GetChangesAreDisabled());
+			ImGui::CheckboxHotkey("Use Third Person Player (TPP) Model", &tpUseTPPModel, "Uses Aiden's TPP (Third Person Player) model while the third person camera is enabled");
+			ImGui::EndDisabled();
+
 			ImGui::SliderFloat("Distance behind player", &tpDistanceBehindPlayer, 1.0f, 10.0f, "%.2fm");
 			ImGui::SliderFloat("Height above player", &tpHeightAbovePlayer, 1.0f, 3.0f, "%.2fm");
 			ImGui::SliderFloat("Horizontal distance from player", &tpHorizontalDistanceFromPlayer, -2.0f, 2.0f, "%.2fm");
 
 			ImGui::SeparatorText("Misc");
-			EGSDK::Engine::CVideoSettings* pCVideoSettings = EGSDK::Engine::CVideoSettings::Get();
-			ImGui::BeginDisabled(!pCVideoSettings || goProMode.GetValue()); {
-				if (ImGui::SliderInt("FOV", "Camera Field of View", &FOV, 20, 160) && pCVideoSettings)
-					pCVideoSettings->extraFOV = static_cast<float>(FOV - baseFOV);
-				else if (pCVideoSettings && !goProMode.GetValue()) {
-					FOV = static_cast<int>(pCVideoSettings->extraFOV) + baseFOV;
-				}
-				ImGui::EndDisabled();
-			}
-			ImGui::BeginDisabled(goProMode.GetValue()); {
-				ImGui::SliderFloat("Lens Distortion", "Default game value is 20%", goProMode.GetValue() ? &altLensDistortion : &lensDistortion, 0.0f, 100.0f, "%.1f%%");
-				ImGui::EndDisabled();
-			}
+			ImGui::BeginDisabled(freeCam.GetChangesAreDisabled() || photoMode.GetValue());
+			ImGui::SliderFloat("X offset", &cameraOffset.X, -10.0f, 10.0f, "%.2fm");
+			ImGui::SliderFloat("Y offset", &cameraOffset.Y, -10.0f, 10.0f, "%.2fm");
+			ImGui::SliderFloat("Z offset", &cameraOffset.Z, -10.0f, 10.0f, "%.2fm");
+			ImGui::EndDisabled();
+
+			auto pCVideoSettings = EGSDK::Engine::CVideoSettings::Get();
+			ImGui::BeginDisabled(!pCVideoSettings || goProMode.GetValue());
+			if (ImGui::SliderInt("FOV", "Camera Field of View", &FOV, 20, 160) && pCVideoSettings)
+				pCVideoSettings->extraFOV = static_cast<float>(FOV - baseFOV);
+			else if (pCVideoSettings && !goProMode.GetValue())
+				FOV = static_cast<int>(pCVideoSettings->extraFOV) + baseFOV;
+			ImGui::EndDisabled();
+
+			ImGui::BeginDisabled(goProMode.GetValue());
+			ImGui::SliderFloat("Lens Distortion", "Default game value is 20%", goProMode.GetValue() ? &altLensDistortion : &lensDistortion, 0.0f, 100.0f, "%.1f%%");
+			ImGui::EndDisabled();
+
 			ImGui::CheckboxHotkey("GoPro Mode *", &goProMode, "Makes the camera behave similar to a GoPro mounted on the forehead");
 			ImGui::SameLine();
 			ImGui::CheckboxHotkey("Disable Safezone FOV Reduction", &disableSafezoneFOVReduction, "Disables the FOV reduction that happens while you're in a safezone");
