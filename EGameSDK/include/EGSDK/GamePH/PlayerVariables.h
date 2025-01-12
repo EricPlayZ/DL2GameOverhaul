@@ -68,45 +68,41 @@ namespace EGSDK::GamePH {
 		void SetValues(bool value);
 	};
 
-	class EGameSDK_API PlayerVarVector {
+	class EGameSDK_API PlayerVarMap {
 	public:
-		PlayerVarVector() = default;
-		PlayerVarVector(const PlayerVarVector&) = delete;
-		PlayerVarVector& operator=(const PlayerVarVector&) = delete;
+		PlayerVarMap() = default;
+		PlayerVarMap(const PlayerVarMap&) = delete;
+		PlayerVarMap& operator=(const PlayerVarMap&) = delete;
 
-		PlayerVarVector(PlayerVarVector&&) noexcept = default;
-		PlayerVarVector& operator=(PlayerVarVector&&) noexcept = default;
+		PlayerVarMap(PlayerVarMap&&) noexcept = default;
+		PlayerVarMap& operator=(PlayerVarMap&&) noexcept = default;
 
-		std::unique_ptr<PlayerVariable>& emplace_back(std::unique_ptr<PlayerVariable> playerVar);
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator beginUnsafe();
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator endUnsafe();
+		std::unique_ptr<PlayerVariable>& try_emplace(std::unique_ptr<PlayerVariable> playerVar);
 		bool empty();
 		bool none_of(const std::string& name);
 
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator FindIter(const std::string& name);
 		std::unique_ptr<PlayerVariable>* FindPtr(const std::string& name);
 		PlayerVariable* Find(const std::string& name);
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator Erase(const std::string& name);
+		bool Erase(const std::string& name);
 
 		template <typename Callable, typename... Args>
 		void ForEach(Callable&& func, Args&&... args) {
 			std::lock_guard<std::mutex> lock(_mutex);
-			for (auto& playerVar : _playerVars)
-				func(playerVar, std::forward<Args>(args)...);
+			for (const auto& name : _order)
+				func(_playerVars.at(name), std::forward<Args>(args)...);
 		}
 	private:
-		std::vector<std::unique_ptr<PlayerVariable>>::iterator FindIterUnsafe(const std::string& name);
-
-		std::vector<std::unique_ptr<PlayerVariable>> _playerVars{};
+		std::unordered_map<std::string, std::unique_ptr<PlayerVariable>> _playerVars{};
+		std::vector<std::string> _order{};
 		mutable std::mutex _mutex{};
 	};
 
 	class EGameSDK_API PlayerVariables {
 	public:
-		static PlayerVarVector playerVars;
-		static PlayerVarVector customPlayerVars;
-		static PlayerVarVector defaultPlayerVars;
-		static PlayerVarVector customDefaultPlayerVars;
+		static PlayerVarMap playerVars;
+		static PlayerVarMap customPlayerVars;
+		static PlayerVarMap defaultPlayerVars;
+		static PlayerVarMap customDefaultPlayerVars;
 		static std::atomic<bool> gotPlayerVars;
 
 		static std::unordered_map<std::string, std::any> prevPlayerVarValueMap;

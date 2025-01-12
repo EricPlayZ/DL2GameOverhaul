@@ -55,7 +55,6 @@ namespace EGT::Core {
 	std::atomic<bool> exiting = false;
 	static std::vector<std::thread> threads{};
 	static HANDLE keepAliveEvent{};
-
 	std::counting_semaphore<4> maxHookThreads(4);
 
 	static bool LoopHookRenderer() {
@@ -301,6 +300,7 @@ namespace EGT::Core {
 		threads.emplace_back(Config::ConfigLoop);
 
 		if (Menu::Debug::enableDebuggingConsole.GetValue()) {
+			OpenIOBuffer();
 			EnableConsole();
 			AddConsoleSink();
 		}
@@ -372,6 +372,13 @@ namespace EGT::Core {
 		MH_DisableHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
 		SPDLOG_INFO("Unhooked everything");
+
+		SPDLOG_INFO("Disabling console");
+		if (Menu::Debug::enableDebuggingConsole.GetValue()) {
+			DisableConsole();
+			CloseIOBuffer();
+		}
+		SPDLOG_INFO("Console disabled");
 
 		SetEvent(keepAliveEvent);
 	}

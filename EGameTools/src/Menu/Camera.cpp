@@ -21,6 +21,7 @@ namespace EGT::Menu {
 
 		EGSDK::Vector3 cameraOffset{};
 		float firstPersonFOV = baseFOV;
+		float originalFirstPersonFOVAfterZoomIn = firstPersonFOV;
 		ImGui::KeyBindOption firstPersonZoomIn{ 'Q' , false };
 		static bool isZoomingIn = false;
 
@@ -35,8 +36,8 @@ namespace EGT::Menu {
 		ImGui::KeyBindOption tpUseTPPModel{ VK_F2 };
 		float thirdPersonFOV = baseFOV;
 		float thirdPersonDistanceBehindPlayer = 2.0f;
-		float thirdPersonHeightAbovePlayer = 1.35f;
-		float thirdPersonHorizontalDistanceFromPlayer = 0.0f;
+		float thirdPersonHeightAbovePlayer = 1.3f;
+		float thirdPersonHorizontalDistanceFromPlayer = -0.6f;
 
 		float lensDistortion = 20.0f;
 		static float altLensDistortion = lensDistortion;
@@ -48,89 +49,77 @@ namespace EGT::Menu {
 		static void UpdateFirstPersonFOV() {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			auto viewCam = iLevel ? reinterpret_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera()) : nullptr;
-			{
-				static float previousFirstPersonFOV = firstPersonFOV;
 
+			static float previousFirstPersonFOV = firstPersonFOV;
+			static bool hasChangedZoomLevel = false;
+			static int zoomLevel = 0;
+
+			if (iLevel && viewCam) {
 				if (goProMode.GetValue()) {
 					if (goProMode.HasChangedTo(true)) {
 						previousFirstPersonFOV = firstPersonFOV;
 						goProMode.SetPrevValue(true);
 					}
 
-					if (iLevel && viewCam)
-						viewCam->SetFOV(110.0f);
+					viewCam->SetFOV(110.0f);
 					firstPersonFOV = 110;
-					return;
 				} else if (goProMode.HasChangedTo(false)) {
 					firstPersonFOV = previousFirstPersonFOV;
 					goProMode.SetPrevValue(false);
 
-					if (iLevel && viewCam)
-						viewCam->SetFOV(firstPersonFOV);
+					viewCam->SetFOV(firstPersonFOV);
 				}
 			}
 			
-			static float originalFirstPersonFOV = firstPersonFOV;
-			static float previousFirstPersonFOV = firstPersonFOV;
-			static bool scrolledDown = false;
-			static bool hasChangedZoomLevel = false;
-			static int zoomLevel = 0;
 			if (iLevel && viewCam && !thirdPersonCamera.GetValue() && !freeCam.GetValue()) {
 				if (firstPersonZoomIn.IsKeyDown()) {
 					if (firstPersonZoomIn.IsKeyPressed()) {
 						hasChangedZoomLevel = true;
 						if (!isZoomingIn) {
-							originalFirstPersonFOV = firstPersonFOV;
-							previousFirstPersonFOV = originalFirstPersonFOV;
+							originalFirstPersonFOVAfterZoomIn = firstPersonFOV;
+							previousFirstPersonFOV = originalFirstPersonFOVAfterZoomIn;
 						} else
 							previousFirstPersonFOV = firstPersonFOV;
 					}
 
 					isZoomingIn = true;
-					float newFOV = previousFirstPersonFOV;
-					switch (zoomLevel) {
-						case 0:
-							newFOV = std::max(originalFirstPersonFOV - 25.0f, 42.0f);
-							break;
-						case 1:
-							newFOV = std::max(originalFirstPersonFOV - 45.0f, 25.0f);
-							break;
-						case 2:
-							newFOV = std::max(originalFirstPersonFOV - 65.0f, 15.0f);
-							break;
-						default:
-							break;
-					}
-					firstPersonFOV = ImGui::AnimateLerp("zoomInFOVLerp", previousFirstPersonFOV, newFOV, 0.3f, hasChangedZoomLevel, &ImGui::AnimEaseOutSine);
+
+					float targetFOV = previousFirstPersonFOV;
+					if (zoomLevel == 0)
+						targetFOV = std::max(originalFirstPersonFOVAfterZoomIn - 25.0f, 42.0f);
+					else if (zoomLevel == 1)
+						targetFOV = std::max(originalFirstPersonFOVAfterZoomIn - 45.0f, 25.0f);
+					else if (zoomLevel == 2)
+						targetFOV = std::max(originalFirstPersonFOVAfterZoomIn - 65.0f, 15.0f);
+
+					firstPersonFOV = ImGui::AnimateLerp("zoomInFOVLerp", previousFirstPersonFOV, targetFOV, 0.3f, hasChangedZoomLevel, &ImGui::AnimEaseOutSine);
 					viewCam->SetFOV(firstPersonFOV);
 					hasChangedZoomLevel = false;
 
 					if (ImGui::KeyBindOption::scrolledMouseWheelUp) {
 						ImGui::KeyBindOption::scrolledMouseWheelUp = false;
 						if (zoomLevel < 2) {
-							scrolledDown = false;
-							hasChangedZoomLevel = true;
-							previousFirstPersonFOV = firstPersonFOV;
 							zoomLevel++;
+							previousFirstPersonFOV = firstPersonFOV;
+							hasChangedZoomLevel = true;
 						}
 					} else if (ImGui::KeyBindOption::scrolledMouseWheelDown) {
 						ImGui::KeyBindOption::scrolledMouseWheelDown = false;
 						if (zoomLevel > 0) {
-							scrolledDown = true;
-							hasChangedZoomLevel = true;
-							previousFirstPersonFOV = firstPersonFOV;
 							zoomLevel--;
+							previousFirstPersonFOV = firstPersonFOV;
+							hasChangedZoomLevel = true;
 						}
 					}
 				} else {
 					zoomLevel = 0;
-					scrolledDown = false;
 					if (firstPersonZoomIn.IsKeyReleased()) {
 						hasChangedZoomLevel = true;
 						previousFirstPersonFOV = firstPersonFOV;
 					}
-					if (!EGSDK::Utils::Values::are_samef(firstPersonFOV, originalFirstPersonFOV) && isZoomingIn) {
-						firstPersonFOV = ImGui::AnimateLerp("zoomInFOVLerp", previousFirstPersonFOV, originalFirstPersonFOV, 0.25f, hasChangedZoomLevel, &ImGui::AnimEaseOutSine);
+
+					if (!EGSDK::Utils::Values::are_samef(firstPersonFOV, originalFirstPersonFOVAfterZoomIn) && isZoomingIn) {
+						firstPersonFOV = ImGui::AnimateLerp("zoomInFOVLerp", previousFirstPersonFOV, originalFirstPersonFOVAfterZoomIn, 0.25f, hasChangedZoomLevel, &ImGui::AnimEaseOutSine);
 						viewCam->SetFOV(firstPersonFOV);
 						hasChangedZoomLevel = false;
 					} else
@@ -254,7 +243,7 @@ namespace EGT::Menu {
 		static void UpdateDisabledOptions() {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			freeCam.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded() || photoMode.GetValue() || isZoomingIn);
-			thirdPersonCamera.SetChangesAreDisabled(freeCam.GetValue() || photoMode.GetValue() || isZoomingIn);
+			thirdPersonCamera.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded() || freeCam.GetValue() || photoMode.GetValue() || isZoomingIn);
 			tpUseTPPModel.SetChangesAreDisabled(freeCam.GetValue() || photoMode.GetValue());
 		}
 		static void HandleToggles() {
@@ -290,6 +279,7 @@ namespace EGT::Menu {
 			ImGui::SetNextItemWidth(400.0f * Menu::scale);
 			ImGui::SliderFloat3("Camera Offset (XYZ)", reinterpret_cast<float*>(&cameraOffset), -0.5f, 0.5f, "%.2fm");
 			ImGui::EndDisabled();
+			ImGui::CheckboxHotkey("Zoom In", &firstPersonZoomIn, "Allows zooming in with the specified hotkey and changing zoom level with the mouse wheel");
 
 			ImGui::SeparatorText("Third Person Camera");
 			ImGui::BeginDisabled(thirdPersonCamera.GetChangesAreDisabled());
@@ -332,7 +322,6 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Disable Photo Mode Limits", &disablePhotoModeLimits, "Disables the invisible box while in Photo Mode");
 			ImGui::SameLine();
 			ImGui::CheckboxHotkey("Disable Head Correction", &disableHeadCorrection, "Disables centering of the player's hands to the center of the camera");
-			ImGui::CheckboxHotkey("Zoom In", &firstPersonZoomIn);
 
 			ImGui::Separator();
 			ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(IM_COL32(200, 0, 0, 255)), "* GoPro Mode is best used with Head Bob Reduction set to 0 and Player FOV\nCorrection set to 0 in game options");

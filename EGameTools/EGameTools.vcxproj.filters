@@ -67,6 +67,9 @@
     <Filter Include="src\Utils">
       <UniqueIdentifier>{7170f228-254a-4cb7-8784-59baf69789d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\GamePH">
+      <UniqueIdentifier>{f334e27a-fb9d-4bf0-b3fa-692a6a8dfb39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="deps\ImGui\imgui_hotkey.cpp">
@@ -229,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="deps\ImGui\imguiex_animation.h">
       <Filter>deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGT\GamePH\GamePH_Hooks.h">
+      <Filter>include\GamePH</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

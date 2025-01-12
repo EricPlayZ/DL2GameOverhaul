@@ -1,5 +1,7 @@
 #pragma once
+#include <Windows.h>
 #include <atomic>
+#include <semaphore>
 #include <EGSDK\Utils\Values.h>
 
 namespace EGT {
@@ -8,6 +10,17 @@ namespace EGT {
     constexpr unsigned long GAME_VER_COMPAT = 12001;
 
     namespace Core {
+        extern void OpenIOBuffer();
+        extern void CloseIOBuffer();
+        extern void EnableConsole();
+        extern void DisableConsole();
+
         extern std::atomic<bool> exiting;
+        extern std::counting_semaphore<4> maxHookThreads;
+
+        extern void InitLogger();
+
+        extern DWORD64 WINAPI MainThread(HMODULE hModule);
+        extern void Cleanup();
     }
 }

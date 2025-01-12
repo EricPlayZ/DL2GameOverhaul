@@ -213,7 +213,7 @@ namespace EGT::Config {
 		SPDLOG_INFO("{} does not exist (will create now); using default config values", configFileName);
 		LoadAndWriteDefaultConfig();
 	}
-	static void ReadConfig(const bool configUpdate = false) {
+	static void ReadConfig(bool configUpdate = false) {
 		try {
 			reader = inih::INIReader(configFileName);
 
@@ -233,7 +233,7 @@ namespace EGT::Config {
 						break;
 #ifdef _DEBUG
 					if (entry.key == "DisableLowLevelMouseHook") {
-						option->SetBothValues(reader.Get(entry.section.data(), entry.key.data(), true));
+						option->SetBothValues(true);
 						break;
 					}
 #endif

@@ -61,7 +61,6 @@ namespace EGT::Menu {
                             ImGui::EndChild();
                         }
                         ImGui::EndDisabled();
-
                         ImGui::EndTabItem();
                     }
                 }

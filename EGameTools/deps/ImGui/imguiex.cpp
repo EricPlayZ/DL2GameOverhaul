@@ -5,6 +5,10 @@ namespace ImGui {
     static ImGuiStyle defImGuiStyle{};
     static size_t tabIndex = 1;
 
+    static void FormatString(char* buffer, size_t bufferSize, const char* fmt, va_list args) {
+        vsnprintf(buffer, bufferSize, fmt, args);
+    }
+
     void StyleScaleAllSizes(ImGuiStyle* style, const float scale_factor, ImGuiStyle* defStyle) {
         if (!defStyle)
             defStyle = &defImGuiStyle;
@@ -221,19 +225,73 @@ namespace ImGui {
         SeparatorText(label);
         PopStyleColor();
     }
-    void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...) {
-        if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-            va_list args;
-            va_start(args, fmt);
-            char buffer[512];
-            vsnprintf(buffer, sizeof(buffer), fmt, args);
-            va_end(args);
+    static void DisplaySimplePopupMessageBase(const char* popupTitle, const char* fmt, ...) {
+        char buffer[512];
+        va_list args;
+        va_start(args, fmt);
+        FormatString(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
 
+        if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("%s", buffer);
             if (ImGui::Button("OK", ImVec2(120.0f, 0.0f)))
                 ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
         }
+    }
+    static void DisplaySimplePopupMessageBase(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
+        char buffer[512];
+        va_list args;
+        va_start(args, fmt);
+        FormatString(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+
+        if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::SetNextItemWidth(itemWidth * scale);
+            ImGui::TextCentered("%s", buffer);
+            ImGui::SetNextItemWidth(itemWidth * scale);
+            if (ImGui::Button("OK", ImVec2(itemWidth, 0.0f) * scale))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+    }
+    void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...) {
+        char buffer[512];
+        va_list args;
+        va_start(args, fmt);
+        FormatString(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+
+        DisplaySimplePopupMessageBase(popupTitle, fmt, buffer);
+    }
+    void DisplaySimplePopupMessageCentered(const char* popupTitle, const char* fmt, ...) {
+        char buffer[512];
+        va_list args;
+        va_start(args, fmt);
+        FormatString(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
+        DisplaySimplePopupMessageBase(popupTitle, fmt, buffer);
+    }
+    void DisplaySimplePopupMessage(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
+        va_list args;
+        va_start(args, fmt);
+        char buffer[512];
+        vsnprintf(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+
+        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, buffer);
+    }
+    void DisplaySimplePopupMessageCentered(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
+        va_list args;
+        va_start(args, fmt);
+        char buffer[512];
+        vsnprintf(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
+        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, buffer);
     }
     void Spacing(const ImVec2 size, const bool customPosOffset) {
         ImGuiWindow* window = GetCurrentWindow();

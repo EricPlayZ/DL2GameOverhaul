@@ -52,6 +52,7 @@
     <ClInclude Include="include\EGT\Config\Config.h" />
     <ClInclude Include="include\EGT\Core\Core.h" />
     <ClInclude Include="include\EGT\Engine\Engine_Hooks.h" />
+    <ClInclude Include="include\EGT\GamePH\GamePH_Hooks.h" />
     <ClInclude Include="include\EGT\ImGui_impl\D3D11_impl.h" />
     <ClInclude Include="include\EGT\ImGui_impl\D3D12_impl.h" />
     <ClInclude Include="include\EGT\ImGui_impl\DeferredActions.h" />

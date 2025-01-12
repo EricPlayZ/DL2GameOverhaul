@@ -4,10 +4,7 @@
 #include <EGSDK\GamePH\GameDI_PH.h>
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGT\Menu\Misc.h>
-
-namespace EGT::GamePH::Hooks {
-	extern EGSDK::Utils::Hook::ByteHook<void*> SaveGameCRCBoolCheckHook;
-}
+#include <EGT\GamePH\GamePH_Hooks.h>
 
 namespace EGT::Menu {
 	namespace Misc {
@@ -18,7 +15,7 @@ namespace EGT::Menu {
 		ImGui::Option increaseDataPAKsLimit{ false };
 
 		static void UpdateDisabledOptions() {
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			disableHUD.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded());
 		}
 
@@ -26,14 +23,13 @@ namespace EGT::Menu {
 		void Tab::Update() {
 			UpdateDisabledOptions();
 
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel)
 				return;
 
 			if (!iLevel->IsLoaded() && disableHUD.GetValue()) {
 				disableHUD.SetBothValues(false);
 				iLevel->ShowUIManager(true);
-
 				return;
 			}
 			if (disableHUD.HasChanged()) {
@@ -41,19 +37,19 @@ namespace EGT::Menu {
 				iLevel->ShowUIManager(!disableHUD.GetValue());
 			}
 
-			EGSDK::GamePH::GameDI_PH* gameDI_PH = EGSDK::GamePH::GameDI_PH::Get();
-			if (!gameDI_PH)
-				return;
-			gameDI_PH->blockPauseGameOnPlayerAfk = disableGamePauseWhileAFK.GetValue();
+			auto gameDI_PH = EGSDK::GamePH::GameDI_PH::Get();
+			if (gameDI_PH)
+				gameDI_PH->blockPauseGameOnPlayerAfk = disableGamePauseWhileAFK.GetValue();
 		}
 		void Tab::Render() {
 			ImGui::SeparatorText("Misc##Misc");
 			ImGui::CheckboxHotkey("Disable Game Pause While AFK", &disableGamePauseWhileAFK, "Prevents the game from pausing while you're afk");
 			ImGui::SameLine();
-			ImGui::BeginDisabled(disableHUD.GetChangesAreDisabled()); {
-				ImGui::CheckboxHotkey("Disable HUD", &disableHUD, "Disables the entire HUD, including any sort of menus like the pause menu");
-				ImGui::EndDisabled();
-			}
+
+			ImGui::BeginDisabled(disableHUD.GetChangesAreDisabled());
+			ImGui::CheckboxHotkey("Disable HUD", &disableHUD, "Disables the entire HUD, including any sort of menus like the pause menu");
+			ImGui::EndDisabled();
+
 			ImGui::SeparatorText("Game Checks##Misc");
 			if (ImGui::Checkbox("Disable Savegame CRC Check *", &disableSavegameCRCCheck, "Stops the game from falsely saying your savegame is corrupt whenever you modify it outside of the game using a save editor"))
 				disableSavegameCRCCheck.GetValue() ? EGT::GamePH::Hooks::SaveGameCRCBoolCheckHook.Enable() : EGT::GamePH::Hooks::SaveGameCRCBoolCheckHook.Disable();

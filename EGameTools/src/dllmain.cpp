@@ -1,36 +1,14 @@
 #include <Windows.h>
 #include <semaphore>
 #include <EGSDK\Utils\Hook.h>
-
-namespace EGT::Core {
-    extern void OpenIOBuffer();
-    extern void CloseIOBuffer();
-    extern void EnableConsole();
-    extern void DisableConsole();
-
-    extern std::counting_semaphore<4> maxHookThreads;
-
-    extern void InitLogger();
-
-    extern DWORD64 WINAPI MainThread(HMODULE hModule);
-    extern void Cleanup();
-}
-
-namespace EGT::Engine {
-    namespace Hooks {
-        extern EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, UINT, UINT, DWORD64*, DWORD64(*)(DWORD64, DWORD, DWORD64, char*, int), INT16, DWORD64, UINT)> MountDataPaksHook;
-        extern EGSDK::Utils::Hook::MHook<void*, void*(*)(void*)> AuthenticateDataAddNewFileHook;
-        extern EGSDK::Utils::Hook::MHook<void*, bool(*)(void*)> FsCheckZipCrcHook;
-        extern EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD, DWORD)> FsOpenHook;
-    }
-}
+#include <EGT\Core\Core.h>
+#include <EGT\Engine\Engine_Hooks.h>
 
 static HANDLE mainThreadHandle{};
 
 BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReserved) {
     switch (reasonForCall) {
     case DLL_PROCESS_ATTACH: {
-        EGT::Core::OpenIOBuffer();
         EGT::Core::InitLogger();
 
         MH_Initialize();
@@ -56,8 +34,6 @@ BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReser
     case DLL_PROCESS_DETACH: {
         SPDLOG_INFO("DLL_PROCESS_DETACH");
         EGT::Core::Cleanup();
-        EGT::Core::DisableConsole();
-        EGT::Core::CloseIOBuffer();
 
         if (mainThreadHandle) {
             SPDLOG_INFO("Closing main thread handle");

@@ -52,8 +52,7 @@ namespace EGT::ImGui_impl {
 			return renderTarget;
 		}
 
-		HRESULT(__stdcall* oPresent)(IDXGISwapChain*, UINT, UINT);
-		HRESULT __stdcall hkPresent11(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+		static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) {
 			static bool init = false;
 
 			if (!init) {
@@ -78,34 +77,34 @@ namespace EGT::ImGui_impl {
 				init = true;
 			}
 
-			for (int retries = 0;; retries++) {
-				try {
-					ImGui_ImplDX11_NewFrame();
-					ImGui_ImplWin32_NewFrame();
-					ImGui::NewFrame();
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
 
-					Menu::FirstTimeRunning();
-					if (Menu::menuToggle.GetValue())
-						Menu::Render();
+			Menu::FirstTimeRunning();
+			if (Menu::menuToggle.GetValue())
+				Menu::Render();
 
-					ImGui::EndFrame();
-					ImGui::Render();
+			ImGui::EndFrame();
+			ImGui::Render();
 
-					DeferredActions::Process();
+			DeferredActions::Process();
 
-					if (d3d11RenderTargetView)
-						d3d11DeviceContext->OMSetRenderTargets(1, &d3d11RenderTargetView, nullptr);
-					ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+			if (d3d11RenderTargetView)
+				d3d11DeviceContext->OMSetRenderTargets(1, &d3d11RenderTargetView, nullptr);
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-					return oPresent(pSwapChain, SyncInterval, Flags);
-				} catch (const std::exception& e) {
-					SPDLOG_ERROR("Exception thrown rendering ImGui in DX11: {}", e.what());
-					if (retries >= 6) {
-						SPDLOG_ERROR("Retried rendering ImGui in DX11 6 times, game will exit now.");
-						IM_ASSERT(retries < 6 && "Retried rendering ImGui in DX11 6 times, game will exit now.");
-					}
-				}
+		}
+
+		HRESULT(__stdcall* oPresent)(IDXGISwapChain*, UINT, UINT);
+		HRESULT __stdcall hkPresent11(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+			__try {
+				RenderImGui_DX11(pSwapChain);
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				SPDLOG_ERROR("Exception thrown rendering ImGui in DX11");
 			}
+
+			return oPresent(pSwapChain, SyncInterval, Flags);
 		}
 
 		HRESULT(__stdcall* oResizeBuffers)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);

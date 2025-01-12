@@ -144,16 +144,14 @@ namespace EGT::Menu {
             ImGui::Spacing(ImVec2(0.0f, 5.0f));
 
             ImGui::BeginDisabled(!timePassedFromWelcomeScreen.DidTimePass());
-            {
-                const std::string btnText = "Let me play!" + (!timePassedFromWelcomeScreen.DidTimePass() ? (" (" + std::to_string(10 - (timePassedFromWelcomeScreen.GetTimePassed() / 1000)) + ")") : "");
-                if (ImGui::ButtonCentered(btnText.c_str(), ImVec2(0.0f, 30.0f) * scale)) {
-                    ImGui::CloseCurrentPopup();
-                    firstTimeRunning.Set(false);
-                    if (hasSeenChangelog.GetValue())
-                        menuToggle.SetChangesAreDisabled(false);
-                }
-                ImGui::EndDisabled();
+            const std::string btnText = "Let me play!" + (!timePassedFromWelcomeScreen.DidTimePass() ? (" (" + std::to_string(10 - (timePassedFromWelcomeScreen.GetTimePassed() / 1000)) + ")") : "");
+            if (ImGui::ButtonCentered(btnText.c_str(), ImVec2(0.0f, 30.0f) * scale)) {
+                ImGui::CloseCurrentPopup();
+                firstTimeRunning.Set(false);
+                if (hasSeenChangelog.GetValue())
+                    menuToggle.SetChangesAreDisabled(false);
             }
+            ImGui::EndDisabled();
             ImGui::EndPopup();
         }
     }

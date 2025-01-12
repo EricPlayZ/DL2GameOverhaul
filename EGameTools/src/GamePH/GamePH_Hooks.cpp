@@ -16,175 +16,144 @@
 namespace EGT::GamePH {
 	namespace Hooks {
 #pragma region LifeSetHealth
-		static void detourLifeSetHealth(float* pLifeHealth, float health);
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(float*, float)> LifeSetHealthHook{ "LifeSetHealth", &EGSDK::Offsets::Get_LifeSetHealth, &detourLifeSetHealth };
-
-		static void detourLifeSetHealth(float* pLifeHealth, float health) {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(float*, float), float*, float> LifeSetHealthHook{ "LifeSetHealth", &EGSDK::Offsets::Get_LifeSetHealth, [](float* pLifeHealth, float health) -> void {
 			if (!Menu::Player::godMode.GetValue() && !Menu::Camera::freeCam.GetValue())
-				return LifeSetHealthHook.pOriginal(pLifeHealth, health);
+				return LifeSetHealthHook.ExecuteCallbacksWithOriginal(pLifeHealth, health);
 
-			EGSDK::GamePH::PlayerHealthModule* playerHealthModule = EGSDK::GamePH::PlayerHealthModule::Get();
+			auto playerHealthModule = EGSDK::GamePH::PlayerHealthModule::Get();
 			if (!playerHealthModule)
-				return LifeSetHealthHook.pOriginal(pLifeHealth, health);
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+				return LifeSetHealthHook.ExecuteCallbacksWithOriginal(pLifeHealth, health);
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded())
-				return LifeSetHealthHook.pOriginal(pLifeHealth, health);
+				return LifeSetHealthHook.ExecuteCallbacksWithOriginal(pLifeHealth, health);
 
-			if (std::abs(reinterpret_cast<LONG64>(playerHealthModule) - reinterpret_cast<LONG64>(pLifeHealth)) < 0x100 && playerHealthModule->health > 0.0f)
+			constexpr size_t addressThreshold = 0x100;
+			if (std::abs(reinterpret_cast<LONG64>(playerHealthModule) - reinterpret_cast<LONG64>(pLifeHealth)) < addressThreshold && playerHealthModule->health > 0.0f)
 				return;
 
-			LifeSetHealthHook.pOriginal(pLifeHealth, health);
-		}
+			LifeSetHealthHook.ExecuteCallbacksWithOriginal(pLifeHealth, health);
+		} };
 #pragma endregion
 
 #pragma region PlayerHealthModuleKillPlayer
-		static DWORD64 detourPlayerHealthModuleKillPlayer(void* playerHealthModule);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*)> PlayerHealthModuleKillPlayerHook{ "PlayerHealthModuleKillPlayer", &EGSDK::Offsets::Get_PlayerHealthModuleKillPlayer, &detourPlayerHealthModuleKillPlayer };
-
-		static DWORD64 detourPlayerHealthModuleKillPlayer(void* playerHealthModule) {
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*), void*> PlayerHealthModuleKillPlayerHook{ "PlayerHealthModuleKillPlayer", &EGSDK::Offsets::Get_PlayerHealthModuleKillPlayer, [](void* playerHealthModule) -> DWORD64 {
 			if (!Menu::Player::godMode.GetValue() && !Menu::Camera::freeCam.GetValue())
-				return PlayerHealthModuleKillPlayerHook.pOriginal(playerHealthModule);
+				return PlayerHealthModuleKillPlayerHook.ExecuteCallbacksWithOriginal(playerHealthModule);
 
-			EGSDK::GamePH::PlayerHealthModule* pPlayerHealthModule = EGSDK::GamePH::PlayerHealthModule::Get();
+			auto pPlayerHealthModule = EGSDK::GamePH::PlayerHealthModule::Get();
 			if (!pPlayerHealthModule)
-				return PlayerHealthModuleKillPlayerHook.pOriginal(playerHealthModule);
+				return PlayerHealthModuleKillPlayerHook.ExecuteCallbacksWithOriginal(playerHealthModule);
 			if (pPlayerHealthModule == playerHealthModule)
 				return 0;
 
-			return PlayerHealthModuleKillPlayerHook.pOriginal(playerHealthModule);
-		}
+			return PlayerHealthModuleKillPlayerHook.ExecuteCallbacksWithOriginal(playerHealthModule);
+		} };
 #pragma endregion
 
 #pragma region IsNotOutOfMapBounds
-		static bool detourIsNotOutOfMapBounds(void* pInstance, DWORD64 a2);
-		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, DWORD64)> IsNotOutOfMapBoundsHook{ "IsNotOutOfMapBounds", &EGSDK::Offsets::Get_IsNotOutOfMapBounds, &detourIsNotOutOfMapBounds };
-
-		static bool detourIsNotOutOfMapBounds(void* pInstance, DWORD64 a2) {
+		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, DWORD64), void*, DWORD64> IsNotOutOfMapBoundsHook{ "IsNotOutOfMapBounds", &EGSDK::Offsets::Get_IsNotOutOfMapBounds, [](void* pInstance, DWORD64 a2) -> bool {
 			if (Menu::Player::disableOutOfBoundsTimer.GetValue())
 				return true;
 
-			return IsNotOutOfMapBoundsHook.pOriginal(pInstance, a2);
-		}
+			return IsNotOutOfMapBoundsHook.ExecuteCallbacksWithOriginal(pInstance, a2);
+		} };
 #pragma endregion
 
 #pragma region IsNotOutOfMissionBounds
-		static bool detourIsNotOutOfMissionBounds(void* pInstance, DWORD64 a2);
-		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, DWORD64)> IsNotOutOfMissionBoundsHook{ "IsNotOutOfMissionBounds", &EGSDK::Offsets::Get_IsNotOutOfMissionBounds, &detourIsNotOutOfMissionBounds };
-
-		static bool detourIsNotOutOfMissionBounds(void* pInstance, DWORD64 a2) {
+		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, DWORD64), void*, DWORD64> IsNotOutOfMissionBoundsHook{ "IsNotOutOfMissionBounds", &EGSDK::Offsets::Get_IsNotOutOfMissionBounds, [](void* pInstance, DWORD64 a2) -> bool {
 			if (Menu::Player::disableOutOfBoundsTimer.GetValue())
 				return true;
 
-			return IsNotOutOfMissionBoundsHook.pOriginal(pInstance, a2);
-		}
+			return IsNotOutOfMissionBoundsHook.ExecuteCallbacksWithOriginal(pInstance, a2);
+		} };
 #pragma endregion
 
 #pragma region ShowUIManager
-		static void detourShowUIManager(void* pLevelDI, bool enabled);
 		static void* GetShowUIManager() {
 			return EGSDK::Utils::Memory::GetProcAddr("engine_x64_rwdi.dll", "?ShowUIManager@ILevel@@QEAAX_N@Z");
 		}
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, bool)> ShowUIManagerHook{ "ShowUIManager", &GetShowUIManager, &detourShowUIManager };
-
-		static void detourShowUIManager(void* pLevelDI, bool enabled) {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, bool), void*, bool> ShowUIManagerHook{ "ShowUIManager", &GetShowUIManager, [](void* pLevelDI, bool enabled) -> void {
 			if (Menu::Misc::disableHUD.GetValue())
 				enabled = false;
 
-			ShowUIManagerHook.pOriginal(pLevelDI, enabled);
-		}
+			ShowUIManagerHook.ExecuteCallbacksWithOriginal(pLevelDI, enabled);
+		} };
 #pragma endregion
 
 #pragma region TogglePhotoMode
-		static void detourTogglePhotoMode1(void* guiPhotoModeData, bool enabled);
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, bool)> TogglePhotoMode1Hook{ "TogglePhotoMode1", &EGSDK::Offsets::Get_TogglePhotoMode1, &detourTogglePhotoMode1 };
-
-		static void detourTogglePhotoMode1(void* guiPhotoModeData, bool enabled) {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, bool), void*, bool> TogglePhotoMode1Hook{ "TogglePhotoMode1", &EGSDK::Offsets::Get_TogglePhotoMode1, [](void* guiPhotoModeData, bool enabled) -> void {
 			Menu::Camera::photoMode.Set(enabled);
 
 			if (!Menu::Camera::freeCam.GetValue())
-				return TogglePhotoMode1Hook.pOriginal(guiPhotoModeData, enabled);
-			EGSDK::GamePH::LevelDI* iLevel = EGSDK::GamePH::LevelDI::Get();
+				return TogglePhotoMode1Hook.ExecuteCallbacksWithOriginal(guiPhotoModeData, enabled);
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || iLevel->IsTimerFrozen())
-				return TogglePhotoMode1Hook.pOriginal(guiPhotoModeData, enabled);
-			EGSDK::GamePH::GameDI_PH* pGameDI_PH = EGSDK::GamePH::GameDI_PH::Get();
+				return TogglePhotoMode1Hook.ExecuteCallbacksWithOriginal(guiPhotoModeData, enabled);
+			auto pGameDI_PH = EGSDK::GamePH::GameDI_PH::Get();
 			if (!pGameDI_PH)
-				return TogglePhotoMode1Hook.pOriginal(guiPhotoModeData, enabled);
-			EGSDK::GamePH::FreeCamera* pFreeCam = EGSDK::GamePH::FreeCamera::Get();
+				return TogglePhotoMode1Hook.ExecuteCallbacksWithOriginal(guiPhotoModeData, enabled);
+			auto pFreeCam = EGSDK::GamePH::FreeCamera::Get();
 			if (!pFreeCam)
-				return TogglePhotoMode1Hook.pOriginal(guiPhotoModeData, enabled);
+				return TogglePhotoMode1Hook.ExecuteCallbacksWithOriginal(guiPhotoModeData, enabled);
 
 			if (enabled) {
 				pGameDI_PH->TogglePhotoMode();
 				pFreeCam->AllowCameraMovement(0);
 			}
 
-			TogglePhotoMode1Hook.pOriginal(guiPhotoModeData, enabled);
-		}
+			TogglePhotoMode1Hook.ExecuteCallbacksWithOriginal(guiPhotoModeData, enabled);
+		} };
 #pragma endregion
 
 #pragma region ShowTPPModelFunc3
 		ImGui::Option wannaUseTPPModel{};
 		static bool prevUseTPPModel;
-		static void detourShowTPPModelFunc3(DWORD64 tppFunc2Addr, bool showTPPModel);
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(DWORD64, bool)> ShowTPPModelFunc3Hook{ "ShowTPPModelFunc3", &EGSDK::Offsets::Get_ShowTPPModelFunc3, &detourShowTPPModelFunc3 };
 
-		static void detourShowTPPModelFunc3(DWORD64 tppFunc2Addr, bool showTPPModel) {
-			EGSDK::GamePH::PlayerDI_PH* pPlayerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
-			if (!pPlayerDI_PH) {
-				ShowTPPModelFunc3Hook.pOriginal(tppFunc2Addr, showTPPModel);
-				return;
-			}
-			
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(DWORD64, bool), DWORD64, bool> ShowTPPModelFunc3Hook{ "ShowTPPModelFunc3", &EGSDK::Offsets::Get_ShowTPPModelFunc3, [](DWORD64 tppFunc2Addr, bool showTPPModel) -> void {
+			auto pPlayerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+			if (!pPlayerDI_PH)
+				return ShowTPPModelFunc3Hook.ExecuteCallbacksWithOriginal(tppFunc2Addr, showTPPModel);
+
 			if (!showTPPModel && prevUseTPPModel) {
 				pPlayerDI_PH->enableTPPModel2 = true;
 				pPlayerDI_PH->enableTPPModel1 = true;
 			}
-			ShowTPPModelFunc3Hook.pOriginal(tppFunc2Addr, showTPPModel);
+			ShowTPPModelFunc3Hook.ExecuteCallbacksWithOriginal(tppFunc2Addr, showTPPModel);
 			if (showTPPModel && prevUseTPPModel) {
 				pPlayerDI_PH->enableTPPModel2 = false;
 				pPlayerDI_PH->enableTPPModel1 = false;
 			} else
 				prevUseTPPModel = showTPPModel;
-		}
+		} };
 #pragma endregion
 
 #pragma region CalculateFreeCamCollision
-		static DWORD64 detourCalculateFreeCamCollision(void* pFreeCamera, float* finalPos);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, float*)> CalculateFreeCamCollisionHook{ "CalculateFreeCamCollision", &EGSDK::Offsets::Get_CalculateFreeCamCollision, &detourCalculateFreeCamCollision };
-
-		static DWORD64 detourCalculateFreeCamCollision(void* pFreeCamera, float* finalPos) {
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, float*), void*, float*> CalculateFreeCamCollisionHook{ "CalculateFreeCamCollision", &EGSDK::Offsets::Get_CalculateFreeCamCollision, [](void* pFreeCamera, float* finalPos) -> DWORD64 {
 			if (Menu::Camera::disablePhotoModeLimits.GetValue() || Menu::Camera::freeCam.GetValue())
 				return 0;
 
-			return CalculateFreeCamCollisionHook.pOriginal(pFreeCamera, finalPos);
-		}
+			return CalculateFreeCamCollisionHook.ExecuteCallbacksWithOriginal(pFreeCamera, finalPos);
+		} };
 #pragma endregion
 
 #pragma region PlaySoundEvent
-		static DWORD64 detourPlaySoundEvent(void* pCoAudioEventControl, DWORD64 name, DWORD64 a3);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, DWORD64, DWORD64)> PlaySoundEventHook{ "PlaySoundEvent", &EGSDK::Offsets::Get_PlaySoundEvent, &detourPlaySoundEvent };
-
-		static DWORD64 detourPlaySoundEvent(void* pCoAudioEventControl, DWORD64 name, DWORD64 a3) {
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, DWORD64, DWORD64), void*, DWORD64, DWORD64> PlaySoundEventHook{ "PlaySoundEvent", &EGSDK::Offsets::Get_PlaySoundEvent, [](void* pCoAudioEventControl, DWORD64 name, DWORD64 a3) -> DWORD64 {
 			const char* soundName = reinterpret_cast<const char*>(name & 0x1FFFFFFFFFFFFFFF); // remove first byte of addr in case it exists
-			if (Menu::World::freezeTime.GetValue() && soundName &&
-				(!strcmp(soundName, "set_gp_infection_start") || !strcmp(soundName, "set_gp_infection_immune"))) {
+			if (Menu::World::freezeTime.GetValue() && soundName && (!strcmp(soundName, "set_gp_infection_start") || !strcmp(soundName, "set_gp_infection_immune")))
 				return 0;
-			}
 
-			return PlaySoundEventHook.pOriginal(pCoAudioEventControl, name, a3);
-		}
+			return PlaySoundEventHook.ExecuteCallbacksWithOriginal(pCoAudioEventControl, name, a3);
+		} };
 #pragma endregion
 
 #pragma region CalculateFallHeight
-		static DWORD64 detourCalculateFallHeight(void* pInstance, float height);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, float)> CalculateFallHeightHook{ "CalculateFallHeight", &EGSDK::Offsets::Get_CalculateFallHeight, &detourCalculateFallHeight };
+		static bool prevFreeCamValue = Menu::Camera::freeCam.GetPrevValue();
 
-		static DWORD64 detourCalculateFallHeight(void* pInstance, float height) {
-			static bool prevFreeCam = Menu::Camera::freeCam.GetPrevValue();
-			prevFreeCam = Menu::Camera::freeCam.GetPrevValue();
-			if (!Menu::Camera::freeCam.GetValue() && prevFreeCam) {
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(void*, float), void*, float> CalculateFallHeightHook{ "CalculateFallHeight", &EGSDK::Offsets::Get_CalculateFallHeight, [](void* pInstance, float height) -> DWORD64 {
+			prevFreeCamValue = Menu::Camera::freeCam.GetPrevValue();
+			if (!Menu::Camera::freeCam.GetValue() && prevFreeCamValue) {
 				Menu::Camera::freeCam.SetPrevValue(false);
-				prevFreeCam = false;
+				prevFreeCamValue = false;
 				return 0;
 			}
 			if (Menu::Teleport::waypointIsSet && !*Menu::Teleport::waypointIsSet && Menu::Teleport::justTeleportedToWaypoint) {
@@ -195,28 +164,22 @@ namespace EGT::GamePH {
 			if (Menu::Player::godMode.GetValue())
 				return 0;
 
-			return CalculateFallHeightHook.pOriginal(pInstance, height);
-		}
+			return CalculateFallHeightHook.ExecuteCallbacksWithOriginal(pInstance, height);
+		} };
 #pragma endregion
 
 #pragma region CanUseGrappleHook
-		static bool detourCanUseGrappleHook(void* pInstance, bool a2);
-		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, bool)> CanUseGrappleHookHook{ "CanUseGrappleHook", &EGSDK::Offsets::Get_CanUseGrappleHook, &detourCanUseGrappleHook };
-
-		static bool detourCanUseGrappleHook(void* pInstance, bool a2) {
+		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, bool), void*, bool> CanUseGrappleHookHook{ "CanUseGrappleHook", &EGSDK::Offsets::Get_CanUseGrappleHook, [](void* pInstance, bool a2) -> bool {
 			if (Menu::Player::allowGrappleHookInSafezone.GetValue())
 				return true;
 
-			return CanUseGrappleHookHook.pOriginal(pInstance, a2);
-		}
+			return CanUseGrappleHookHook.ExecuteCallbacksWithOriginal(pInstance, a2);
+		} };
 #pragma endregion
 
 #pragma region ReadPlayerJumpParams
-		static DWORD64 detourReadPlayerJumpParams(DWORD64 a1, DWORD64 a2, DWORD64 a3, char a4, DWORD64* a5);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD64, DWORD64, char, DWORD64*)> ReadPlayerJumpParamsHook{ "ReadPlayerJumpParams", &EGSDK::Offsets::Get_ReadPlayerJumpParams, &detourReadPlayerJumpParams };
-
-		static DWORD64 detourReadPlayerJumpParams(DWORD64 a1, DWORD64 a2, DWORD64 a3, char a4, DWORD64* a5) {
-			DWORD64 result = ReadPlayerJumpParamsHook.pOriginal(a1, a2, a3, a4, a5);
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD64, DWORD64, char, DWORD64*), DWORD64, DWORD64, DWORD64, char, DWORD64*> ReadPlayerJumpParamsHook{ "ReadPlayerJumpParams", &EGSDK::Offsets::Get_ReadPlayerJumpParams, [](DWORD64 a1, DWORD64 a2, DWORD64 a3, char a4, DWORD64* a5) -> DWORD64 {
+			DWORD64 result = ReadPlayerJumpParamsHook.ExecuteCallbacksWithOriginal(a1, a2, a3, a4, a5);
 
 			if (Menu::Player::disableAirControl.GetValue())
 				*reinterpret_cast<bool*>(a1 + EGSDK::Offsets::Get_allowVelocityMod_offset()) = false;
@@ -224,70 +187,32 @@ namespace EGT::GamePH {
 				*reinterpret_cast<bool*>(a1 + EGSDK::Offsets::Get_disableHeadCorrection_offset()) = true;
 
 			return result;
-		}
+		} };
 #pragma endregion
 
 #pragma region HandleInventoryItemsAmount
-		static void detourHandleInventoryItemsAmount(int* pInventoryItem_0x10, UINT amount);
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(int*, UINT)> HandleInventoryItemsAmountHook{ "HandleInventoryItemsAmount", &EGSDK::Offsets::Get_HandleInventoryItemsAmount, &detourHandleInventoryItemsAmount };
-
-		static void detourHandleInventoryItemsAmount(int* pInventoryItem_0x10, UINT amount) {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(int*, UINT), int*, UINT> HandleInventoryItemsAmountHook{ "HandleInventoryItemsAmount", &EGSDK::Offsets::Get_HandleInventoryItemsAmount, [](int* pInventoryItem_0x10, UINT amount) -> void {
 			int previousValue = *pInventoryItem_0x10;
-			HandleInventoryItemsAmountHook.pOriginal(pInventoryItem_0x10, amount);
+			HandleInventoryItemsAmountHook.ExecuteCallbacksWithOriginal(pInventoryItem_0x10, amount);
 			if (!EGSDK::GamePH::LevelDI::Get() || !EGSDK::GamePH::LevelDI::Get()->IsLoaded())
 				return;
 
 			if (*pInventoryItem_0x10 < previousValue && *pInventoryItem_0x10 == amount && Menu::Player::unlimitedItems.GetValue())
 				*pInventoryItem_0x10 = previousValue;
-		}
+		} };
 #pragma endregion
 
 #pragma region SetNewWaypointLocation
-		static DWORD64 detourSetNewWaypointLocation(DWORD64 pLogicalPlayer, int a2, EGSDK::Vector3* newWaypointLoc);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, int, EGSDK::Vector3*)> SetNewWaypointLocationHook{ "SetNewWaypointLocation", &EGSDK::Offsets::Get_SetNewWaypointLocation, &detourSetNewWaypointLocation };
-
-		static DWORD64 detourSetNewWaypointLocation(DWORD64 pLogicalPlayer, int a2, EGSDK::Vector3* newWaypointLoc) {
-			DWORD64 result = SetNewWaypointLocationHook.pOriginal(pLogicalPlayer, a2, newWaypointLoc);
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, int, EGSDK::Vector3*), DWORD64, int, EGSDK::Vector3*> SetNewWaypointLocationHook{ "SetNewWaypointLocation", &EGSDK::Offsets::Get_SetNewWaypointLocation, [](DWORD64 pLogicalPlayer, int a2, EGSDK::Vector3* newWaypointLoc) -> DWORD64 {
+			DWORD64 result = SetNewWaypointLocationHook.ExecuteCallbacksWithOriginal(pLogicalPlayer, a2, newWaypointLoc);
 			Menu::Teleport::waypointCoords = *newWaypointLoc;
 			if (EGSDK::Offsets::Get_SetNewWaypointLocationWaypointIsSetBoolInstr()) {
 				const DWORD offset = *EGSDK::Offsets::Get_SetNewWaypointLocationWaypointIsSetBoolInstr();
 				Menu::Teleport::waypointIsSet = reinterpret_cast<bool*>(pLogicalPlayer + offset);
 			}
 			return result;
-		}
+		} };
 #pragma endregion
-
-/*#pragma region HandleHeadBob
-		static bool isHandleHeadBobRunning = false;
-
-		static void detourHandleHeadBob(DWORD64 a1, DWORD64 a2, DWORD64 a3, DWORD64 a4);
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(DWORD64, DWORD64, DWORD64, DWORD64)> HandleHeadBobHook{ "HandleHeadBob", &EGSDK::OffsetsGet_HandleHeadBob, &detourHandleHeadBob };
-
-		static void detourHandleHeadBob(DWORD64 a1, DWORD64 a2, DWORD64 a3, DWORD64 a4) {
-			isHandleHeadBobRunning = true;
-			HandleHeadBobHook.pOriginal(a1, a2, a3, a4);
-			isHandleHeadBobRunning = false;
-		}
-#pragma endregion
-
-#pragma region SomeFloatCalcFunc
-		static DWORD64 detourSomeFloatCalcFunc(float* a1, float* a2, float a3, DWORD64 a4, DWORD64 a5, DWORD64 a6);
-		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(float*, float*, float, DWORD64, DWORD64, DWORD64)> SomeFloatCalcFuncHook{ "SomeFloatCalcFunc", &EGSDK::OffsetsGet_SomeFloatCalcFunc, &detourSomeFloatCalcFunc };
-
-		static DWORD64 detourSomeFloatCalcFunc(float* a1, float* a2, float a3, DWORD64 a4, DWORD64 a5, DWORD64 a6) {
-			if (isHandleHeadBobRunning) {
-				static int i = 1;
-				if (*a1 < 0.002f && i >= 2 && i <= 3) {
-					*a1 *= 2.0f;
-					a3 *= 2.0f;
-				}
-				i++;
-				if (i > 3)
-					i = 1;
-			}
-			return SomeFloatCalcFuncHook.pOriginal(a1, a2, a3, a4, a5, a6);
-		}
-#pragma endregion*/
 
 #pragma region ByteHooks
 		static unsigned char SaveGameCRCBoolCheckBytes[3] = { 0xB3, 0x01, 0x90 }; // mov bl, 01

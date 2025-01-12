@@ -42,7 +42,8 @@ namespace ImGui {
         value = newValue;
     }
     void Option::SetBothValues(bool newValue) {
-        previousValue = newValue; value = newValue;
+        previousValue = newValue;
+        value = newValue;
     }
     void Option::SetValue(bool newValue) {
         value = newValue;

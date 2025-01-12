@@ -7,6 +7,7 @@
 #include <spdlog\spdlog.h>
 #include <ImGui\backends\imgui_impl_dx12.h>
 #include <ImGui\backends\imgui_impl_win32.h>
+#include <EGSDK\Utils\Memory.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\ImGui_impl\DeferredActions.h>
 #include <EGT\Menu\Menu.h>
@@ -111,73 +112,69 @@ namespace EGT::ImGui_impl {
 				init = true;
 			}
 
-			for (int retries = 0;; retries++) {
-				try {
-					if (!frameContext[0].main_render_target_resource)
-						CreateRenderTarget(pSwapChain);
-					if (!d3d12CommandQueue || !frameContext[0].main_render_target_resource)
-						return;
+			if (!frameContext[0].main_render_target_resource)
+				CreateRenderTarget(pSwapChain);
+			if (!d3d12CommandQueue || !frameContext[0].main_render_target_resource)
+				return;
 
-					ImGui_ImplDX12_NewFrame();
-					ImGui_ImplWin32_NewFrame();
-					ImGui::NewFrame();
+			ImGui_ImplDX12_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
 
-					Menu::FirstTimeRunning();
-					if (Menu::menuToggle.GetValue())
-						Menu::Render();
+			Menu::FirstTimeRunning();
+			if (Menu::menuToggle.GetValue())
+				Menu::Render();
 
-					ImGui::Render();
+			ImGui::Render();
 
-					DeferredActions::Process();
+			DeferredActions::Process();
 
-					UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex();
-					ID3D12CommandAllocator* commandAllocator = frameContext[backBufferIdx].commandAllocator;
-					commandAllocator->Reset();
+			UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex();
+			ID3D12CommandAllocator* commandAllocator = frameContext[backBufferIdx].commandAllocator;
+			commandAllocator->Reset();
 
-					D3D12_RESOURCE_BARRIER barrier{};
-					barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-					barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-					barrier.Transition.pResource = frameContext[backBufferIdx].main_render_target_resource;
-					barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-					barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-					barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-					d3d12CommandList->Reset(commandAllocator, NULL);
-					d3d12CommandList->ResourceBarrier(1, &barrier);
+			D3D12_RESOURCE_BARRIER barrier{};
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.pResource = frameContext[backBufferIdx].main_render_target_resource;
+			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			d3d12CommandList->Reset(commandAllocator, NULL);
+			d3d12CommandList->ResourceBarrier(1, &barrier);
 
-					d3d12CommandList->OMSetRenderTargets(1, &frameContext[backBufferIdx].main_render_target_descriptor, FALSE, NULL);
-					d3d12CommandList->SetDescriptorHeaps(1, &d3d12DescriptorHeapImGuiRender);
+			d3d12CommandList->OMSetRenderTargets(1, &frameContext[backBufferIdx].main_render_target_descriptor, FALSE, NULL);
+			d3d12CommandList->SetDescriptorHeaps(1, &d3d12DescriptorHeapImGuiRender);
 
-					ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), d3d12CommandList);
+			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), d3d12CommandList);
 
-					barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-					barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 
-					d3d12CommandList->ResourceBarrier(1, &barrier);
-					d3d12CommandList->Close();
+			d3d12CommandList->ResourceBarrier(1, &barrier);
+			d3d12CommandList->Close();
 
-					d3d12CommandQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&d3d12CommandList));
-
-					break;
-				} catch (const std::exception& e) {
-					SPDLOG_ERROR("Exception thrown rendering ImGui in DX12: {}", e.what());
-					if (retries >= 6) {
-						SPDLOG_ERROR("Retried rendering ImGui in DX12 6 times, game will exit now.");
-						IM_ASSERT(retries < 6 && "Retried rendering ImGui in DX12 6 times, game will exit now.");
-					}
-				}
-			}
+			d3d12CommandQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&d3d12CommandList));
 		}
 
 		HRESULT(__stdcall* oPresent)(IDXGISwapChain3*, UINT, UINT);
 		HRESULT __stdcall hkPresent12(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
-			RenderImGui_DX12(pSwapChain);
+			__try {
+				RenderImGui_DX12(pSwapChain);
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				SPDLOG_ERROR("Exception thrown rendering ImGui in DX12");
+			}
 
 			return oPresent(pSwapChain, SyncInterval, Flags);
 		}
 
 		HRESULT(__stdcall* oPresent1)(IDXGISwapChain3*, UINT, UINT, const DXGI_PRESENT_PARAMETERS* pPresentParameters);
 		HRESULT __stdcall hkPresent112(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT PresentFlags, const DXGI_PRESENT_PARAMETERS* pPresentParameters) {
-			RenderImGui_DX12(pSwapChain);
+			__try {
+				RenderImGui_DX12(pSwapChain);
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				SPDLOG_ERROR("Exception thrown rendering ImGui in DX12");
+			}
 
 			return oPresent1(pSwapChain, SyncInterval, PresentFlags, pPresentParameters);
 		}

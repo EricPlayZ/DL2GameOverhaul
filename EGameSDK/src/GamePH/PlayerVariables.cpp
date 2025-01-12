@@ -90,64 +90,42 @@ namespace EGSDK::GamePH {
 		this->defaultValue = value;
 	}
 
-	std::unique_ptr<PlayerVariable>& PlayerVarVector::emplace_back(std::unique_ptr<PlayerVariable> playerVar) {
+	std::unique_ptr<PlayerVariable>& PlayerVarMap::try_emplace(std::unique_ptr<PlayerVariable> playerVar) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		_playerVars.emplace_back(std::move(playerVar));
-		return _playerVars.back();
+		const std::string& name = playerVar->GetName();
+		auto [it, inserted] = _playerVars.try_emplace(name, std::move(playerVar));
+		if (inserted)
+			_order.emplace_back(name);
+		return it->second;
 	}
-	// Unsafe function: Assumes the caller has locked _mutex
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::beginUnsafe() {
-		return _playerVars.begin();
-	}
-	// Unsafe function: Assumes the caller has locked _mutex
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::endUnsafe() {
-		return _playerVars.end();
-	}
-	bool PlayerVarVector::empty() {
+	bool PlayerVarMap::empty() {
 		std::lock_guard<std::mutex> lock(_mutex);
 		return _playerVars.empty();
 	}
-	bool PlayerVarVector::none_of(const std::string& name) {
+	bool PlayerVarMap::none_of(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		return std::none_of(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
-			return playerVar->GetName() == name;
-		});
+		return _playerVars.find(name) == _playerVars.end();
 	}
 
-	// Unsafe function: Assumes the caller has locked _mutex
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIterUnsafe(const std::string& name) {
-		return std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
-			return playerVar->GetName() == name;
-		});
-	}
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::FindIter(const std::string& name) {
+	std::unique_ptr<PlayerVariable>* PlayerVarMap::FindPtr(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		return std::find_if(_playerVars.begin(), _playerVars.end(), [&name](const auto& playerVar) {
-			return playerVar->GetName() == name;
-		});
+		auto it = _playerVars.find(name);
+		return it == _playerVars.end() ? nullptr : &it->second;
 	}
-	std::unique_ptr<PlayerVariable>* PlayerVarVector::FindPtr(const std::string& name) {
+	PlayerVariable* PlayerVarMap::Find(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = FindIterUnsafe(name);
-		return playerVarIt == _playerVars.end() ? nullptr : &*playerVarIt;
+		auto it = _playerVars.find(name);
+		return it == _playerVars.end() ? nullptr : it->second.get();
 	}
-	PlayerVariable* PlayerVarVector::Find(const std::string& name) {
+	bool PlayerVarMap::Erase(const std::string& name) {
 		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = FindIterUnsafe(name);
-		return playerVarIt == _playerVars.end() ? nullptr : playerVarIt->get();
-	}
-	std::vector<std::unique_ptr<PlayerVariable>>::iterator PlayerVarVector::Erase(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		auto playerVarIt = FindIterUnsafe(name);
-		if (playerVarIt != _playerVars.end())
-			return _playerVars.erase(playerVarIt);
-		return _playerVars.end();
+		return _playerVars.erase(name) > 0;
 	}
 
-	PlayerVarVector PlayerVariables::playerVars{};
-	PlayerVarVector PlayerVariables::customPlayerVars{};
-	PlayerVarVector PlayerVariables::defaultPlayerVars{};
-	PlayerVarVector PlayerVariables::customDefaultPlayerVars{};
+	PlayerVarMap PlayerVariables::playerVars{};
+	PlayerVarMap PlayerVariables::customPlayerVars{};
+	PlayerVarMap PlayerVariables::defaultPlayerVars{};
+	PlayerVarMap PlayerVariables::customDefaultPlayerVars{};
 	std::atomic<bool> PlayerVariables::gotPlayerVars = false;
 	static bool sortedPlayerVars = false;
 
@@ -155,24 +133,24 @@ namespace EGSDK::GamePH {
 	std::unordered_map<std::string, bool> PlayerVariables::prevBoolValueMap{};
 
 	template <typename T>
-	static void updateDefaultVar(PlayerVarVector& defaultVars, const std::string& name, T value, T defaultValue) {
+	static void updateDefaultVar(PlayerVarMap& defaultVars, const std::string& name, T value, T defaultValue) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
 
 		auto playerVar = defaultVars.Find(name);
 		if (!playerVar) {
             if constexpr (std::is_same_v<T, std::string>) {
 				auto stringPlayerVar = std::make_unique<StringPlayerVariable>(name);
-				defaultVars.emplace_back(std::move(stringPlayerVar));
+				defaultVars.try_emplace(std::move(stringPlayerVar));
             }
             else if constexpr (std::is_same_v<T, float>) {
 				auto floatPlayerVar = std::make_unique<FloatPlayerVariable>(name);
 				floatPlayerVar->SetValues(value);
-				defaultVars.emplace_back(std::move(floatPlayerVar));
+				defaultVars.try_emplace(std::move(floatPlayerVar));
             }
             else if constexpr (std::is_same_v<T, bool>) {
 				auto boolPlayerVar = std::make_unique<BoolPlayerVariable>(name);
 				boolPlayerVar->SetValues(value);
-				defaultVars.emplace_back(std::move(boolPlayerVar));
+				defaultVars.try_emplace(std::move(boolPlayerVar));
             }
 		} else {
 			if constexpr (std::is_same_v<T, std::string>) {
@@ -381,16 +359,16 @@ namespace EGSDK::GamePH {
 			PlayerVarType playerVarType = getPlayerVarType(funcAddress, startOfFunc);
 			switch (playerVarType) {
 			case PlayerVarType::String:
-				playerVars.emplace_back(std::make_unique<StringPlayerVariable>(playerVarName));
+				playerVars.try_emplace(std::make_unique<StringPlayerVariable>(playerVarName));
 				break;
 			case PlayerVarType::Float:
-				playerVars.emplace_back(std::make_unique<FloatPlayerVariable>(playerVarName));
+				playerVars.try_emplace(std::make_unique<FloatPlayerVariable>(playerVarName));
 				break;
 			case PlayerVarType::Bool:
-				playerVars.emplace_back(std::make_unique<BoolPlayerVariable>(playerVarName));
+				playerVars.try_emplace(std::make_unique<BoolPlayerVariable>(playerVarName));
 				break;
 			default:
-				//playerVars.emplace_back(std::make_unique<PlayerVariable>(playerVarName));
+				//playerVars.try_emplace(std::make_unique<PlayerVariable>(playerVarName));
 				break;
 			}
 		}
@@ -494,9 +472,9 @@ namespace EGSDK::GamePH {
 			if (playerVar->GetType() != PlayerVarType::Float)
 				return;
 			if (!customPlayerVar)
-				customPlayerVar = customPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
+				customPlayerVar = customPlayerVars.try_emplace(std::make_unique<FloatPlayerVariable>(name)).get();
 			if (!defPlayerVar) {
-				defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<FloatPlayerVariable>(name)).get();
+				defPlayerVar = defaultPlayerVars.try_emplace(std::make_unique<FloatPlayerVariable>(name)).get();
 				reinterpret_cast<FloatPlayerVariable*>(defPlayerVar)->SetValues(reinterpret_cast<FloatPlayerVariable*>(playerVar)->value);
 			}
 
@@ -506,9 +484,9 @@ namespace EGSDK::GamePH {
 			if (playerVar->GetType() != PlayerVarType::Bool)
 				return;
 			if (!customPlayerVar)
-				customPlayerVar = customPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
+				customPlayerVar = customPlayerVars.try_emplace(std::make_unique<BoolPlayerVariable>(name)).get();
 			if (!defPlayerVar) {
-				defPlayerVar = defaultPlayerVars.emplace_back(std::make_unique<BoolPlayerVariable>(name)).get();
+				defPlayerVar = defaultPlayerVars.try_emplace(std::make_unique<BoolPlayerVariable>(name)).get();
 				reinterpret_cast<BoolPlayerVariable*>(defPlayerVar)->SetValues(reinterpret_cast<BoolPlayerVariable*>(playerVar)->value);
 			}
 

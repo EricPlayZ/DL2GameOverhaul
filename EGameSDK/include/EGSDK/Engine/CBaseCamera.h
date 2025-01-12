@@ -19,5 +19,7 @@ namespace EGSDK::Engine {
 
 		void SetFOV(float fov);
 		void SetPosition(const Vector3* pos);
+
+		static bool isSetFOVCalledByEGT;
 	};
 }

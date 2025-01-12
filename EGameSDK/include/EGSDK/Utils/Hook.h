@@ -170,6 +170,10 @@ namespace EGSDK::Utils {
 				for (const auto& callback : callbacks)
 					callback(args...);
 			}
+			auto ExecuteCallbacksWithOriginal(Args... args) {
+				ExecuteCallbacks(args...);
+				return pOriginal(args...);
+			}
 
 			OrigType pOriginal = nullptr;
 			OrigType pTarget = nullptr;
@@ -226,6 +230,10 @@ namespace EGSDK::Utils {
 			void ExecuteCallbacks(Args... args) {
 				for (const auto& callback : callbacks)
 					callback(args...);
+			}
+			auto ExecuteCallbacksWithOriginal(Args... args) {
+				ExecuteCallbacks(args...);
+				return pOriginal(args...);
 			}
 
 			OrigType pOriginal = nullptr;

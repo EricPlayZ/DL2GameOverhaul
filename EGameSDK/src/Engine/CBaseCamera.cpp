@@ -3,6 +3,8 @@
 #include <EGSDK\Utils\Memory.h>
 
 namespace EGSDK::Engine {
+	bool CBaseCamera::isSetFOVCalledByEGT = false;
+
 	float CBaseCamera::GetFOV() {
 		return Utils::Memory::SafeCallFunction<float>("engine_x64_rwdi.dll", "?GetFOV@IBaseCamera@@QEBAMXZ", -1.0f, this);
 	}
@@ -20,7 +22,9 @@ namespace EGSDK::Engine {
 	}
 
 	void CBaseCamera::SetFOV(float fov) {
+		isSetFOVCalledByEGT = true;
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetFOV@IBaseCamera@@QEAAXM@Z", this, fov);
+		isSetFOVCalledByEGT = false;
 	}
 	void CBaseCamera::SetPosition(const Vector3* pos) {
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetPosition@IBaseCamera@@QEAAXAEBVvec3@@@Z", this, pos);
