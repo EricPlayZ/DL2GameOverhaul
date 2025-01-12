@@ -53,15 +53,29 @@ namespace EGT::Engine {
 				newCamPos.Y += Menu::Camera::cameraOffset.Y;
 				newCamPos -= normForwardVec * -Menu::Camera::cameraOffset.Z;
 			} else if (Menu::Camera::thirdPersonCamera.GetValue()) {
-				newCamPos -= normForwardVec * -Menu::Camera::tpDistanceBehindPlayer;
-				newCamPos.Y += Menu::Camera::tpHeightAbovePlayer - 1.5f;
-				newCamPos -= normLeftVec * Menu::Camera::tpHorizontalDistanceFromPlayer;
+				newCamPos -= normForwardVec * -Menu::Camera::thirdPersonDistanceBehindPlayer;
+				newCamPos.Y += Menu::Camera::thirdPersonHeightAbovePlayer - 1.5f;
+				newCamPos -= normLeftVec * Menu::Camera::thirdPersonHorizontalDistanceFromPlayer;
 			}
 
 			*pos = newCamPos;
 
 			MoveCameraFromForwardUpPosHook.pOriginal(pCBaseCamera, a3, a4, pos);
 		}
+#pragma endregion
+
+#pragma region SetFOV
+		
+		static void* GetSetFOV() {
+			return EGSDK::Utils::Memory::GetProcAddr("engine_x64_rwdi.dll", "?SetFOV@IBaseCamera@@QEAAXM@Z");
+		}
+		EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float), float> SetFOVHook{ "SetFOV", &GetSetFOV, [](void* pCBaseCamera, float fov) -> void {
+			if (Menu::Camera::thirdPersonCamera.GetValue())
+				fov = static_cast<float>(Menu::Camera::thirdPersonFOV);
+
+			SetFOVHook.ExecuteCallbacks(fov);
+			return SetFOVHook.pOriginal(pCBaseCamera, fov);
+		} };
 #pragma endregion
 
 #pragma region fs::open

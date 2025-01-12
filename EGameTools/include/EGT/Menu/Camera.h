@@ -6,19 +6,22 @@
 namespace EGT::Menu {
 	namespace Camera {
 		extern EGSDK::Vector3 cameraOffset;
-		extern int FOV;
+		extern float firstPersonFOV;
+		extern ImGui::KeyBindOption firstPersonZoomIn;
 		
 		extern ImGui::Option photoMode;
 
 		extern ImGui::KeyBindOption freeCam;
+		extern float freeCamFOV;
 		extern float freeCamSpeed;
 		extern ImGui::KeyBindOption teleportPlayerToCamera;
 
 		extern ImGui::KeyBindOption thirdPersonCamera;
 		extern ImGui::KeyBindOption tpUseTPPModel;
-		extern float tpDistanceBehindPlayer;
-		extern float tpHeightAbovePlayer;
-		extern float tpHorizontalDistanceFromPlayer;
+		extern float thirdPersonFOV;
+		extern float thirdPersonDistanceBehindPlayer;
+		extern float thirdPersonHeightAbovePlayer;
+		extern float thirdPersonHorizontalDistanceFromPlayer;
 
 		extern float lensDistortion;
 		extern ImGui::KeyBindOption goProMode;

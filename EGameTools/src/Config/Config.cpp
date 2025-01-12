@@ -17,6 +17,7 @@
 namespace EGT::Config {
 	enum ValueType {
 		OPTION,
+		Int,
 		Float,
 		String
 	};
@@ -61,10 +62,11 @@ namespace EGT::Config {
 			{ "Menu:Keybinds", "NoSpreadToggleKey", Menu::Weapon::noSpread.ToStringVKeyMap(), &Menu::Weapon::noSpread, String },
 			{ "Menu:Keybinds", "NoRecoilToggleKey", Menu::Weapon::noRecoil.ToStringVKeyMap(), &Menu::Weapon::noRecoil, String },
 			{ "Menu:Keybinds", "InstantReloadToggleKey", Menu::Weapon::instantReload.ToStringVKeyMap(), &Menu::Weapon::instantReload, String },
-			{ "Menu:Keybinds", "FreeCamToggleKey", Menu::Camera::freeCam.ToStringVKeyMap(), &Menu::Camera::freeCam, String },
-			{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", Menu::Camera::teleportPlayerToCamera.ToStringVKeyMap(), &Menu::Camera::teleportPlayerToCamera, String },
+			{ "Menu:Keybinds", "FirstPersonZoomInHoldingKey", Menu::Camera::firstPersonZoomIn.ToStringVKeyMap(), &Menu::Camera::firstPersonZoomIn, String },
 			{ "Menu:Keybinds", "ThirdPersonToggleKey", Menu::Camera::thirdPersonCamera.ToStringVKeyMap(), &Menu::Camera::thirdPersonCamera, String },
 			{ "Menu:Keybinds", "UseTPPModelToggleKey", Menu::Camera::tpUseTPPModel.ToStringVKeyMap(), &Menu::Camera::tpUseTPPModel, String },
+			{ "Menu:Keybinds", "FreeCamToggleKey", Menu::Camera::freeCam.ToStringVKeyMap(), &Menu::Camera::freeCam, String },
+			{ "Menu:Keybinds", "TeleportPlayerToCameraToggleKey", Menu::Camera::teleportPlayerToCamera.ToStringVKeyMap(), &Menu::Camera::teleportPlayerToCamera, String },
 			{ "Menu:Keybinds", "GoProMode", Menu::Camera::goProMode.ToStringVKeyMap(), &Menu::Camera::goProMode, String },
 			{ "Menu:Keybinds", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.ToStringVKeyMap(), &Menu::Camera::disableSafezoneFOVReduction, String },
 			{ "Menu:Keybinds", "DisablePhotoModeLimits", Menu::Camera::disablePhotoModeLimits.ToStringVKeyMap(), &Menu::Camera::disablePhotoModeLimits, String },
@@ -94,13 +96,19 @@ namespace EGT::Config {
 			{ "Weapon:Misc", "NoSpread", Menu::Weapon::noSpread.GetValue(), &Menu::Weapon::noSpread, OPTION },
 			{ "Weapon:Misc", "NoRecoil", Menu::Weapon::noRecoil.GetValue(), &Menu::Weapon::noRecoil, OPTION },
 			{ "Weapon:Misc", "InstantReload", Menu::Weapon::instantReload.GetValue(), &Menu::Weapon::instantReload, OPTION },
+			{ "Camera:FreeCam", "FOV", Menu::Camera::freeCamFOV, &Menu::Camera::freeCamFOV, Float },
 			{ "Camera:FreeCam", "Speed", Menu::Camera::freeCamSpeed, &Menu::Camera::freeCamSpeed, Float },
 			{ "Camera:FreeCam", "TeleportPlayerToCamera", Menu::Camera::teleportPlayerToCamera.GetValue(), &Menu::Camera::teleportPlayerToCamera, OPTION },
+			{ "Camera:FirstPerson", "XOffset", Menu::Camera::cameraOffset.X, &Menu::Camera::cameraOffset.X, Float },
+			{ "Camera:FirstPerson", "YOffset", Menu::Camera::cameraOffset.Y, &Menu::Camera::cameraOffset.Y, Float },
+			{ "Camera:FirstPerson", "ZOffset", Menu::Camera::cameraOffset.Z, &Menu::Camera::cameraOffset.Z, Float },
+			{ "Camera:FirstPerson", "ZoomIn", Menu::Camera::firstPersonZoomIn.GetValue(), &Menu::Camera::firstPersonZoomIn, OPTION},
 			{ "Camera:ThirdPerson", "Enabled", Menu::Camera::thirdPersonCamera.GetValue(), &Menu::Camera::thirdPersonCamera, OPTION },
 			{ "Camera:ThirdPerson", "UseTPPModel", Menu::Camera::tpUseTPPModel.GetValue(), &Menu::Camera::tpUseTPPModel, OPTION },
-			{ "Camera:ThirdPerson", "DistanceBehindPlayer", Menu::Camera::tpDistanceBehindPlayer, &Menu::Camera::tpDistanceBehindPlayer, Float },
-			{ "Camera:ThirdPerson", "HeightAbovePlayer", Menu::Camera::tpHeightAbovePlayer, &Menu::Camera::tpHeightAbovePlayer, Float },
-			{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", Menu::Camera::tpHorizontalDistanceFromPlayer, &Menu::Camera::tpHorizontalDistanceFromPlayer, Float },
+			{ "Camera:ThirdPerson", "FOV", Menu::Camera::thirdPersonFOV, &Menu::Camera::thirdPersonFOV, Float },
+			{ "Camera:ThirdPerson", "DistanceBehindPlayer", Menu::Camera::thirdPersonDistanceBehindPlayer, &Menu::Camera::thirdPersonDistanceBehindPlayer, Float },
+			{ "Camera:ThirdPerson", "HeightAbovePlayer", Menu::Camera::thirdPersonHeightAbovePlayer, &Menu::Camera::thirdPersonHeightAbovePlayer, Float },
+			{ "Camera:ThirdPerson", "HorizontalDistanceFromPlayer", Menu::Camera::thirdPersonHorizontalDistanceFromPlayer, &Menu::Camera::thirdPersonHorizontalDistanceFromPlayer, Float },
 			{ "Camera:Misc", "LensDistortion", Menu::Camera::lensDistortion, &Menu::Camera::lensDistortion, Float },
 			{ "Camera:Misc", "GoProMode", Menu::Camera::goProMode.GetValue(), &Menu::Camera::goProMode, OPTION },
 			{ "Camera:Misc", "DisableSafezoneFOVReduction", Menu::Camera::disableSafezoneFOVReduction.GetValue(), &Menu::Camera::disableSafezoneFOVReduction, OPTION },
@@ -113,8 +121,9 @@ namespace EGT::Config {
 			{ "Misc:GameChecks", "IncreaseDataPAKsLimit", Menu::Misc::increaseDataPAKsLimit.GetValue(), &Menu::Misc::increaseDataPAKsLimit, OPTION },
 			{ "World:Time", "SlowMotionSpeed", Menu::World::slowMotionSpeed, &Menu::World::slowMotionSpeed, Float },
 			{ "World:Time", "SlowMotionTransitionTime", Menu::World::slowMotionTransitionTime, &Menu::World::slowMotionTransitionTime, Float },
-			{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook, &Menu::Debug::disableLowLevelMouseHook, OPTION },
-			{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning, &Menu::Debug::disableVftableScanning, OPTION },
+			{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook.GetValue(), &Menu::Debug::disableLowLevelMouseHook, OPTION },
+			{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning.GetValue(), &Menu::Debug::disableVftableScanning, OPTION },
+			{ "Debug:Misc", "EnableDebuggingConsole", Menu::Debug::enableDebuggingConsole.GetValue(), &Menu::Debug::enableDebuggingConsole, OPTION }
 		});
 		configVariables = configVariablesDefault;
 	}
@@ -123,6 +132,9 @@ namespace EGT::Config {
 		switch (entry.type) {
 		case OPTION:
 			reader.UpdateEntry(entry.section.data(), entry.key.data(), std::any_cast<bool>(entry.value));
+			break;
+		case Int:
+			reader.UpdateEntry(entry.section.data(), entry.key.data(), std::any_cast<int>(entry.value));
 			break;
 		case Float:
 			reader.UpdateEntry(entry.section.data(), entry.key.data(), std::any_cast<float>(entry.value));
@@ -154,6 +166,10 @@ namespace EGT::Config {
 				reader.InsertEntry(entry.section.data(), entry.key.data(), std::any_cast<bool>(entry.value));
 				break;
 			}
+			case Int:
+				*reinterpret_cast<int*>(entry.optionPtr) = std::any_cast<int>(entry.value);
+				reader.InsertEntry(entry.section.data(), entry.key.data(), std::any_cast<int>(entry.value));
+				break;
 			case Float:
 				*reinterpret_cast<float*>(entry.optionPtr) = std::any_cast<float>(entry.value);
 				reader.InsertEntry(entry.section.data(), entry.key.data(), std::any_cast<float>(entry.value));
@@ -215,9 +231,19 @@ namespace EGT::Config {
 					ImGui::Option* option = reinterpret_cast<ImGui::Option*>(entry.optionPtr);
 					if (option->GetChangesAreDisabled())
 						break;
+#ifdef _DEBUG
+					if (entry.key == "DisableLowLevelMouseHook") {
+						option->SetBothValues(reader.Get(entry.section.data(), entry.key.data(), true));
+						break;
+					}
+#endif
+
 					option->SetBothValues(reader.Get(entry.section.data(), entry.key.data(), std::any_cast<bool>(entry.value)));
 					break;
 				}
+				case Int:
+					*reinterpret_cast<int*>(entry.optionPtr) = reader.Get(entry.section.data(), entry.key.data(), std::any_cast<int>(entry.value));
+					break;
 				case Float:
 					*reinterpret_cast<float*>(entry.optionPtr) = reader.Get(entry.section.data(), entry.key.data(), std::any_cast<float>(entry.value));
 					break;
@@ -273,6 +299,10 @@ namespace EGT::Config {
 				switch (entry.type) {
 				case OPTION:
 					if (reader.Get(entry.section.data(), entry.key.data(), std::any_cast<bool>(entry.value)) != reinterpret_cast<ImGui::Option*>(entry.optionPtr)->GetValue())
+						return true;
+					break;
+				case Int:
+					if (reader.Get(entry.section.data(), entry.key.data(), std::any_cast<int>(entry.value)) != *reinterpret_cast<int*>(entry.optionPtr))
 						return true;
 					break;
 				case Float:

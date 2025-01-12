@@ -3,6 +3,8 @@
 #include <EGSDK\Utils\Hook.h>
 
 namespace EGT::Core {
+    extern void OpenIOBuffer();
+    extern void CloseIOBuffer();
     extern void EnableConsole();
     extern void DisableConsole();
 
@@ -28,7 +30,7 @@ static HANDLE mainThreadHandle{};
 BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReserved) {
     switch (reasonForCall) {
     case DLL_PROCESS_ATTACH: {
-        EGT::Core::EnableConsole();
+        EGT::Core::OpenIOBuffer();
         EGT::Core::InitLogger();
 
         MH_Initialize();
@@ -55,6 +57,7 @@ BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReser
         SPDLOG_INFO("DLL_PROCESS_DETACH");
         EGT::Core::Cleanup();
         EGT::Core::DisableConsole();
+        EGT::Core::CloseIOBuffer();
 
         if (mainThreadHandle) {
             SPDLOG_INFO("Closing main thread handle");

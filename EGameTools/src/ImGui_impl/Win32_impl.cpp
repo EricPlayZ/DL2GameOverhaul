@@ -17,7 +17,7 @@ namespace EGT::ImGui_impl {
 			switch (uMsg) {
 			case WM_KEYDOWN:
 			case WM_SYSKEYDOWN:
-				if (Menu::firstTimeRunning.GetValue() || ImGui::isAnyHotkeyBtnPressed || !ImGui::timeSinceHotkeyBtnPressed.DidTimePass() || ImGui::KeyBindOption::wasAnyKeyPressed)
+				if (Menu::firstTimeRunning.GetValue())
 					break;
 
 				for (auto& option : *ImGui::KeyBindOption::GetInstances()) {
@@ -27,20 +27,33 @@ namespace EGT::ImGui_impl {
 						continue;
 
 					if (wParam == option->GetKeyBind()) {
-						ImGui::KeyBindOption::wasAnyKeyPressed = true;
-						option->Toggle();
+						if (!Menu::menuToggle.GetValue()) {
+							option->SetIsKeyPressed(!option->IsKeyDown());
+							option->SetIsKeyDown(true);
+						}
+
+						if (option->IsToggleableOption() && !ImGui::KeyBindOption::wasAnyHotkeyToggled && !ImGui::isAnyHotkeyBtnClicked && ImGui::timeSinceHotkeyBtnPressed.DidTimePass()) {
+							ImGui::KeyBindOption::wasAnyHotkeyToggled = true;
+							option->Toggle();
+						}
 					}
 				}
 				break;
 			case WM_KEYUP:
 			case WM_SYSKEYUP:
-				if (!ImGui::KeyBindOption::wasAnyKeyPressed)
-					break;
-
 				for (auto& option : *ImGui::KeyBindOption::GetInstances()) {
-					if (wParam == option->GetKeyBind())
-						ImGui::KeyBindOption::wasAnyKeyPressed = false;
+					if (wParam == option->GetKeyBind()) {
+						if (!Menu::menuToggle.GetValue()) {
+							option->SetIsKeyReleased(option->IsKeyDown());
+							option->SetIsKeyPressed(false);
+							option->SetIsKeyDown(false);
+						}
+
+						ImGui::KeyBindOption::wasAnyHotkeyToggled = false;
+					}
 				}
+				break;
+			default:
 				break;
 			}
 
@@ -151,7 +164,7 @@ namespace EGT::ImGui_impl {
 			gHwnd = hwnd;
 			oWndProc = (WNDPROC)SetWindowLongPtrA(hwnd, GWLP_WNDPROC, (LONG_PTR)hkWindowProc);
 
-			if (!Menu::Debug::disableLowLevelMouseHook)
+			if (!Menu::Debug::disableLowLevelMouseHook.GetValue())
 				EnableMouseHook();
 		}
 	}

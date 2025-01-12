@@ -11,7 +11,7 @@
 #endif
 
 namespace ImGui {
-    extern bool isAnyHotkeyBtnPressed;
+    extern bool isAnyHotkeyBtnClicked;
     extern EGSDK::Utils::Time::Timer timeSinceHotkeyBtnPressed;
 
     struct Key {
@@ -54,11 +54,11 @@ namespace ImGui {
     };
     class KeyBindOption : public Option {
     public:
-        static bool wasAnyKeyPressed;
+        static bool wasAnyHotkeyToggled;
         static bool scrolledMouseWheelUp;
         static bool scrolledMouseWheelDown;
 
-        KeyBindOption(int keyCode);
+        KeyBindOption(int keyCode, bool isToggleableOption = true);
         ~KeyBindOption();
         static std::set<KeyBindOption*>* GetInstances();
 
@@ -72,8 +72,21 @@ namespace ImGui {
         void ChangeKeyBind(int newKeyBind);
 
         bool SetToPressedKey();
+        bool IsToggleableOption() const;
+
+        void SetIsKeyDown(bool newValue);
+        void SetIsKeyPressed(bool newValue);
+        void SetIsKeyReleased(bool newValue);
+        bool IsKeyDown();
+        bool IsKeyPressed();
+        bool IsKeyReleased();
     private:
         int keyCode = 0;
+        bool isToggleableOption = true;
+        bool isKeyDown = false;
+        bool isKeyPressed = false;
+        bool isKeyReleased = false;
+
         static const std::array<Key, 103> keyMap;
         static const std::array<VKey, 135> virtualKeyMap;
     };

@@ -6,7 +6,7 @@
 #include <EGSDK\Utils\Values.h>
 
 namespace ImGui {
-    bool isAnyHotkeyBtnPressed = false;
+    bool isAnyHotkeyBtnClicked = false;
     EGSDK::Utils::Time::Timer timeSinceHotkeyBtnPressed{ 250 };
 
     Key::Key(std::string_view name, int code, ImGuiKey imGuiCode) : name(name), code(code), imGuiCode(imGuiCode) {}
@@ -65,11 +65,11 @@ namespace ImGui {
 #pragma endregion
 
 #pragma region KeyBindOption
-    bool KeyBindOption::wasAnyKeyPressed = false;
+    bool KeyBindOption::wasAnyHotkeyToggled = false;
     bool KeyBindOption::scrolledMouseWheelUp = false;
     bool KeyBindOption::scrolledMouseWheelDown = false;
 
-    KeyBindOption::KeyBindOption(int keyCode) : keyCode(keyCode) {
+    KeyBindOption::KeyBindOption(int keyCode, bool isToggleableOption) : keyCode(keyCode), isToggleableOption(isToggleableOption) {
         GetInstances()->insert(this);
     };
     KeyBindOption::~KeyBindOption() {
@@ -159,6 +159,36 @@ namespace ImGui {
                     ChangeKeyBind(VK_RMENU);
                 return true;
             }
+        }
+        return false;
+    }
+    bool KeyBindOption::IsToggleableOption() const {
+        return isToggleableOption;
+    }
+
+    void KeyBindOption::SetIsKeyDown(bool newValue) {
+        isKeyDown = newValue;
+    }
+    void KeyBindOption::SetIsKeyPressed(bool newValue) {
+        isKeyPressed = newValue;
+    }
+    void KeyBindOption::SetIsKeyReleased(bool newValue) {
+        isKeyReleased = newValue;
+    }
+    bool KeyBindOption::IsKeyDown() {
+        return isKeyDown;
+    }
+    bool KeyBindOption::IsKeyPressed() {
+        if (isKeyPressed) {
+            isKeyPressed = false;
+            return true;
+        }
+        return false;
+    }
+    bool KeyBindOption::IsKeyReleased() {
+        if (!isKeyDown && isKeyReleased) {
+            isKeyReleased = false;
+            return true;
         }
         return false;
     }
@@ -456,12 +486,12 @@ namespace ImGui {
             GetCurrentContext()->ActiveIdAllowOverlap = true;
             if ((!IsItemHovered() && GetIO().MouseClicked[0]) || key->SetToPressedKey()) {
                 timeSinceHotkeyBtnPressed = EGSDK::Utils::Time::Timer(250);
-                isAnyHotkeyBtnPressed = false;
+                isAnyHotkeyBtnClicked = false;
                 ClearActiveID();
             } else
                 SetActiveID(id, GetCurrentWindow());
         } else if (Button(key->ToStringKeyMap().data(), ImVec2(0.0f, 0.0f))) {
-            isAnyHotkeyBtnPressed = true;
+            isAnyHotkeyBtnClicked = true;
             SetActiveID(id, GetCurrentWindow());
         }
 

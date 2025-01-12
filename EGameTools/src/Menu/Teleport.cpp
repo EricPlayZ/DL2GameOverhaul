@@ -377,13 +377,8 @@ namespace EGT::Menu {
 				ImGui::Text(cameraPos.data());
 				ImGui::Text(waypointPos.data());
 
-				ImGui::PushItemWidth(200.0f * Menu::scale);
-				ImGui::InputFloat("X", &teleportCoords.X, 1.0f, 10.0f, "%.2f");
-				ImGui::SameLine();
-				ImGui::InputFloat("Y", &teleportCoords.Y, 1.0f, 10.0f, "%.2f");
-				ImGui::SameLine();
-				ImGui::InputFloat("Z", &teleportCoords.Z, 1.0f, 10.0f, "%.2f");
-				ImGui::PopItemWidth();
+				ImGui::SetNextItemWidth(500.0f * Menu::scale);
+				ImGui::InputFloat3("Teleport Coords (XYZ)", reinterpret_cast<float*>(&teleportCoords), "%.2fm");
 
 				ImGui::EndDisabled();
 			}

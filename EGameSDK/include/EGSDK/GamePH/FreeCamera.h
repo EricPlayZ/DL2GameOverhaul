@@ -12,7 +12,7 @@ namespace EGSDK::GamePH {
 			ClassHelpers::buffer<0x38, Engine::CBaseCamera*> pCBaseCamera;
 			ClassHelpers::buffer<0x42, bool> enableSpeedMultiplier1;
 			ClassHelpers::buffer<0x43, bool> enableSpeedMultiplier2;
-			ClassHelpers::buffer<0x1B4, float> FOV;
+			//ClassHelpers::buffer<0x1B4, float> FOV;
 			ClassHelpers::buffer<0x1CC, float> speedMultiplier;
 		};
 

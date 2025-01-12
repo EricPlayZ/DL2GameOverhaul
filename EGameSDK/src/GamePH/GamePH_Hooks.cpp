@@ -31,7 +31,10 @@ namespace EGSDK::GamePH {
 #pragma endregion
 
 #pragma region OnPostUpdate
+		bool didOnPostUpdateHookExecute = false;
+
 		Utils::Hook::VTHook<GameDI_PH2*, void(*)(void*), void*> OnPostUpdateHook{ "OnPostUpdate", &GameDI_PH2::Get, [](void* pGameDI_PH2) {
+			didOnPostUpdateHookExecute = true;
 			Core::OnPostUpdate();
 
 			OnPostUpdateHook.ExecuteCallbacks(pGameDI_PH2);

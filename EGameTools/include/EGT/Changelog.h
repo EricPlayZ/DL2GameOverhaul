@@ -150,6 +150,21 @@ I have some things planned for the next updates, but time will decide when I'll 
 		R"(- Added compatibility with v1.19 Tower Raid: Halloween Run update
 - Improved CPU performance at game startup when using the mod, this should stop the system from freezing for some people when starting up the game
 - Improved memory signature scanning, increasing reliability and performance; if you encounter issues with classses in the Debug menu being NULL, please open up a bug report!
-- Improved MountDataPaks hook error detection (the error related to MountDataPaks should not show up in the console as often anymore))" }
+- Improved MountDataPaks hook error detection (the error related to MountDataPaks should not show up in the console as often anymore))" },
+		{ "v1.3.0",
+		R"(- Added compatibility with v1.20.1 "Winter Tales" hotfix update
+- Added EGameSDK.dll as a dependency library for EGameTools (EGameSDK coming soon TM, I hope some of you developers are looking forward to it!)
+- Added "Camera Offset" sliders for camera position (Camera)
+- Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
+- Added separate FOV sliders for each type of camera (Camera)
+- Added "Disable Low Level Mouse Hook" for developer debugging purposes, or in case of performance issues on the end-user side (Debug)
+- Added "Disable Vftable Scanning" for developer debugging purposes, or in case of performance issues or class detection issues on the end-user side (Debug)
+- Added "Enable Debugging Console" for developer debugging purposes (Debug)
+
+- Fixed random classes not getting detected properly, resulting in NULL values in the Debug tab, which was caused by unreliable class vftable scanning which can now be disabled through the "Disable Vftable Scanning" in the Debug tab in case of class detection issues
+- Fixed game progression not working properly if you modify Player Variables related to game progression, because game and mod Player Variables interfere with each other
+- Fixed random crashes related to Player Variables (if you still experience crashes at startup, please open a bug report)
+- Fixed FOV slider not affecting Third Person Camera
+- Fixed not all options in the mod menu being disabled whilst the game is starting up)" }
 	};
 }

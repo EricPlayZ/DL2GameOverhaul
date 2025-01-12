@@ -42,13 +42,14 @@ namespace EGSDK::Utils {
 
 			bool IsHooked();
 			void SetHooked(bool value);
+		protected:
 		private:
 			std::string_view* name = nullptr;
 			volatile LONG isHooking = 0;
 			volatile LONG isHooked = 0;
 		};
 		template <typename GetTargetOffsetRetType>
-		class ByteHook : HookBase {
+		class ByteHook : public HookBase {
 		public:
 			ByteHook(const std::string_view& name, GetTargetOffsetRetType(*pGetOffsetFunc)(), unsigned char* patchBytes, size_t bytesAmount) : HookBase(name), pGetOffsetFunc(pGetOffsetFunc), patchBytes(patchBytes), bytesAmount(bytesAmount) {}
 
@@ -125,7 +126,7 @@ namespace EGSDK::Utils {
 			Utils::Time::Timer timeSpentHooking{ 120000 };
 		};
 		template <typename GetTargetOffsetRetType, typename OrigType, typename... Args>
-		class MHook : HookBase {
+		class MHook : public HookBase {
 		public:
 			using CallbackType = std::function<void(Args...)>;
 
@@ -180,7 +181,7 @@ namespace EGSDK::Utils {
 			std::vector<CallbackType> callbacks;
 		};
 		template <typename GetTargetOffsetRetType, typename OrigType, typename... Args>
-		class VTHook : HookBase {
+		class VTHook : public HookBase {
 		public:
 			using CallbackType = std::function<void(Args...)>;
 

@@ -63,11 +63,16 @@ namespace EGT::Menu {
 		};
 
 #ifdef _DEBUG
-		bool disableLowLevelMouseHook = true;
+		ImGui::Option disableLowLevelMouseHook{ true };
 #else
-		bool disableLowLevelMouseHook = false;
+		ImGui::Option disableLowLevelMouseHook { false };
 #endif
-		bool disableVftableScanning = false;
+		ImGui::Option disableVftableScanning { false };
+#ifdef _DEBUG
+		ImGui::Option enableDebuggingConsole { true };
+#else
+		ImGui::Option enableDebuggingConsole { false };
+#endif
 
 		static void RenderClassAddrPair(const std::pair<std::string_view, void*(*)()>* pair) {
 			const float maxInputTextWidth = ImGui::CalcTextSize("0x0000000000000000").x;
@@ -100,9 +105,10 @@ namespace EGT::Menu {
 		void Tab::Render() {
 			ImGui::SeparatorText("Misc##Debug");
 			if (ImGui::Checkbox("Disable Low Level Mouse Hook", &disableLowLevelMouseHook, "Disables the low level mouse hook that is used to capture mouse input in the game; this option is used for debugging purposes"))
-				ImGui_impl::Win32::ToggleMouseHook(disableLowLevelMouseHook);
+				ImGui_impl::Win32::ToggleMouseHook(disableLowLevelMouseHook.GetValue());
 			if (ImGui::Checkbox("Disable Vftable Scanning", &disableVftableScanning, "Disables the vftable scanning for classes that are used in the game and used to validate a class in memory; this option is used for debugging purposes"))
-				EGSDK::ClassHelpers::SetIsVftableScanningDisabled(disableVftableScanning);
+				EGSDK::ClassHelpers::SetIsVftableScanningDisabled(disableVftableScanning.GetValue());
+			ImGui::Checkbox("Enable Debugging Console *", &enableDebuggingConsole, "Enables EGameTools' debugging console that shows up when starting up the game; this option is used for debugging purposes");
 			ImGui::SeparatorText("Class addresses##Debug");
 			if (ImGui::CollapsingHeader("GamePH", ImGuiTreeNodeFlags_None)) {
 				ImGui::Indent();
@@ -116,6 +122,8 @@ namespace EGT::Menu {
 					RenderClassAddrPair(&pair);
 				ImGui::Unindent();
 			}
+			ImGui::Separator();
+			ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(IM_COL32(200, 0, 0, 255)), "* Option requires game restart to apply");
 		}
 	}
 }

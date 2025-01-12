@@ -3,6 +3,9 @@
 #include <EGSDK\Utils\Memory.h>
 
 namespace EGSDK::Engine {
+	float CBaseCamera::GetFOV() {
+		return Utils::Memory::SafeCallFunction<float>("engine_x64_rwdi.dll", "?GetFOV@IBaseCamera@@QEBAMXZ", -1.0f, this);
+	}
 	Vector3* CBaseCamera::GetForwardVector(Vector3* outForwardVec) {
 		return Utils::Memory::SafeCallFunction<Vector3*>("engine_x64_rwdi.dll", "?GetForwardVector@IBaseCamera@@QEBA?BVvec3@@XZ", nullptr, this, outForwardVec);
 	}
@@ -16,10 +19,10 @@ namespace EGSDK::Engine {
 		return Utils::Memory::SafeCallFunction<Vector3*>("engine_x64_rwdi.dll", "?GetPosition@IBaseCamera@@UEBA?BVvec3@@XZ", nullptr, this, outPos);
 	}
 
-	void CBaseCamera::SetPosition(const Vector3* pos) {
-		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetPosition@IBaseCamera@@QEAAXAEBVvec3@@@Z", this, pos);
-	}
 	void CBaseCamera::SetFOV(float fov) {
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetFOV@IBaseCamera@@QEAAXM@Z", this, fov);
+	}
+	void CBaseCamera::SetPosition(const Vector3* pos) {
+		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetPosition@IBaseCamera@@QEAAXAEBVvec3@@@Z", this, pos);
 	}
 }

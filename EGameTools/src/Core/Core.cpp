@@ -32,17 +32,21 @@ namespace EGT::Core {
 	}
 
 	static FILE* f = nullptr;
+	void OpenIOBuffer() {
+		freopen_s(&f, "CONOUT$", "w", stdout);
+	}
+	void CloseIOBuffer() {
+		if (f)
+			fclose(f);
+	}
     void EnableConsole() {
         AllocConsole();
         SetConsoleTitle("EGameTools");
         HWND consoleWindow = GetConsoleWindow();
         MoveWindow(consoleWindow, 0, 0, 1800, 720, TRUE);
-        freopen_s(&f, "CONOUT$", "w", stdout);
         DisableConsoleQuickEdit();
     }
 	void DisableConsole() {
-		if (f)
-			fclose(f);
 		FreeConsole();
 	}
 #pragma endregion
@@ -65,7 +69,7 @@ namespace EGT::Core {
 			Sleep(1000);
 
 			if (!EGSDK::Core::rendererAPI) {
-				SPDLOG_WARN("rendererAPI is null, skipping iteration");
+				SPDLOG_INFO("rendererAPI is null, skipping iteration");
 				continue;
 			}
 			kiero::Status::Enum initStatus = kiero::init(EGSDK::Core::rendererAPI == 11 ? kiero::RenderType::D3D11 : kiero::RenderType::D3D12);
@@ -215,9 +219,6 @@ namespace EGT::Core {
 
 	void InitLogger() {
 		try {
-			static std::vector<spdlog::sink_ptr> sinks{};
-			EGSDK::Core::spdlogSinks.push_back(std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>());
-
 			std::shared_ptr<spdlog::logger> logger = std::make_shared<spdlog::logger>("EGameTools", std::begin(EGSDK::Core::spdlogSinks), std::end(EGSDK::Core::spdlogSinks));
 
 			EGSDK::Core::SetDefaultLoggerSettings(logger);
@@ -228,6 +229,10 @@ namespace EGT::Core {
 			MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 			exit(0);
 		}
+	}
+	static void AddConsoleSink() {
+		EGSDK::Core::spdlogSinks.push_back(std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>());
+		InitLogger();
 	}
 
 	static void OnPostUpdate(void* pGameDI_PH2) {
@@ -295,8 +300,13 @@ namespace EGT::Core {
 		Config::InitConfig();
 		threads.emplace_back(Config::ConfigLoop);
 
-		SPDLOG_INFO("Setting vftable scanning to: {}", Menu::Debug::disableVftableScanning);
-		EGSDK::ClassHelpers::SetIsVftableScanningDisabled(Menu::Debug::disableVftableScanning);
+		if (Menu::Debug::enableDebuggingConsole.GetValue()) {
+			EnableConsole();
+			AddConsoleSink();
+		}
+
+		SPDLOG_INFO("Setting vftable scanning to: {}", Menu::Debug::disableVftableScanning.GetValue());
+		EGSDK::ClassHelpers::SetIsVftableScanningDisabled(Menu::Debug::disableVftableScanning.GetValue());
 
 		SPDLOG_INFO("Creating symlink for loading files");
 		CreateSymlinkForLoadingFiles();

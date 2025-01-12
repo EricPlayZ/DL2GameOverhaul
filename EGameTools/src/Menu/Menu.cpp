@@ -2,6 +2,7 @@
 #include <ImGui\imguiex.h>
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\GamePH\GamePH_Misc.h>
+#include <EGSDK\GamePH\GamePH_Hooks.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Core\Core.h>
 
@@ -51,12 +52,16 @@ namespace EGT::Menu {
                     if (ImGui::BeginTabItem(tab.second->tabName.data())) {
                         ImGui::SetNextWindowBgAlpha(static_cast<float>(opacity) / 100.0f);
                         ImGui::SetNextWindowSizeConstraints(ImVec2(std::fmax(minWndSize.x - GImGui->Style.WindowPadding.x * 2.0f, ImGui::CalcTextSize(EGSDK::Core::gameVer > GAME_VER_COMPAT ? "Please wait for a new mod update." : "Upgrade your game version to one that the mod supports.").x), remainingHeight), ImVec2(maxWndSize.x - GImGui->Style.WindowPadding.x * 2.0f, remainingHeight));
+
+                        ImGui::BeginDisabled(!EGSDK::GamePH::Hooks::didOnPostUpdateHookExecute);
                         if (ImGui::BeginChild("##TabChild", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_Border)) {
                             currentTabIndex = tab.first;
                             childWidth = ImGui::GetItemRectSize().x;
                             tab.second->Render();
                             ImGui::EndChild();
                         }
+                        ImGui::EndDisabled();
+
                         ImGui::EndTabItem();
                     }
                 }
