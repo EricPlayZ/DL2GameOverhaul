@@ -281,7 +281,7 @@ namespace EGT::Menu {
 			ImGui::SeparatorText("First Person Camera");
 			auto pCVideoSettings = EGSDK::Engine::CVideoSettings::Get();
 			ImGui::BeginDisabled(!pCVideoSettings || goProMode.GetValue() || isZoomingIn);
-			if (ImGui::SliderFloat("FOV##FirstPerson", "First person camera field of view", &firstPersonFOV, 20.0f, 160.0f, "%.0f°") && pCVideoSettings)
+			if (ImGui::SliderFloat("FOV##FirstPerson", "First person camera field of view", &firstPersonFOV, 20.0f, 160.0f, "%.0f") && pCVideoSettings)
 				pCVideoSettings->extraFOV = firstPersonFOV - baseFOV;
 			else if (pCVideoSettings && !goProMode.GetValue())
 				firstPersonFOV = pCVideoSettings->extraFOV + baseFOV;
@@ -302,7 +302,7 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Use Third Person Player (TPP) Model", &tpUseTPPModel, "Uses Aiden's TPP (Third Person Player) model while the third person camera is enabled");
 			ImGui::EndDisabled();
 
-			ImGui::SliderFloat("FOV##ThirdPerson", "Third person camera field of view", &thirdPersonFOV, 20.0f, 160.0f, "%.0f°");
+			ImGui::SliderFloat("FOV##ThirdPerson", "Third person camera field of view", &thirdPersonFOV, 20.0f, 160.0f, "%.0f");
 			ImGui::SliderFloat("Distance behind player", &thirdPersonDistanceBehindPlayer, 1.0f, 10.0f, "%.2fm");
 			ImGui::SliderFloat("Height above player", &thirdPersonHeightAbovePlayer, 1.0f, 3.0f, "%.2fm");
 			ImGui::SliderFloat("Horizontal distance from player", &thirdPersonHorizontalDistanceFromPlayer, -2.0f, 2.0f, "%.2fm");
@@ -318,7 +318,7 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Teleport Player to Camera", &teleportPlayerToCamera, "Teleports the player to the camera while Free Camera is activated");
 			ImGui::EndDisabled();
 
-			ImGui::SliderFloat("FOV##FreeCam", "Free camera field of view", &freeCamFOV, 20.0f, 160.0f, "%.0f°");
+			ImGui::SliderFloat("FOV##FreeCam", "Free camera field of view", &freeCamFOV, 20.0f, 160.0f, "%.0f");
 			ImGui::SliderFloat("Speed##FreeCam", &freeCamSpeed, 0.1f, 200.0f, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 
 			ImGui::SeparatorText("Misc");
