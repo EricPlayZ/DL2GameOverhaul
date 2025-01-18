@@ -29,6 +29,7 @@
     <ClCompile Include="src\Engine\CVideoSettings.cpp" />
     <ClCompile Include="src\Engine\Engine_Hooks.cpp" />
     <ClCompile Include="src\Engine\Engine_Misc.cpp" />
+    <ClCompile Include="src\GamePH\CoPlayerRestrictions.cpp" />
     <ClCompile Include="src\GamePH\DayNightCycle.cpp" />
     <ClCompile Include="src\GamePH\FreeCamera.cpp" />
     <ClCompile Include="src\GamePH\GameDI_PH.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="include\EGSDK\Engine\Engine_Misc.h" />
     <ClInclude Include="include\EGSDK\Exports.h" />
     <ClInclude Include="include\EGSDK\GamePH\CoBaseCameraProxy.h" />
+    <ClInclude Include="include\EGSDK\GamePH\CoPlayerRestrictions.h" />
     <ClInclude Include="include\EGSDK\GamePH\DayNightCycle.h" />
     <ClInclude Include="include\EGSDK\GamePH\FreeCamera.h" />
     <ClInclude Include="include\EGSDK\GamePH\GameDI_PH.h" />

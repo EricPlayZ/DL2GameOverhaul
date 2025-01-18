@@ -7,6 +7,7 @@
 #include <ImGuiFileDialog\ImGuiFileDialog.h>
 #include <EGSDK\Utils\Files.h>
 #include <EGSDK\Engine\CBulletPhysicsCharacter.h>
+#include <EGSDK\GamePH\CoPlayerRestrictions.h>
 #include <EGSDK\GamePH\FreeCamera.h>
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGSDK\GamePH\PlayerDI_PH.h>
@@ -16,6 +17,7 @@
 #include <EGSDK\GamePH\GamePH_Misc.h>
 #include <EGT\ImGui_impl\DeferredActions.h>
 #include <EGT\FileEmbeds\player_variables.scr.embed>
+#include <EGT\GamePH\GamePH_Hooks.h>
 #include <EGT\Config\Config.h>
 #include <EGT\Menu\Camera.h>
 #include <EGT\Menu\Menu.h>
@@ -38,7 +40,7 @@ namespace EGT::Menu {
 		ImGui::KeyBindOption disableOutOfBoundsTimer{ VK_NONE };
 		ImGui::KeyBindOption nightrunnerMode{ VK_F7 };
 		ImGui::KeyBindOption oneHandedMode{ VK_NONE };
-		ImGui::KeyBindOption allowGrappleHookInSafezone{ VK_NONE };
+		ImGui::KeyBindOption disableSafezoneRestrictions{ VK_NONE };
 		ImGui::KeyBindOption disableAirControl{ VK_NONE };
 		ImGui::Option playerVariables{ false };
 
@@ -438,6 +440,25 @@ namespace EGT::Menu {
 
 			playerImmunity = playerInfectionModule->immunity * 100.0f;
 		}
+		static void PlayerRestrictionsUpdate() {
+			if (!disableSafezoneRestrictions.HasChanged())
+				return;
+			auto playerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+			if (!playerDI_PH || !playerDI_PH->areRestrictionsEnabledByGame)
+				return;
+			auto coPlayerRestrictions = EGSDK::GamePH::CoPlayerRestrictions::Get();
+			if (!coPlayerRestrictions)
+				return;
+
+			DWORD64 tempFlags = 0;
+			DWORD64* flagsPtr = coPlayerRestrictions->GetPlayerRestrictionsFlags(&tempFlags);
+			if (flagsPtr)
+				coPlayerRestrictions->flags = *flagsPtr;
+
+			disableSafezoneRestrictions.HasChangedTo(false) ? playerDI_PH->EnablePlayerRestrictions(&coPlayerRestrictions->flags.data) : playerDI_PH->DisablePlayerRestrictions(&coPlayerRestrictions->flags.data);
+
+			disableSafezoneRestrictions.SetPrevValue(disableSafezoneRestrictions.GetValue());
+		}
 		static void UpdateDisabledOptions() {
 			freezePlayer.SetChangesAreDisabled(!EGSDK::Engine::CBulletPhysicsCharacter::Get());
 		}
@@ -484,6 +505,7 @@ namespace EGT::Menu {
 			PlayerPositionUpdate();
 			PlayerHealthUpdate();
 			PlayerImmunityUpdate();
+			PlayerRestrictionsUpdate();
 
 			PlayerVarsUpdate();
 			PlayerVarListValuesUpdate();
@@ -530,7 +552,7 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Nightrunner Mode", &nightrunnerMode, "Makes Aiden super-human/infected");
 			ImGui::SameLine();
 			ImGui::CheckboxHotkey("One-handed Mode", &oneHandedMode, "Removes Aiden's left hand");
-			ImGui::CheckboxHotkey("Allow Grapple Hook in Safezone", &allowGrappleHookInSafezone, "Allows player to use grapple hook while in a safezone");
+			ImGui::CheckboxHotkey("Disable Safezone Restrictions", &disableSafezoneRestrictions, "Disables all player restrictions inside a safezone, such as no jumping, climbing, weapons, etc.");
 
 			ImGui::SeparatorText("Player Jump Parameters");
 			ImGui::CheckboxHotkey("Disable Air Control", &disableAirControl, "Disables the ability to change the player's direction of momentum while jumping (in-air)");

@@ -1,5 +1,6 @@
 #include <EGSDK\Offsets.h>
 #include <EGSDK\Utils\Hook.h>
+#include <EGSDK\GamePH\CoPlayerRestrictions.h>
 #include <EGSDK\GamePH\FreeCamera.h>
 #include <EGSDK\GamePH\GameDI_PH.h>
 #include <EGSDK\GamePH\GameDI_PH2.h>
@@ -168,15 +169,6 @@ namespace EGT::GamePH {
 		} };
 #pragma endregion
 
-#pragma region CanUseGrappleHook
-		static EGSDK::Utils::Hook::MHook<void*, bool(*)(void*, bool), void*, bool> CanUseGrappleHookHook{ "CanUseGrappleHook", &EGSDK::Offsets::Get_CanUseGrappleHook, [](void* pInstance, bool a2) -> bool {
-			if (Menu::Player::allowGrappleHookInSafezone.GetValue())
-				return true;
-
-			return CanUseGrappleHookHook.ExecuteCallbacksWithOriginal(pInstance, a2);
-		} };
-#pragma endregion
-
 #pragma region ReadPlayerJumpParams
 		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD64, DWORD64, char, DWORD64*), DWORD64, DWORD64, DWORD64, char, DWORD64*> ReadPlayerJumpParamsHook{ "ReadPlayerJumpParams", &EGSDK::Offsets::Get_ReadPlayerJumpParams, [](DWORD64 a1, DWORD64 a2, DWORD64 a3, char a4, DWORD64* a5) -> DWORD64 {
 			DWORD64 result = ReadPlayerJumpParamsHook.ExecuteCallbacksWithOriginal(a1, a2, a3, a4, a5);
@@ -211,6 +203,53 @@ namespace EGT::GamePH {
 				Menu::Teleport::waypointIsSet = reinterpret_cast<bool*>(pLogicalPlayer + offset);
 			}
 			return result;
+		} };
+#pragma endregion
+
+#pragma region HandlePlayerRestrictions
+		static EGSDK::Utils::Hook::MHook<void*, bool(*)(EGSDK::GamePH::PlayerDI_PH*), EGSDK::GamePH::PlayerDI_PH*> HandlePlayerRestrictionsHook{ "HandlePlayerRestrictions", &EGSDK::Offsets::Get_HandlePlayerRestrictions, [](EGSDK::GamePH::PlayerDI_PH* pPlayerDI_PH) -> bool {
+			if (!pPlayerDI_PH)
+				return HandlePlayerRestrictionsHook.ExecuteCallbacksWithOriginal(pPlayerDI_PH);
+			if (!pPlayerDI_PH->areRestrictionsEnabledByGame)
+				return HandlePlayerRestrictionsHook.ExecuteCallbacksWithOriginal(pPlayerDI_PH);
+
+			if (Menu::Player::disableSafezoneRestrictions.GetValue())
+				pPlayerDI_PH->restrictionsEnabled = false;
+			else if (!Menu::Player::disableSafezoneRestrictions.GetValue())
+				pPlayerDI_PH->restrictionsEnabled = true;
+
+			return HandlePlayerRestrictionsHook.ExecuteCallbacksWithOriginal(pPlayerDI_PH);
+		} };
+#pragma endregion
+
+#pragma region mEnablePlayerRestrictions
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(EGSDK::GamePH::CoPlayerRestrictions*), EGSDK::GamePH::CoPlayerRestrictions*> mEnablePlayerRestrictionsHook{ "mEnablePlayerRestrictions", &EGSDK::Offsets::Get_mEnablePlayerRestrictions, [](EGSDK::GamePH::CoPlayerRestrictions* pCoPlayerRestrictions) -> DWORD64 {
+			EGSDK::GamePH::CoPlayerRestrictions::SetInstance(pCoPlayerRestrictions);
+			auto playerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+			if (playerDI_PH)
+				playerDI_PH->areRestrictionsEnabledByGame = true;
+
+			return mEnablePlayerRestrictionsHook.ExecuteCallbacksWithOriginal(pCoPlayerRestrictions);
+		} };
+#pragma endregion
+
+#pragma region mDisablePlayerRestrictions
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(EGSDK::GamePH::CoPlayerRestrictions*), EGSDK::GamePH::CoPlayerRestrictions*> mDisablePlayerRestrictionsHook{ "mDisablePlayerRestrictions", &EGSDK::Offsets::Get_mDisablePlayerRestrictions, [](EGSDK::GamePH::CoPlayerRestrictions* pCoPlayerRestrictions) -> DWORD64 {
+			EGSDK::GamePH::CoPlayerRestrictions::SetInstance(pCoPlayerRestrictions);
+			auto playerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+			if (playerDI_PH)
+				playerDI_PH->areRestrictionsEnabledByGame = false;
+
+			return mDisablePlayerRestrictionsHook.ExecuteCallbacksWithOriginal(pCoPlayerRestrictions);
+		} };
+#pragma endregion
+
+#pragma region SetIsInCoSafeZone
+		static EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64*, UINT, DWORD64, bool, bool, bool), DWORD64*, UINT, DWORD64, bool, bool, bool> SetIsInCoSafeZoneHook{ "SetIsInCoSafeZone", &EGSDK::Offsets::Get_SetIsInCoSafeZone, [](DWORD64* pCoSafeZone, UINT a2, DWORD64 a3, bool a4, bool a5, bool a6) -> DWORD64 {
+			if (Menu::Player::disableSafezoneRestrictions.GetValue())
+				return 0;
+
+			return SetIsInCoSafeZoneHook.ExecuteCallbacksWithOriginal(pCoSafeZone, a2, a3, a4, a5, a6);
 		} };
 #pragma endregion
 

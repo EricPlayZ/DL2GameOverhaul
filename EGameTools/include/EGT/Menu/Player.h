@@ -19,7 +19,7 @@ namespace EGT::Menu {
 		extern ImGui::KeyBindOption disableOutOfBoundsTimer;
 		extern ImGui::KeyBindOption nightrunnerMode;
 		extern ImGui::KeyBindOption oneHandedMode;
-		extern ImGui::KeyBindOption allowGrappleHookInSafezone;
+		extern ImGui::KeyBindOption disableSafezoneRestrictions;
 		extern ImGui::KeyBindOption disableAirControl;
 		extern ImGui::Option playerVariables;
 

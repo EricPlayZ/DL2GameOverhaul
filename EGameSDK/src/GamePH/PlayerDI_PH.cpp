@@ -6,6 +6,8 @@
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::GamePH {
+	bool PlayerDI_PH::areRestrictionsEnabledByGame = false;
+
 	static InventoryItem* GetOffset_CurrentWeapon(PlayerDI_PH* pPlayerDI_PH, UINT indexMaybe) {
 		return Utils::Memory::SafeCallFunctionOffset<InventoryItem*>(Offsets::Get_PlayerGetCurrentWeapon, nullptr, pPlayerDI_PH, indexMaybe);
 	}
@@ -18,6 +20,16 @@ namespace EGSDK::GamePH {
 	}
 	InventoryContainerDI* PlayerDI_PH::GetInventoryContainer() {
 		return ClassHelpers::SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainerDI, false, true, this);
+	}
+
+	bool PlayerDI_PH::EnablePlayerRestrictions(DWORD64* flags) {
+		return Utils::Memory::SafeCallFunctionOffset<bool>(Offsets::Get_EnablePlayerRestrictionsSubFunc, false, this, flags);
+	}
+	bool PlayerDI_PH::DisablePlayerRestrictions(DWORD64* flags) {
+		return Utils::Memory::SafeCallFunctionOffset<bool>(Offsets::Get_DisablePlayerRestrictionsSubFunc, false, this, flags);
+	}
+	bool PlayerDI_PH::HandlePlayerRestrictions() {
+		return Utils::Memory::SafeCallFunctionOffset<bool>(Offsets::Get_HandlePlayerRestrictions, false, this);
 	}
 
 	static PlayerDI_PH* GetOffset_PlayerDI_PH() {

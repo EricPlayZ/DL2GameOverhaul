@@ -157,6 +157,8 @@ I have some things planned for the next updates, but time will decide when I'll 
 - Added "Camera Offset" sliders for camera position (Camera)
 - Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
 - Added separate FOV sliders for each type of camera (Camera)
+- Added "Disable Safezone Restrictions" (Player)
+- Added "E3 2019 Truck Chase - Tall Building" location (Teleport)
 - Added "Disable Low Level Mouse Hook" for developer debugging purposes, or in case of performance issues on the end-user side (Debug)
 - Added "Disable Vftable Scanning" for developer debugging purposes, or in case of performance issues or class detection issues on the end-user side (Debug)
 - Added "Enable Debugging Console" for developer debugging purposes (Debug)

@@ -12,13 +12,20 @@ namespace EGSDK::GamePH {
 	public:
 		union {
 			ClassHelpers::buffer<0xF0, Engine::CoPhysicsProperty*> pCoPhysicsProperty;
+			ClassHelpers::buffer<0x3520, bool> restrictionsEnabled;
 			ClassHelpers::buffer<0x35E9, bool> enableTPPModel1;
 			ClassHelpers::buffer<0x35EA, bool> enableTPPModel2;
 		};
 
-		static PlayerDI_PH* Get();
+		static bool areRestrictionsEnabledByGame;
 
 		InventoryItem* GetCurrentWeapon(UINT indexMaybe);
 		InventoryContainerDI* GetInventoryContainer();
+
+		bool EnablePlayerRestrictions(DWORD64* flags);
+		bool DisablePlayerRestrictions(DWORD64* flags);
+		bool HandlePlayerRestrictions();
+
+		static PlayerDI_PH* Get();
 	};
 }

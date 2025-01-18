@@ -139,6 +139,9 @@
     <ClCompile Include="src\ClassHelpers.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\GamePH\CoPlayerRestrictions.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
@@ -333,6 +336,9 @@
       <Filter>include\Core</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\GamePH\GamePH_Hooks.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\CoPlayerRestrictions.h">
       <Filter>include\GamePH</Filter>
     </ClInclude>
   </ItemGroup>
