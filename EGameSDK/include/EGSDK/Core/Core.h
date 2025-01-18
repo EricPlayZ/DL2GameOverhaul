@@ -22,5 +22,7 @@ namespace EGSDK {
         extern EGameSDK_API unsigned long gameVer;
 
         extern EGameSDK_API void SetDefaultLoggerSettings(std::shared_ptr<spdlog::logger> logger);
+
+        extern EGameSDK_API std::string GetSDKStoragePath();
     }
 }

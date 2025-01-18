@@ -124,9 +124,6 @@
     <ClCompile Include="src\Utils\Values.cpp">
       <Filter>src\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\Windows.cpp">
-      <Filter>src\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utils\Files.cpp">
       <Filter>src\Utils</Filter>
     </ClCompile>
@@ -141,6 +138,12 @@
     </ClCompile>
     <ClCompile Include="src\GamePH\CoPlayerRestrictions.cpp">
       <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveGameManager.cpp">
+      <Filter>src\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SteamAPI.cpp">
+      <Filter>src\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +222,6 @@
       <Filter>include\Utils</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Utils\Values.h">
-      <Filter>include\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EGSDK\Utils\Windows.h">
       <Filter>include\Utils</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Utils\Files.h">
@@ -340,6 +340,12 @@
     </ClInclude>
     <ClInclude Include="include\EGSDK\GamePH\CoPlayerRestrictions.h">
       <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Core\SaveGameManager.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Core\SteamAPI.h">
+      <Filter>include\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

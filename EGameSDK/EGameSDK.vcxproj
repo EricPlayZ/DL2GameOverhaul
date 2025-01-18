@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="deps\memscan\memscan.c" />
     <ClCompile Include="deps\memscan\util\util.c" />
+    <ClCompile Include="SaveGameManager.cpp" />
     <ClCompile Include="src\ClassHelpers.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
@@ -56,12 +57,14 @@
     <ClCompile Include="src\Utils\Sigscan.cpp" />
     <ClCompile Include="src\Utils\Time.cpp" />
     <ClCompile Include="src\Utils\Values.cpp" />
-    <ClCompile Include="src\Utils\Windows.cpp" />
     <ClCompile Include="src\Vector3.cpp" />
+    <ClCompile Include="SteamAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EGSDK\ClassHelpers.h" />
     <ClInclude Include="include\EGSDK\Core\Core.h" />
+    <ClInclude Include="include\EGSDK\Core\SaveGameManager.h" />
+    <ClInclude Include="include\EGSDK\Core\SteamAPI.h" />
     <ClInclude Include="include\EGSDK\Engine\CBaseCamera.h" />
     <ClInclude Include="include\EGSDK\Engine\CBulletPhysicsCharacter.h" />
     <ClInclude Include="include\EGSDK\Engine\CGame.h" />
@@ -108,7 +111,6 @@
     <ClInclude Include="include\EGSDK\Utils\Sigscan.h" />
     <ClInclude Include="include\EGSDK\Utils\Time.h" />
     <ClInclude Include="include\EGSDK\Utils\Values.h" />
-    <ClInclude Include="include\EGSDK\Utils\Windows.h" />
     <ClInclude Include="include\EGSDK\Vector3.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -173,7 +175,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WIN32_LEAN_AND_MEAN;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -210,7 +212,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WIN32_LEAN_AND_MEAN;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;EGameSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

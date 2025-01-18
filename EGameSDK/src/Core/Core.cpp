@@ -1,4 +1,6 @@
 #include <EGSDK\Core\Core.h>
+#include <EGSDK\Core\SaveGameManager.h>
+#include <EGSDK\Core\SteamAPI.h>
 #include <EGSDK\GamePH\PlayerHealthModule.h>
 #include <EGSDK\GamePH\PlayerInfectionModule.h>
 #include <EGSDK\GamePH\PlayerVariables.h>
@@ -44,6 +46,15 @@ namespace EGSDK::Core {
 			MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 			exit(0);
 		}
+	}
+
+	std::string GetSDKStoragePath() {
+		std::string localAppDataDir = Utils::Files::GetLocalAppDataDir();
+		if (localAppDataDir.empty()) {
+			SPDLOG_ERROR("Could not get local app data directory");
+			return {};
+		}
+		return localAppDataDir += "\\EGameSDK";
 	}
 
 	void OnPostUpdate() {
@@ -141,6 +152,12 @@ namespace EGSDK::Core {
 				SPDLOG_INFO("Player Variables sorted");
 			else
 				SPDLOG_ERROR("Failed to sort player variables");
+		}).detach();
+
+		SPDLOG_INFO("Starting up SaveGameManager");
+		threads.emplace_back([]() {
+			SaveGameManager::Init();
+			SaveGameManager::Loop();
 		}).detach();
 
 		SPDLOG_INFO("Creating keepAliveEvent");

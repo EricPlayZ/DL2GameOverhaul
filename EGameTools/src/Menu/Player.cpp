@@ -552,7 +552,7 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Nightrunner Mode", &nightrunnerMode, "Makes Aiden super-human/infected");
 			ImGui::SameLine();
 			ImGui::CheckboxHotkey("One-handed Mode", &oneHandedMode, "Removes Aiden's left hand");
-			ImGui::CheckboxHotkey("Disable Safezone Restrictions", &disableSafezoneRestrictions, "Disables all player restrictions inside a safezone, such as no jumping, climbing, weapons, etc.");
+			ImGui::CheckboxHotkey("Disable Safezone Restrictions", &disableSafezoneRestrictions, "Disables all player restrictions inside a safezone, such as no jumping, climbing, weapons, etc; credits to @Synsteric on Discord for finding how to add this feature!");
 
 			ImGui::SeparatorText("Player Jump Parameters");
 			ImGui::CheckboxHotkey("Disable Air Control", &disableAirControl, "Disables the ability to change the player's direction of momentum while jumping (in-air)");

@@ -14,6 +14,7 @@ namespace EGSDK::Utils {
 
 			const long long GetTimePassed() const;
 			const bool DidTimePass();
+			void Reset();
 		private:
 			long long start;
 			long long end;
@@ -25,6 +26,6 @@ namespace EGSDK::Utils {
 			return std::chrono::duration_cast<result_t>(clock_t::now() - start);
 		}
 
-		extern EGameSDK_API std::ostringstream GetTimestamp();
+		extern EGameSDK_API std::ostringstream GetLogTimestamp();
 	}
 }

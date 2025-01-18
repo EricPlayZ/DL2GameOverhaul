@@ -28,8 +28,11 @@ namespace EGSDK::Utils {
                 timePassed = true;
             return timePassed;
         }
+        void Timer::Reset() {
+            *this = Timer(timeToPass);
+        }
 
-        std::ostringstream GetTimestamp() {
+        std::ostringstream GetLogTimestamp() {
             time_t timeInstance = time(0);
             tm timestamp{};
             localtime_s(&timestamp, &timeInstance);

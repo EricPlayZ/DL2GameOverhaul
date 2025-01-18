@@ -152,12 +152,15 @@ I have some things planned for the next updates, but time will decide when I'll 
 - Improved memory signature scanning, increasing reliability and performance; if you encounter issues with classses in the Debug menu being NULL, please open up a bug report!
 - Improved MountDataPaks hook error detection (the error related to MountDataPaks should not show up in the console as often anymore))" },
 		{ "v1.3.0",
-		R"(- Added compatibility with v1.20.1 "Winter Tales" hotfix update
-- Added EGameSDK.dll as a dependency library for EGameTools (EGameSDK coming soon TM, I hope some of you developers are looking forward to it!)
+		R"(Honorable mentions:
+- Added "Disable Safezone Restrictions" (Player); big thank you to @Synsteric on Discord for finding how to add this feature!
+
+- Added compatibility with v1.20.1 "Winter Tales" hotfix update
+- Added EGameSDK.dll as a dependency library for EGameTools (EGameSDK coming soon TM :] I hope some of you developers are looking forward to it!)
+- Added automatic savegame backups to "%localappdata%\EGameSDK\SavegameBackups" using Steamworks API for Steam; also supports the Epic Games version
 - Added "Camera Offset" sliders for camera position (Camera)
 - Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
 - Added separate FOV sliders for each type of camera (Camera)
-- Added "Disable Safezone Restrictions" (Player)
 - Added "E3 2019 Truck Chase - Tall Building" location (Teleport)
 - Added "Disable Low Level Mouse Hook" for developer debugging purposes, or in case of performance issues on the end-user side (Debug)
 - Added "Disable Vftable Scanning" for developer debugging purposes, or in case of performance issues or class detection issues on the end-user side (Debug)
