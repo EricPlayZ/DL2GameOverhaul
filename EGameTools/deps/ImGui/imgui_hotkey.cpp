@@ -452,11 +452,29 @@ namespace ImGui {
     });
 #pragma endregion
 
+    static void HotkeyDebugInfo(const std::string_view& label) {
+        ImGuiContext& g = *GImGui;
+        ImGui::Text("Hotkey Label: %s", label.data());
+        ImGui::Text("CurrentItemFlags: 0x%X", g.CurrentItemFlags);
+        ImGui::Text("DisabledStackSize: %d", g.DisabledStackSize);
+        ImGui::Text("ItemFlagsStack Size: %d", (int)g.ItemFlagsStack.size());
+        for (size_t i = 0; i < g.ItemFlagsStack.size(); ++i) {
+            ImGui::Text("  Stack[%d]: 0x%X", (int)i, g.ItemFlagsStack[i]);
+        }
+    }
     void Hotkey(const std::string_view& label, KeyBindOption* key) {
         ImGuiContext& g = *GImGui;
         bool wasDisabled = (g.CurrentItemFlags & ImGuiItemFlags_Disabled) != 0;
+
+        //HotkeyDebugInfo(label);
+
         if (wasDisabled)
-            EndDisabled();
+            ImGui::EndDisabled();
+
+        ImGuiItemFlags backupFlags = g.CurrentItemFlags;
+        g.CurrentItemFlags &= ~ImGuiItemFlags_Disabled;
+        float backupAlpha = g.Style.Alpha;
+        g.Style.Alpha = backupAlpha / g.Style.DisabledAlpha;
 
         const ImGuiID id = GetID(label.data());
         PushID(label.data());
@@ -498,7 +516,12 @@ namespace ImGui {
 
         PopID();
 
+        g.CurrentItemFlags = backupFlags;
+        g.Style.Alpha = backupAlpha;
+
         if (wasDisabled)
-            BeginDisabled(wasDisabled);
+            ImGui::BeginDisabled(true);
+
+        //HotkeyDebugInfo(label);
     }
 }
