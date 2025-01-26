@@ -34,8 +34,8 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API StringPlayerVariable : public PlayerVariable {
 	public:
 		union {
-			EGSDK::ClassHelpers::buffer<0x8, const char*> value; // remove 0x2 bit to access ptr
-			EGSDK::ClassHelpers::buffer<0x10, const char*> defaultValue; // remove 0x2 bit to access ptr
+			EGSDK::ClassHelpers::StaticBuffer<0x8, const char*> value; // remove 0x2 bit to access ptr
+			EGSDK::ClassHelpers::StaticBuffer<0x10, const char*> defaultValue; // remove 0x2 bit to access ptr
 		};
 		explicit StringPlayerVariable(const std::string& name);
 
@@ -46,8 +46,8 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API FloatPlayerVariable : public PlayerVariable {
 	public:
 		union {
-			EGSDK::ClassHelpers::buffer<0x8, float> value;
-			EGSDK::ClassHelpers::buffer<0xC, float> defaultValue;
+			EGSDK::ClassHelpers::StaticBuffer<0x8, float> value;
+			EGSDK::ClassHelpers::StaticBuffer<0xC, float> defaultValue;
 		};
 		explicit FloatPlayerVariable(const std::string& name);
 
@@ -58,8 +58,8 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API BoolPlayerVariable : public PlayerVariable {
 	public:
 		union {
-			EGSDK::ClassHelpers::buffer<0x8, bool> value;
-			EGSDK::ClassHelpers::buffer<0x9, bool> defaultValue;
+			EGSDK::ClassHelpers::StaticBuffer<0x8, bool> value;
+			EGSDK::ClassHelpers::StaticBuffer<0x9, bool> defaultValue;
 		};
 		explicit BoolPlayerVariable(const std::string& name);
 
@@ -80,6 +80,8 @@ namespace EGSDK::GamePH {
 		std::unique_ptr<PlayerVariable>& try_emplace(std::unique_ptr<PlayerVariable> playerVar);
 		bool empty();
 		bool none_of(const std::string& name);
+		void reserve(size_t count);
+		size_t size();
 
 		std::unique_ptr<PlayerVariable>* FindPtr(const std::string& name);
 		PlayerVariable* Find(const std::string& name);
@@ -87,14 +89,14 @@ namespace EGSDK::GamePH {
 
 		template <typename Callable, typename... Args>
 		void ForEach(Callable&& func, Args&&... args) {
-			std::lock_guard<std::mutex> lock(_mutex);
-			for (const auto& name : _order)
-				func(_playerVars.at(name), std::forward<Args>(args)...);
+			std::lock_guard<std::mutex> lock(mutex);
+			for (const auto& name : playerVarsOrder)
+				func(playerVars.at(name), std::forward<Args>(args)...);
 		}
 	private:
-		std::unordered_map<std::string, std::unique_ptr<PlayerVariable>> _playerVars{};
-		std::vector<std::string> _order{};
-		mutable std::mutex _mutex{};
+		std::unordered_map<std::string, std::unique_ptr<PlayerVariable>> playerVars{};
+		std::vector<std::string> playerVarsOrder{};
+		mutable std::mutex mutex{};
 	};
 
 	class EGameSDK_API PlayerVariables {
@@ -105,10 +107,11 @@ namespace EGSDK::GamePH {
 		static PlayerVarMap customDefaultPlayerVars;
 		static std::atomic<bool> gotPlayerVars;
 
+#ifdef EGameSDK_EXPORTS
 		static std::unordered_map<std::string, std::any> prevPlayerVarValueMap;
 		static std::unordered_map<std::string, bool> prevBoolValueMap;
+		static std::unordered_map<std::string, uint64_t> playerVarOwnerMap;
 
-#ifdef EGameSDK_EXPORTS
 		static void GetPlayerVars();
 		static bool SortPlayerVars();
 #endif
@@ -125,5 +128,7 @@ namespace EGSDK::GamePH {
 		static bool IsPlayerVarManagedByBool(const std::string& name);
 
 		static PlayerVariables* Get();
+	private:
+		static std::mutex mutex;
 	};
 }

@@ -7,7 +7,7 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API SessionCooperativeDI {
 	public:
 		union {
-			ClassHelpers::buffer<0xE08, LocalClientDI*> pLocalClientDI;
+			DynamicField(SessionCooperativeDI, LocalClientDI*, pLocalClientDI);
 		};
 
 		static SessionCooperativeDI* Get();

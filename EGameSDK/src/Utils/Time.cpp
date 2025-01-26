@@ -2,13 +2,13 @@
 
 namespace EGSDK::Utils {
     namespace Time {
-        Timer::Timer(long timeMs) : timeToPass(timeMs), timePassed(false) {
+        Timer::Timer(int64_t timeMs) : timeToPass(timeMs), timePassed(false) {
             const auto currentClock = clock::now();
             start = std::chrono::duration_cast<std::chrono::milliseconds>(currentClock.time_since_epoch()).count();
             end = start + timeToPass;
         }
 
-        const long long Timer::GetTimePassed() const {
+        const int64_t Timer::GetTimePassed() const {
             if (timePassed)
                 return -1;
 

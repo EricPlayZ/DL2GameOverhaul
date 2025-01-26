@@ -1,12 +1,14 @@
 ﻿#include <vector>
 #include <mutex>
+#include <dxgi1_4.h>
 #include <d3d11.h>
-#include <kiero\kiero.h>
 #include <spdlog\spdlog.h>
 #include <ImGui\backends\imgui_impl_dx11.h>
 #include <ImGui\backends\imgui_impl_win32.h>
+#include <EGSDK\Utils\Hook.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\ImGui_impl\DeferredActions.h>
+#include <EGT\ImGui_impl\NextFrameTask.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Init.h>
 
@@ -52,7 +54,7 @@ namespace EGT::ImGui_impl {
 			return renderTarget;
 		}
 
-		static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) {
+		static void InitImGuiRendering(IDXGISwapChain* pSwapChain) {
 			static bool init = false;
 
 			if (!init) {
@@ -76,6 +78,9 @@ namespace EGT::ImGui_impl {
 
 				init = true;
 			}
+		}
+		static void RenderImGui(IDXGISwapChain* pSwapChain) {
+			InitImGuiRendering(pSwapChain);
 
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -89,36 +94,34 @@ namespace EGT::ImGui_impl {
 			ImGui::Render();
 
 			DeferredActions::Process();
+			NextFrameTask::ExecuteTasks();
 
 			if (d3d11RenderTargetView)
 				d3d11DeviceContext->OMSetRenderTargets(1, &d3d11RenderTargetView, nullptr);
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
 		}
 
-		HRESULT(__stdcall* oPresent)(IDXGISwapChain*, UINT, UINT);
-		HRESULT __stdcall hkPresent11(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain*, UINT, UINT), IDXGISwapChain*, UINT, UINT> DXPresentHook{ "DX11Present", &EGSDK::OffsetManager::Get_DXPresent, [](IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) -> HRESULT {
 			__try {
-				RenderImGui_DX11(pSwapChain);
+				RenderImGui(pSwapChain);
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
-				SPDLOG_ERROR("Exception thrown rendering ImGui in DX11");
+				SPDLOG_ERROR("Exception thrown rendering ImGui in DX12");
 			}
 
-			return oPresent(pSwapChain, SyncInterval, Flags);
-		}
+			return DXPresentHook.ExecuteOriginal(pSwapChain, SyncInterval, Flags);
+		}, false };
 
-		HRESULT(__stdcall* oResizeBuffers)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
-		HRESULT __stdcall hkResizeBuffers11(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT), IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT> DXResizeBuffersHook{ "DX11ResizeBuffers", &EGSDK::OffsetManager::Get_DXResizeBuffers, [](IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) -> HRESULT {
 			ReleaseResources();
-			HRESULT result = oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+			HRESULT result = DXResizeBuffersHook.ExecuteOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 			d3d11RenderTargetView = CreateRenderTargetView(pSwapChain);
 
 			return result;
-		}
+		}, false };
 
 		void Init() {
-			assert(kiero::bind(8, (void**)&oPresent, hkPresent11) == kiero::Status::Success);
-			assert(kiero::bind(13, (void**)&oResizeBuffers, hkResizeBuffers11) == kiero::Status::Success);
+			assert(DXPresentHook.TryHooking());
+			assert(DXResizeBuffersHook.TryHooking());
 		}
 	}
 }

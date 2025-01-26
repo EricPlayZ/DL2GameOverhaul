@@ -25,9 +25,6 @@
     <Filter Include="deps\ImGuiFileDialog">
       <UniqueIdentifier>{f9c9cfae-e9e2-4dd2-a0f2-a0aae15b29a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="deps\kiero">
-      <UniqueIdentifier>{f4f927c4-b16a-4275-a856-f709a6d55e46}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\Config">
       <UniqueIdentifier>{0b8f854c-e9f9-4b97-adce-cf664f97f6a9}</UniqueIdentifier>
     </Filter>
@@ -102,9 +99,6 @@
     <ClCompile Include="deps\ImGuiFileDialog\ImGuiFileDialog.cpp">
       <Filter>deps\ImGuiFileDialog</Filter>
     </ClCompile>
-    <ClCompile Include="deps\kiero\kiero.cpp">
-      <Filter>deps\kiero</Filter>
-    </ClCompile>
     <ClCompile Include="src\dllmain.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -166,6 +160,9 @@
       <Filter>deps\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\ImGui_impl\DeferredActions.cpp">
+      <Filter>src\ImGui_impl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui_impl\NextFrameTask.cpp">
       <Filter>src\ImGui_impl</Filter>
     </ClCompile>
   </ItemGroup>
@@ -235,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="include\EGT\GamePH\GamePH_Hooks.h">
       <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGT\ImGui_impl\NextFrameTask.h">
+      <Filter>include\ImGui_impl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

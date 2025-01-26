@@ -1,7 +1,8 @@
-#include <Windows.h>
 #include <algorithm>
+#include <mutex>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Offsets.h>
+#include <EGSDK\Utils\Time.h>
 #include <EGSDK\GamePH\PlayerState.h>
 #include <EGSDK\GamePH\PlayerVariables.h>
 #include <EGSDK\ClassHelpers.h>
@@ -23,9 +24,8 @@ namespace EGSDK::GamePH {
     const char* PlayerVariable::GetName() {
 		std::lock_guard<std::mutex> lock(mutex);
         auto it = playerVarNames.find(this);
-        if (it != playerVarNames.end()) {
+        if (it != playerVarNames.end())
             return it->second.c_str();
-        }
         return nullptr;
     }
 	void PlayerVariable::SetName(const std::string& newName) {
@@ -35,9 +35,8 @@ namespace EGSDK::GamePH {
 	PlayerVarType PlayerVariable::GetType() {
 		std::lock_guard<std::mutex> lock(mutex);
 		auto it = playerVarTypes.find(this);
-		if (it != playerVarTypes.end()) {
+		if (it != playerVarTypes.end())
 			return it->second;
-		}
 		return PlayerVarType::NONE;
 	}
 	void PlayerVariable::SetType(PlayerVarType newType) {
@@ -49,16 +48,16 @@ namespace EGSDK::GamePH {
 		SetType(PlayerVarType::String);
 	}
 	const char* StringPlayerVariable::GetValue() {
-		return reinterpret_cast<const char*>(reinterpret_cast<DWORD64>(this->value.data) & 0x1FFFFFFFFFFFFFFF);
+		return reinterpret_cast<const char*>(reinterpret_cast<uint64_t>(this->value.data) & 0x1FFFFFFFFFFFFFFF);
 	}
 	const char* StringPlayerVariable::GetDefaultValue() {
-		return reinterpret_cast<const char*>(reinterpret_cast<DWORD64>(this->defaultValue.data) & 0x1FFFFFFFFFFFFFFF);
+		return reinterpret_cast<const char*>(reinterpret_cast<uint64_t>(this->defaultValue.data) & 0x1FFFFFFFFFFFFFFF);
 	}
 	void StringPlayerVariable::SetValues(const std::string& value) {
-		DWORD64 firstByte = (reinterpret_cast<DWORD64>(this->value.data) >> 56) & 0xFF;
-		DWORD64 newValueAddr = reinterpret_cast<DWORD64>(value.c_str());
-		if (firstByte != 0x0)
-			newValueAddr |= (firstByte << 56);
+		uint64_t firstuint8_t = (reinterpret_cast<uint64_t>(this->value.data) >> 56) & 0xFF;
+		uint64_t newValueAddr = reinterpret_cast<uint64_t>(value.c_str());
+		if (firstuint8_t != 0x0)
+			newValueAddr |= (firstuint8_t << 56);
 
 		this->value = reinterpret_cast<const char*>(newValueAddr);
 		this->defaultValue = reinterpret_cast<const char*>(newValueAddr);
@@ -91,35 +90,43 @@ namespace EGSDK::GamePH {
 	}
 
 	std::unique_ptr<PlayerVariable>& PlayerVarMap::try_emplace(std::unique_ptr<PlayerVariable> playerVar) {
-		std::lock_guard<std::mutex> lock(_mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		const std::string& name = playerVar->GetName();
-		auto [it, inserted] = _playerVars.try_emplace(name, std::move(playerVar));
+		auto [it, inserted] = playerVars.try_emplace(name, std::move(playerVar));
 		if (inserted)
-			_order.emplace_back(name);
+			playerVarsOrder.emplace_back(name);
 		return it->second;
 	}
 	bool PlayerVarMap::empty() {
-		std::lock_guard<std::mutex> lock(_mutex);
-		return _playerVars.empty();
+		std::lock_guard<std::mutex> lock(mutex);
+		return playerVars.empty();
 	}
 	bool PlayerVarMap::none_of(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		return _playerVars.find(name) == _playerVars.end();
+		std::lock_guard<std::mutex> lock(mutex);
+		return playerVars.find(name) == playerVars.end();
+	}
+	void PlayerVarMap::reserve(size_t count) {
+		std::lock_guard<std::mutex> lock(mutex);
+		playerVars.reserve(count);
+	}
+	size_t PlayerVarMap::size() {
+		std::lock_guard<std::mutex> lock(mutex);
+		return playerVars.size();
 	}
 
 	std::unique_ptr<PlayerVariable>* PlayerVarMap::FindPtr(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		auto it = _playerVars.find(name);
-		return it == _playerVars.end() ? nullptr : &it->second;
+		std::lock_guard<std::mutex> lock(mutex);
+		auto it = playerVars.find(name);
+		return it == playerVars.end() ? nullptr : &it->second;
 	}
 	PlayerVariable* PlayerVarMap::Find(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		auto it = _playerVars.find(name);
-		return it == _playerVars.end() ? nullptr : it->second.get();
+		std::lock_guard<std::mutex> lock(mutex);
+		auto it = playerVars.find(name);
+		return it == playerVars.end() ? nullptr : it->second.get();
 	}
 	bool PlayerVarMap::Erase(const std::string& name) {
-		std::lock_guard<std::mutex> lock(_mutex);
-		return _playerVars.erase(name) > 0;
+		std::lock_guard<std::mutex> lock(mutex);
+		return playerVars.erase(name) > 0;
 	}
 
 	PlayerVarMap PlayerVariables::playerVars{};
@@ -127,11 +134,14 @@ namespace EGSDK::GamePH {
 	PlayerVarMap PlayerVariables::defaultPlayerVars{};
 	PlayerVarMap PlayerVariables::customDefaultPlayerVars{};
 	std::atomic<bool> PlayerVariables::gotPlayerVars = false;
+	std::mutex PlayerVariables::mutex{};
 	static bool sortedPlayerVars = false;
 
 	std::unordered_map<std::string, std::any> PlayerVariables::prevPlayerVarValueMap{};
 	std::unordered_map<std::string, bool> PlayerVariables::prevBoolValueMap{};
+	std::unordered_map<std::string, uint64_t> PlayerVariables::playerVarOwnerMap{};
 
+#pragma region Player Variables Processing
 	template <typename T>
 	static void updateDefaultVar(PlayerVarMap& defaultVars, const std::string& name, T value, T defaultValue) {
 		static_assert(std::is_same_v<T, std::string> || std::is_same_v<T, float> || std::is_same_v<T, bool>, "Invalid type: value must be string, float or bool");
@@ -165,7 +175,7 @@ namespace EGSDK::GamePH {
 			}
 		}
 	}
-	static void processPlayerVar(DWORD64*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVarPtr) {
+	static void processPlayerVar(uint64_t*(*playerVarsGetter)(), std::unique_ptr<PlayerVariable>& playerVarPtr) {
 		static int offset = 0;
 		int offsetDif = 0;
 		while (true) {
@@ -231,7 +241,7 @@ namespace EGSDK::GamePH {
 			}
 		}
 	}
-	static void processPlayerVarSafe(std::unique_ptr<PlayerVariable>& playerVarPtr, DWORD64*(*playerVarsGetter)()) {
+	static void processPlayerVarSafe(std::unique_ptr<PlayerVariable>& playerVarPtr, uint64_t*(*playerVarsGetter)()) {
 		__try {
 			processPlayerVar(playerVarsGetter, playerVarPtr);
 		} __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -247,9 +257,16 @@ namespace EGSDK::GamePH {
 		if (!Get())
 			return;
 
-		playerVars.ForEach(processPlayerVarSafe, reinterpret_cast<DWORD64*(*)()>(&Get));
+		customPlayerVars.reserve(playerVars.size());
+		defaultPlayerVars.reserve(playerVars.size());
+		customDefaultPlayerVars.reserve(playerVars.size());
+		prevPlayerVarValueMap.reserve(playerVars.size());
+		prevBoolValueMap.reserve(playerVars.size());
+
+		playerVars.ForEach(processPlayerVarSafe, reinterpret_cast<uint64_t*(*)()>(&Get));
 		gotPlayerVars = true;
 	}
+#pragma endregion
 
 #pragma region Player Variables Sorting
 	struct VarTypeFieldMeta {
@@ -262,25 +279,25 @@ namespace EGSDK::GamePH {
 		{ PlayerVarType::Bool, "constds::FieldsCollection<PlayerVariables>::TypedFieldMeta<BoolPlayerVariable>" }
 	};
 
-	static bool isRetInstruction(BYTE* address) {
+	static bool isRetInstruction(uint8_t* address) {
 		//return address[0] == 0xC3 && address[1] == 0xCC;
 		return address[0] == 0x00 && address[1] == 0x00 && address[2] == 0xC3 && address[3] == 0xCC;
 	}
-	static bool isLeaInstruction(BYTE* address, BYTE REX, BYTE ModRM) {
+	static bool isLeaInstruction(uint8_t* address, uint8_t REX, uint8_t ModRM) {
 		return address[0] == REX && address[1] == 0x8D && address[2] == ModRM;
 	}
-	static bool isCallInstruction(BYTE* address) {
+	static bool isCallInstruction(uint8_t* address) {
 		return address[0] == 0xE8 && address[4] != 0xE8;
 	}
-	static bool isBelowFuncSizeLimit(BYTE* address, DWORD64 startOfFunc, size_t sizeLimit) {
-		return (reinterpret_cast<DWORD64>(address) - startOfFunc) < sizeLimit;
+	static bool isBelowFuncSizeLimit(uint8_t* address, uint64_t startOfFunc, size_t sizeLimit) {
+		return (reinterpret_cast<uint64_t>(address) - startOfFunc) < sizeLimit;
 	}
 
-	// to prevent infinite loops, assuming function is no longer than 500000 bytes LMAO Techland... why is your function even like 250000 bytes to begin with? bad code...
+	// to prevent infinite loops, assuming function is no longer than 500000 uint8_ts LMAO Techland... why is your function even like 250000 uint8_ts to begin with? bad code...
 	static const size_t MAX_FUNC_SIZE = 500000;
 	static const size_t MAX_LOAD_VAR_FUNC_SIZE = 2000;
 
-	static const char* getPlayerVarName(BYTE*& funcAddress, DWORD64 startOfFunc) {
+	static const char* getPlayerVarName(uint8_t*& funcAddress, uint64_t startOfFunc) {
 		const char* playerVarName = nullptr;
 		while (!playerVarName && !isRetInstruction(funcAddress) && isBelowFuncSizeLimit(funcAddress, startOfFunc, MAX_FUNC_SIZE)) {
 			// lea r8, varNameString
@@ -289,7 +306,7 @@ namespace EGSDK::GamePH {
 				continue;
 			}
 
-			playerVarName = reinterpret_cast<const char*>(Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(funcAddress), 3));
+			playerVarName = reinterpret_cast<const char*>(Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<uint64_t>(funcAddress), 3));
 			if (!playerVarName) {
 				funcAddress++;
 				continue;
@@ -301,7 +318,7 @@ namespace EGSDK::GamePH {
 
 		return playerVarName;
 	}
-	static PlayerVarType getPlayerVarType(BYTE*& funcAddress, DWORD64 startOfFunc) {
+	static PlayerVarType getPlayerVarType(uint8_t*& funcAddress, uint64_t startOfFunc) {
 		PlayerVarType playerVarType = PlayerVarType::NONE;
 
 		while (!playerVarType && !isRetInstruction(funcAddress) && isBelowFuncSizeLimit(funcAddress, startOfFunc, MAX_FUNC_SIZE)) {
@@ -311,9 +328,9 @@ namespace EGSDK::GamePH {
 				continue;
 			}
 
-			DWORD64 startOfLoadVarFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(funcAddress), 1);
-			BYTE* loadVarFuncAddress = reinterpret_cast<BYTE*>(startOfLoadVarFunc);
-			DWORD64 metaVTAddrFromFunc = 0;
+			uint64_t startOfLoadVarFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<uint64_t>(funcAddress), 1);
+			uint8_t* loadVarFuncAddress = reinterpret_cast<uint8_t*>(startOfLoadVarFunc);
+			uint64_t metaVTAddrFromFunc = 0;
 
 			while (!metaVTAddrFromFunc && !isRetInstruction(loadVarFuncAddress) && isBelowFuncSizeLimit(loadVarFuncAddress, startOfLoadVarFunc, MAX_LOAD_VAR_FUNC_SIZE)) {
 				// lea rax, typedFieldMetaVT
@@ -322,8 +339,8 @@ namespace EGSDK::GamePH {
 					continue;
 				}
 
-				metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<DWORD64>(loadVarFuncAddress), 3);
-				std::string vTableName = Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<DWORD64*>(metaVTAddrFromFunc));
+				metaVTAddrFromFunc = Utils::Memory::CalcTargetAddrOfRelativeInstr(reinterpret_cast<uint64_t>(loadVarFuncAddress), 3);
+				std::string vTableName = Utils::RTTI::GetVTableNameFromVTPtr(reinterpret_cast<uint64_t*>(metaVTAddrFromFunc));
 				auto varTypeIt = std::find_if(varTypeFields.begin(), varTypeFields.end(), [&vTableName](const auto& varType) {
 					return varType.className == vTableName;
 				});
@@ -346,12 +363,24 @@ namespace EGSDK::GamePH {
 	}
 
 	bool PlayerVariables::SortPlayerVars() {
-		DWORD64 startOfFunc = 0;
-		while (!startOfFunc)
-			startOfFunc = reinterpret_cast<DWORD64>(Offsets::Get_LoadPlayerVars());
+		static Utils::Time::Timer timeSpentSorting{ 20000 };
+		uint64_t startOfFunc = 0;
+		while (true) {
+			if (timeSpentSorting.DidTimePass()) {
+				SPDLOG_ERROR("Sorting player variables timed out because it couldn't get offset to LoadPlayerVars");
+				return false;
+			}
 
-		BYTE* funcAddress = reinterpret_cast<BYTE*>(startOfFunc);
-		while (!isRetInstruction(funcAddress) && (reinterpret_cast<DWORD64>(funcAddress) - startOfFunc) < MAX_FUNC_SIZE) {
+			if (!startOfFunc)
+				startOfFunc = reinterpret_cast<uint64_t>(OffsetManager::Get_LoadPlayerVars());
+			if (startOfFunc)
+				break;
+
+			Sleep(1000);
+		}
+
+		uint8_t* funcAddress = reinterpret_cast<uint8_t*>(startOfFunc);
+		while (!isRetInstruction(funcAddress) && (reinterpret_cast<uint64_t>(funcAddress) - startOfFunc) < MAX_FUNC_SIZE) {
 			const char* playerVarName = getPlayerVarName(funcAddress, startOfFunc);
 			if (!playerVarName)
 				continue;
@@ -500,27 +529,38 @@ namespace EGSDK::GamePH {
 		if (!gotPlayerVars)
 			return;
 
-		if (prevPlayerVarValueMap.find(name) == prevPlayerVarValueMap.end())
-			prevPlayerVarValueMap[name] = GetPlayerVarValue<T>(name);
-		if (prevBoolValueMap.find(name) == prevBoolValueMap.end())
-			prevBoolValueMap[name] = false;
+		uint64_t caller = reinterpret_cast<uint64_t>(_ReturnAddress());
+
+		std::lock_guard<std::mutex> lock(mutex);
+
+		auto ownerIt = playerVarOwnerMap.find(name);
+		if (ownerIt != playerVarOwnerMap.end() && ownerIt->second != caller)
+			return;
+		if (!boolVal && prevBoolValueMap.find(name) == prevBoolValueMap.end())
+			return;
+
+		bool& prevBoolValue = prevBoolValueMap[name];
+		auto& prevValueAny = prevPlayerVarValueMap[name];
 
 		if (boolVal) {
-			if (!prevBoolValueMap[name])
+			if (!prevBoolValue)
 				prevPlayerVarValueMap[name] = GetPlayerVarValue<T>(name);
 
 			ChangePlayerVar(name, valueIfTrue);
-			prevBoolValueMap[name] = true;
-		} else if (prevBoolValueMap[name]) {
-			prevBoolValueMap[name] = false;
-			ChangePlayerVar(name, usePreviousVal ? std::any_cast<T>(prevPlayerVarValueMap[name]) : valueIfFalse);
+			prevBoolValue = true;
+			playerVarOwnerMap[name] = caller;
+		} else if (prevBoolValue) {
+			ChangePlayerVar(name, usePreviousVal ? std::any_cast<T>(prevValueAny) : valueIfFalse);
 			prevPlayerVarValueMap.erase(name);
+			prevBoolValueMap.erase(name);
+			playerVarOwnerMap.erase(name);
 		}
 	}
 	bool PlayerVariables::IsPlayerVarManagedByBool(const std::string& name) {
 		if (!gotPlayerVars)
 			return false;
 
+		std::lock_guard<std::mutex> lock(mutex);
 		return prevBoolValueMap.find(name) != prevBoolValueMap.end() && prevBoolValueMap[name];
 	}
 
@@ -534,7 +574,7 @@ namespace EGSDK::GamePH {
 	template EGameSDK_API void PlayerVariables::ChangePlayerVarFromList<float>(const std::string& name, const float value, PlayerVariable* playerVar);
 	template EGameSDK_API void PlayerVariables::ChangePlayerVarFromList<bool>(const std::string& name, const bool value, PlayerVariable* playerVar);
 
-	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool(const std::string& name, const std::string valueIfTrue, const std::string valueIfFalse, bool boolVal, bool usePreviousVal);
+	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool<std::string>(const std::string& name, const std::string valueIfTrue, const std::string valueIfFalse, bool boolVal, bool usePreviousVal);
 	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool<float>(const std::string& name, const float valueIfTrue, const float valueIfFalse, bool boolVal, bool usePreviousVal);
 	template EGameSDK_API void PlayerVariables::ManagePlayerVarByBool<bool>(const std::string& name, const bool valueIfTrue, const bool valueIfFalse, bool boolVal, bool usePreviousVal);
 

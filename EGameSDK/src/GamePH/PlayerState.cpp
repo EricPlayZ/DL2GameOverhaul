@@ -4,6 +4,6 @@
 
 namespace EGSDK::GamePH {
 	PlayerState* PlayerState::Get() {
-		return ClassHelpers::SafeGetter<PlayerState>(Offsets::Get_PlayerState, true);
+		return ClassHelpers::SafeGetter<PlayerState>(OffsetManager::Get_PlayerState, true);
 	}
 }

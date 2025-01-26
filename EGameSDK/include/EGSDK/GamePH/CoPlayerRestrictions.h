@@ -1,13 +1,14 @@
 #pragma once
+#include <stdint.h>
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::GamePH {
 	class EGameSDK_API CoPlayerRestrictions {
 	public:
 		union {
-			ClassHelpers::buffer<0x1F0, DWORD64> flags;
+			DynamicField(CoPlayerRestrictions, uint64_t, flags);
 		};
-		DWORD64* GetPlayerRestrictionsFlags(DWORD64* flagsOut);
+		uint64_t* GetPlayerRestrictionsFlags(uint64_t* flagsOut);
 
 		static CoPlayerRestrictions* Get();
 		static void SetInstance(void* instance);

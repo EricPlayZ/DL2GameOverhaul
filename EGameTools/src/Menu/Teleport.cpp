@@ -307,7 +307,7 @@ namespace EGT::Menu {
 			auto freeCam = EGSDK::GamePH::FreeCamera::Get();
 
 			EGSDK::Vector3 camPos{};
-			ImGui::Text("Player Position: %s", GetFormattedPosition(playerCharacter ? &playerCharacter->playerPos.data : nullptr).data());
+			ImGui::Text("Player Position: %s", GetFormattedPosition(playerCharacter ? &*playerCharacter->playerPos.getPointer() : nullptr).data());
 			ImGui::Text("Free Camera Position: %s", GetFormattedPosition(freeCam && Camera::freeCam.GetValue() ? freeCam->GetPosition(&camPos) : nullptr).data());
 			ImGui::Text("Waypoint Position: %s", GetFormattedPosition(waypointIsSet && *waypointIsSet && !waypointCoords.isDefault() ? &waypointCoords : nullptr).data());
 

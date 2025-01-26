@@ -11,10 +11,10 @@
 
 namespace EGSDK::Utils {
 	namespace RTTI {
-		static std::unordered_map<DWORD64, std::string> vtableAddressCache{};
+		static std::unordered_map<uint64_t, std::string> vtableAddressCache{};
 		static std::shared_mutex vtableCacheMutex;
 
-        static __forceinline std::string CacheEmptyResult(DWORD64 vtableStructAddr) {
+        static __forceinline std::string CacheEmptyResult(uint64_t vtableStructAddr) {
             std::unique_lock lock(vtableCacheMutex);
             vtableAddressCache.try_emplace(vtableStructAddr, "");
             return {};
@@ -24,7 +24,7 @@ namespace EGSDK::Utils {
             if (Utils::Memory::IsBadReadPtr(vtPtr))
                 return "bad_read_vtable";
 
-            DWORD64 vtableStructAddr = reinterpret_cast<DWORD64>(vtPtr);
+            uint64_t vtableStructAddr = reinterpret_cast<uint64_t>(vtPtr);
 
             {
                 std::shared_lock lock(vtableCacheMutex);
@@ -32,49 +32,49 @@ namespace EGSDK::Utils {
                     return it->second;
             }
 
-            DWORD64* objectLocatorPtr = reinterpret_cast<DWORD64*>(vtableStructAddr - sizeof(DWORD64));
+            uint64_t* objectLocatorPtr = reinterpret_cast<uint64_t*>(vtableStructAddr - sizeof(uint64_t));
             if (Utils::Memory::IsBadReadPtr(objectLocatorPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD64 objectLocatorAddr = *objectLocatorPtr;
-            DWORD64* baseOffsetPtr = reinterpret_cast<DWORD64*>(objectLocatorAddr + 0x14);
+            uint64_t objectLocatorAddr = *objectLocatorPtr;
+            uint64_t* baseOffsetPtr = reinterpret_cast<uint64_t*>(objectLocatorAddr + 0x14);
             if (Utils::Memory::IsBadReadPtr(baseOffsetPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD64 baseOffset = *baseOffsetPtr;
-            DWORD64 baseAddr = objectLocatorAddr - baseOffset;
+            uint64_t baseOffset = *baseOffsetPtr;
+            uint64_t baseAddr = objectLocatorAddr - baseOffset;
 
-            DWORD* classHierarchyDescriptorOffsetPtr = reinterpret_cast<DWORD*>(objectLocatorAddr + 0x10);
+            uint32_t* classHierarchyDescriptorOffsetPtr = reinterpret_cast<uint32_t*>(objectLocatorAddr + 0x10);
             if (Utils::Memory::IsBadReadPtr(classHierarchyDescriptorOffsetPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD classHierarchyDescriptorOffset = *classHierarchyDescriptorOffsetPtr;
-            DWORD64 classHierarchyDescriptorAddr = baseAddr + classHierarchyDescriptorOffset;
+            uint32_t classHierarchyDescriptorOffset = *classHierarchyDescriptorOffsetPtr;
+            uint64_t classHierarchyDescriptorAddr = baseAddr + classHierarchyDescriptorOffset;
 
             int* baseClassCountPtr = reinterpret_cast<int*>(classHierarchyDescriptorAddr + 0x8);
             if (Utils::Memory::IsBadReadPtr(baseClassCountPtr) || *baseClassCountPtr == 0 || *baseClassCountPtr > 24)
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD* baseClassArrayOffsetPtr = reinterpret_cast<DWORD*>(classHierarchyDescriptorAddr + 0xC);
+            uint32_t* baseClassArrayOffsetPtr = reinterpret_cast<uint32_t*>(classHierarchyDescriptorAddr + 0xC);
             if (Utils::Memory::IsBadReadPtr(baseClassArrayOffsetPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD baseClassArrayOffset = *baseClassArrayOffsetPtr;
-            DWORD64 baseClassArrayAddr = baseAddr + baseClassArrayOffset;
+            uint32_t baseClassArrayOffset = *baseClassArrayOffsetPtr;
+            uint64_t baseClassArrayAddr = baseAddr + baseClassArrayOffset;
 
-            DWORD* baseClassDescriptorOffsetPtr = reinterpret_cast<DWORD*>(baseClassArrayAddr);
+            uint32_t* baseClassDescriptorOffsetPtr = reinterpret_cast<uint32_t*>(baseClassArrayAddr);
             if (Utils::Memory::IsBadReadPtr(baseClassDescriptorOffsetPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD baseClassDescriptorOffset = *baseClassDescriptorOffsetPtr;
-            DWORD64 baseClassDescriptorAddr = baseAddr + baseClassDescriptorOffset;
+            uint32_t baseClassDescriptorOffset = *baseClassDescriptorOffsetPtr;
+            uint64_t baseClassDescriptorAddr = baseAddr + baseClassDescriptorOffset;
 
-            DWORD* typeDescriptorOffsetPtr = reinterpret_cast<DWORD*>(baseClassDescriptorAddr);
+            uint32_t* typeDescriptorOffsetPtr = reinterpret_cast<uint32_t*>(baseClassDescriptorAddr);
             if (Utils::Memory::IsBadReadPtr(typeDescriptorOffsetPtr))
                 return CacheEmptyResult(vtableStructAddr);
 
-            DWORD typeDescriptorOffset = *typeDescriptorOffsetPtr;
-            DWORD64 typeDescriptorAddr = baseAddr + typeDescriptorOffset;
+            uint32_t typeDescriptorOffset = *typeDescriptorOffsetPtr;
+            uint64_t typeDescriptorAddr = baseAddr + typeDescriptorOffset;
 
             const char* decoratedClassNameCStr = reinterpret_cast<const char*>(typeDescriptorAddr + 0x14);
             std::string decoratedClassName = "?" + std::string(decoratedClassNameCStr);

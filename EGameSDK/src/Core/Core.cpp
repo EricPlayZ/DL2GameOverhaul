@@ -1,6 +1,5 @@
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\Core\SaveGameManager.h>
-#include <EGSDK\Core\SteamAPI.h>
 #include <EGSDK\GamePH\PlayerHealthModule.h>
 #include <EGSDK\GamePH\PlayerInfectionModule.h>
 #include <EGSDK\GamePH\PlayerVariables.h>
@@ -11,19 +10,15 @@
 #include <spdlog\sinks\rotating_file_sink.h>
 #include <DbgHelp.h>
 #include <thread>
-#include <vector>
-#include <semaphore>
 
 namespace EGSDK::Core {
-	std::atomic<bool> exiting = false;
 	std::vector<spdlog::sink_ptr> spdlogSinks{};
+	std::counting_semaphore<4> maxHookThreads(4);
 	static std::vector<std::thread> threads{};
 	static HANDLE keepAliveEvent{};
 
 	int rendererAPI = 0;
-	DWORD gameVer = 0;
-
-	std::counting_semaphore<4> maxHookThreads(4);
+	uint32_t gameVer = 0;
 
 	void SetDefaultLoggerSettings(std::shared_ptr<spdlog::logger> logger) {
 		logger->flush_on(spdlog::level::trace);
@@ -43,8 +38,8 @@ namespace EGSDK::Core {
 		} catch (const std::exception& e) {
 			UNREFERENCED_PARAMETER(e);
 			std::string errorMsg = "Failed creating spdlog instance, EXCEPTION: " + std::string(e.what()) + "\n\nThis shouldn't happen! Contact developer.";
-			MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
-			exit(0);
+			MessageBox(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+			throw std::runtime_error("Failed creating spdlog instance");
 		}
 	}
 
@@ -64,7 +59,7 @@ namespace EGSDK::Core {
 	}
 #ifndef EXCP_HANDLER_DISABLE_DEBUG
 	static bool WriteMiniDump(PEXCEPTION_POINTERS pExceptionPointers) {
-		HANDLE hFile = CreateFileA("EGameSDK-dump.dmp", GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+		HANDLE hFile = CreateFile("EGameSDK-dump.dmp", GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (hFile == INVALID_HANDLE_VALUE)
 			return false;
 
@@ -90,7 +85,7 @@ namespace EGSDK::Core {
 			errorMsg = "EGameSDK encountered a fatal error that caused the game to crash.\nEGameSDK failed to generate a crash dump file unfortunately, which means it is harder to find the cause of the crash.\n\nThe game will now close once you press OK.";
 		}
 
-		MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+		MessageBox(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
 		exit(0);
 	}
 #endif
@@ -102,25 +97,33 @@ namespace EGSDK::Core {
 		} catch (const std::exception& e) {
 			std::string errorMsg = "Failed to get game version, EXCEPTION: " + std::string(e.what()) + "\n\nThis shouldn't happen! Contact developer.";
 			SPDLOG_ERROR(errorMsg);
-			MessageBoxA(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
-			exit(0);
+			MessageBox(nullptr, errorMsg.c_str(), "FATAL GAME ERROR", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+			throw std::runtime_error("Failed getting game version");
 		}
 
 		SPDLOG_INFO("Got game version: v{}", GamePH::GameVerToStr(gameVer));
-		SPDLOG_DEBUG("Comparing game version with compatible version");
-		if (Core::gameVer != GAME_VER_COMPAT) {
-			std::string errorMsg = "Unsupported game version v" + GamePH::GameVerToStr(gameVer) + ".\n\nPlease note that your game version has not been officially tested with EGameSDK, therefore expect bugs, glitches or other mods to completely stop working.";
-			SPDLOG_ERROR(errorMsg);
-			MessageBoxA(nullptr, errorMsg.c_str(), "EGameSDK unsupported game version", MB_ICONWARNING | MB_OK | MB_SETFOREGROUND);
+		SPDLOG_DEBUG("Comparing game version with compatible versions");
+		if (std::find(SUPPORTED_GAME_VERSIONS.begin(), SUPPORTED_GAME_VERSIONS.end(), Core::gameVer) == SUPPORTED_GAME_VERSIONS.end()) {
+			std::string warningMsg = "Unsupported game version v" + GamePH::GameVerToStr(gameVer) + ".\n\nPlease note that your game version has not been officially tested with this version of EGameSDK, therefore expect bugs, glitches or other mods to completely stop working.\n\nThe following game versions are officially supported: ";
+			for (const auto& version : SUPPORTED_GAME_VERSIONS)
+				warningMsg += "- v" + GamePH::GameVerToStr(version) + "\n";
+
+			SPDLOG_WARN(warningMsg);
+			std::thread([warningMsg]() {
+				MessageBox(nullptr, warningMsg.c_str(), "EGameSDK unsupported game version", MB_ICONWARNING | MB_OK | MB_SETFOREGROUND);
+			}).detach();
 		}
 	}
-	DWORD64 WINAPI MainThread(HMODULE hModule) {
+	uint64_t WINAPI MainThread(HMODULE hModule) {
 #ifndef EXCP_HANDLER_DISABLE_DEBUG
 		SetUnhandledExceptionFilter(CrashHandler);
 #endif
 
 		SPDLOG_INFO("Getting game version");
 		GameVersionCheck();
+
+		SPDLOG_INFO("Initializing offsets and patterns");
+		OffsetManager::InitializeOffsetsAndPatterns();
 
 		SPDLOG_INFO("Initializing hooks");
 		for (auto& hook : (*EGSDK::Utils::Hook::HookBase::GetInstances())[hModule]) {
@@ -130,15 +133,15 @@ namespace EGSDK::Core {
 				if (hook->IsHooking()) {
 					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
 					while (hook->IsHooking())
-						Sleep(10);
+						continue;
 
 					if (hook->IsHooked())
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				} else if (hook->IsHooked())
 					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
-				else {
+				else if (hook->CanHookOnStartup()) {
 					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
-					if (hook->HookLoop())
+					if (hook->TryHooking())
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
 
@@ -161,11 +164,11 @@ namespace EGSDK::Core {
 		}).detach();
 
 		SPDLOG_INFO("Creating keepAliveEvent");
-		keepAliveEvent = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+		keepAliveEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 		if (!keepAliveEvent) {
 			SPDLOG_ERROR("Failed to create keepAliveEvent");
-			MessageBoxA(nullptr, "EGameSDK encountered a fatal error: failed to create keepAliveEvent", "Fatal game error", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
-			exit(0);
+			MessageBox(nullptr, "EGameSDK encountered a fatal error: failed to create keepAliveEvent", "Fatal game error", MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
+			throw std::runtime_error("Failed to create keepAliveEvent");
 		}
 		WaitForSingleObject(keepAliveEvent, INFINITE);
 
@@ -176,10 +179,7 @@ namespace EGSDK::Core {
 
 		return true;
 	}
-
 	void Cleanup() {
-		exiting = true;
-
 		SPDLOG_INFO("Game requested exit, running cleanup");
 
 		SPDLOG_INFO("Unhooking everything");

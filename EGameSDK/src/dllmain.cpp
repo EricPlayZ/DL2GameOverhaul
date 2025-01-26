@@ -1,17 +1,6 @@
 #include <Windows.h>
-#include <semaphore>
+#include <EGSDK\Core\Core.h>
 #include <EGSDK\Utils\Hook.h>
-
-namespace EGSDK {
-    namespace Core {
-        extern std::counting_semaphore<4> maxHookThreads;
-
-        extern void InitLogger();
-
-        extern DWORD64 WINAPI MainThread(HMODULE hModule);
-        extern void Cleanup();
-    }
-}
 
 static HANDLE mainThreadHandle{};
 

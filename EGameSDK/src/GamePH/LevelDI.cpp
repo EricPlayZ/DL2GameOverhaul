@@ -3,6 +3,7 @@
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGSDK\GamePH\PlayerDI_PH.h>
 #include <EGSDK\ClassHelpers.h>
+#include <EGSDK\Utils\WinMemory.h>
 #include <EGSDK\Utils\Time.h>
 
 namespace EGSDK::GamePH {
@@ -21,7 +22,7 @@ namespace EGSDK::GamePH {
 
 		if (!relyOnTimer && !hasLoaded) {
 			relyOnTimer = true;
-			loadTimer = Utils::Time::Timer(20000);
+			loadTimer.Reset();
 			return false;
 		}
 

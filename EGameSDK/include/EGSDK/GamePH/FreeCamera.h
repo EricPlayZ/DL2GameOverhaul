@@ -8,12 +8,12 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API FreeCamera : public Engine::CBaseCamera {
 	public:
 		union {
-			ClassHelpers::buffer<0x18, CoBaseCameraProxy*> pCoBaseCameraProxy;
-			ClassHelpers::buffer<0x38, Engine::CBaseCamera*> pCBaseCamera;
-			ClassHelpers::buffer<0x42, bool> enableSpeedMultiplier1;
-			ClassHelpers::buffer<0x43, bool> enableSpeedMultiplier2;
-			//ClassHelpers::buffer<0x1B4, float> FOV;
-			ClassHelpers::buffer<0x1CC, float> speedMultiplier;
+			ClassHelpers::StaticBuffer<0x18, CoBaseCameraProxy*> pCoBaseCameraProxy;
+			ClassHelpers::StaticBuffer<0x38, Engine::CBaseCamera*> pCBaseCamera;
+			DynamicField(FreeCamera, bool, enableSpeedMultiplier1);
+			DynamicField(FreeCamera, bool, enableSpeedMultiplier2);
+			DynamicField(FreeCamera, float, speedMultiplier);
+			DynamicField(FreeCamera, float, mouseSensitivityMultiplier);
 		};
 
 		void AllowCameraMovement(int mode = 2);

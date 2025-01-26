@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include <chrono>
 #include <iomanip>
 #include <EGSDK\Exports.h>
@@ -8,16 +9,16 @@ namespace EGSDK::Utils {
 		class EGameSDK_API Timer {
 			using clock = std::chrono::steady_clock;
 		public:
-			long long timeToPass;
+			int64_t timeToPass;
 			Timer() : timeToPass(0), timePassed(false), start(0), end(0) {}
-			Timer(long timeMs);
+			Timer(int64_t timeMs);
 
-			const long long GetTimePassed() const;
+			const int64_t GetTimePassed() const;
 			const bool DidTimePass();
 			void Reset();
 		private:
-			long long start;
-			long long end;
+			int64_t start;
+			int64_t end;
 			bool timePassed;
 		};
 

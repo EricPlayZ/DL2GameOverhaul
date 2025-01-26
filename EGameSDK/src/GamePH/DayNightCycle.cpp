@@ -11,6 +11,6 @@ namespace EGSDK::GamePH {
 	}
 
 	DayNightCycle* DayNightCycle::Get() {
-		return ClassHelpers::SafeGetter<DayNightCycle>(Offsets::Get_DayNightCycle, true);
+		return ClassHelpers::SafeGetter<DayNightCycle>(OffsetManager::Get_DayNightCycle, true);
 	}
 }

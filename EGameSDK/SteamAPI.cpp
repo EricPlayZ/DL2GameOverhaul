@@ -1,5 +1,6 @@
-﻿#include <EGSDK\Utils\Memory.h>
-#include <EGSDK\Core\SteamAPI.h>
+﻿#include <EGSDK\Core\SteamAPI.h>
+#include <EGSDK\Utils\Memory.h>
+#include <EGSDK\Utils\WinMemory.h>
 
 namespace EGSDK::Core {
 	ISteamClient* SteamAPI::SteamClient() {

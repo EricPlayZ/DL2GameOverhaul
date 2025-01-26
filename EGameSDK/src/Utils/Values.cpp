@@ -7,7 +7,7 @@
 
 namespace EGSDK::Utils {
     namespace Values {
-        __forceinline bool are_samef(float a, float b, float precision) {
+        bool are_samef(float a, float b, float precision) {
             return std::fabs(a - b) < precision;
         }
         float round_decimal(float value, int decimal_places) {

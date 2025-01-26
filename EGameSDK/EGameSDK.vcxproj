@@ -13,11 +13,11 @@
   <ItemGroup>
     <ClCompile Include="deps\memscan\memscan.c" />
     <ClCompile Include="deps\memscan\util\util.c" />
+    <ClCompile Include="Offsets.cpp" />
     <ClCompile Include="SaveGameManager.cpp" />
     <ClCompile Include="src\ClassHelpers.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
-    <ClCompile Include="src\Engine\CBaseCamera.cpp" />
     <ClCompile Include="src\Engine\CBulletPhysicsCharacter.cpp" />
     <ClCompile Include="src\Engine\CGame.cpp" />
     <ClCompile Include="src\Engine\CGSObject.cpp" />
@@ -27,8 +27,10 @@
     <ClCompile Include="src\Engine\CLevel2.cpp" />
     <ClCompile Include="src\Engine\CLobbySteam.cpp" />
     <ClCompile Include="src\Engine\CoPhysicsProperty.cpp" />
+    <ClCompile Include="src\Engine\IBaseCamera.cpp" />
+    <ClCompile Include="src\Engine\IPhysicsCharacter.cpp" />
+    <ClCompile Include="src\Engine\RendererCVars.cpp" />
     <ClCompile Include="src\Engine\CVideoSettings.cpp" />
-    <ClCompile Include="src\Engine\Engine_Hooks.cpp" />
     <ClCompile Include="src\Engine\Engine_Misc.cpp" />
     <ClCompile Include="src\GamePH\CoPlayerRestrictions.cpp" />
     <ClCompile Include="src\GamePH\DayNightCycle.cpp" />
@@ -59,6 +61,7 @@
     <ClCompile Include="src\Utils\Values.cpp" />
     <ClCompile Include="src\Vector3.cpp" />
     <ClCompile Include="SteamAPI.cpp" />
+    <ClCompile Include="WinMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EGSDK\ClassHelpers.h" />
@@ -75,8 +78,10 @@
     <ClInclude Include="include\EGSDK\Engine\CLevel2.h" />
     <ClInclude Include="include\EGSDK\Engine\CLobbySteam.h" />
     <ClInclude Include="include\EGSDK\Engine\CoPhysicsProperty.h" />
+    <ClInclude Include="include\EGSDK\Engine\IBaseCamera.h" />
+    <ClInclude Include="include\EGSDK\Engine\IPhysicsCharacter.h" />
+    <ClInclude Include="include\EGSDK\Engine\RendererCVars.h" />
     <ClInclude Include="include\EGSDK\Engine\CVideoSettings.h" />
-    <ClInclude Include="include\EGSDK\Engine\Engine_Hooks.h" />
     <ClInclude Include="include\EGSDK\Engine\Engine_Misc.h" />
     <ClInclude Include="include\EGSDK\Exports.h" />
     <ClInclude Include="include\EGSDK\GamePH\CoBaseCameraProxy.h" />
@@ -102,6 +107,7 @@
     <ClInclude Include="include\EGSDK\GamePH\SessionCooperativeDI.h" />
     <ClInclude Include="include\EGSDK\GamePH\TimeWeather\CSystem.h" />
     <ClInclude Include="include\EGSDK\GamePH\TimeWeather\EWeather.h" />
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\ISubsystem.h" />
     <ClInclude Include="include\EGSDK\GamePH\TPPCameraDI.h" />
     <ClInclude Include="include\EGSDK\Offsets.h" />
     <ClInclude Include="include\EGSDK\Utils\Files.h" />
@@ -111,6 +117,7 @@
     <ClInclude Include="include\EGSDK\Utils\Sigscan.h" />
     <ClInclude Include="include\EGSDK\Utils\Time.h" />
     <ClInclude Include="include\EGSDK\Utils\Values.h" />
+    <ClInclude Include="include\EGSDK\Utils\WinMemory.h" />
     <ClInclude Include="include\EGSDK\Vector3.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

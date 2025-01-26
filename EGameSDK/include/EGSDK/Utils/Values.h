@@ -4,7 +4,7 @@
 
 namespace EGSDK::Utils {
 	namespace Values {
-		extern EGameSDK_API __forceinline bool are_samef(float a, float b, float precision = 0.0001f);
+		extern EGameSDK_API bool are_samef(float a, float b, float precision = 0.0001f);
 		extern EGameSDK_API float round_decimal(float value, int decimal_places = 2);
 
 		extern EGameSDK_API bool str_ends_with_ci(std::string const& text, std::string const& substr);

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include <EGSDK\ClassHelpers.h>
 #include <EGSDK\GamePH\InventoryItem.h>
 #include <EGSDK\GamePH\InventoryContainerDI.h>
@@ -11,19 +12,19 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerDI_PH {
 	public:
 		union {
-			ClassHelpers::buffer<0xF0, Engine::CoPhysicsProperty*> pCoPhysicsProperty;
-			ClassHelpers::buffer<0x3520, bool> restrictionsEnabled;
-			ClassHelpers::buffer<0x35E9, bool> enableTPPModel1;
-			ClassHelpers::buffer<0x35EA, bool> enableTPPModel2;
+			DynamicField(PlayerDI_PH, Engine::CoPhysicsProperty*, pCoPhysicsProperty);
+			DynamicField(PlayerDI_PH, bool, restrictionsEnabled);
+			DynamicField(PlayerDI_PH, bool, enableTPPModel1);
+			DynamicField(PlayerDI_PH, bool, enableTPPModel2);
 		};
 
 		static bool areRestrictionsEnabledByGame;
 
-		InventoryItem* GetCurrentWeapon(UINT indexMaybe);
+		InventoryItem* GetCurrentWeapon(uint32_t indexMaybe);
 		InventoryContainerDI* GetInventoryContainer();
 
-		bool EnablePlayerRestrictions(DWORD64* flags);
-		bool DisablePlayerRestrictions(DWORD64* flags);
+		bool EnablePlayerRestrictions(uint64_t* flags);
+		bool DisablePlayerRestrictions(uint64_t* flags);
 		bool HandlePlayerRestrictions();
 
 		static PlayerDI_PH* Get();

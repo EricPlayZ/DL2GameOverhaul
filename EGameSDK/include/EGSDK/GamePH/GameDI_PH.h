@@ -7,8 +7,8 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API GameDI_PH {
 	public:
 		union {
-			ClassHelpers::buffer<0x130, SessionCooperativeDI*> pSessionCooperativeDI;
-			ClassHelpers::buffer<0x910, bool> blockPauseGameOnPlayerAfk;
+			DynamicField(GameDI_PH, bool, blockPauseGameOnPlayerAfk);
+			DynamicField(GameDI_PH, SessionCooperativeDI*, pSessionCooperativeDI);
 		};
 
 		float GetGameTimeDelta();

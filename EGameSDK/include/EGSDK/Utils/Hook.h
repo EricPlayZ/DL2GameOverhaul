@@ -1,82 +1,76 @@
 #pragma once
-#include <Windows.h>
 #include <functional>
 #include <set>
 #include <unordered_map>
 #include <string_view>
+#include <stdint.h>
 #include <MinHook\MinHook.h>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Exports.h>
+#include <EGSDK\Offsets.h>
 #include <EGSDK\Utils\Time.h>
 
 namespace EGSDK::Utils {
 	namespace Hook {
-		extern EGameSDK_API void HookVT(void* instance, void* pDetour, void** ppOriginal, const DWORD offset);
+		static constexpr uint64_t maxTimeSpentHooking = 90;
+		static constexpr uint64_t maxTimeSpentHookingMs = maxTimeSpentHooking * 1000;
 
-		class EGameSDK_API BreakpointHook {
-		private:
-			PDWORD64 m_addr;
-			BYTE m_originalBytes;
-			void (*m_handler)(PEXCEPTION_POINTERS);
-			DWORD m_originalProtection;
-
-			static long WINAPI OnException(PEXCEPTION_POINTERS info);
-		public:
-			BreakpointHook(PDWORD64 addr, void (*handler)(PEXCEPTION_POINTERS));
-			void Enable();
-			void Disable();
-			~BreakpointHook();
-		};
+		extern EGameSDK_API void HookVT(void* instance, void* pDetour, void** ppOriginal, uint32_t offset);
 
 		class EGameSDK_API HookBase {
 		public:
-			HookBase(const std::string_view& name);
+			HookBase(const std::string_view& name, bool hookOnStartup = true);
 			~HookBase();
 			static std::unordered_map<HMODULE, std::set<HookBase*>>* GetInstances();
-			std::string_view GetName() { return *name; };
+			std::string_view GetName();
 
-			virtual bool HookLoop() { return false; };
+			virtual bool TryHooking() {
+				return false;
+			};
 
 			bool IsHooking();
 			void SetHooking(bool value);
 
 			bool IsHooked();
 			void SetHooked(bool value);
+
+			bool CanHookOnStartup() const;
 		protected:
 		private:
 			std::string_view* name = nullptr;
-			volatile LONG isHooking = 0;
-			volatile LONG isHooked = 0;
+			volatile long isHooking = 0;
+			volatile long isHooked = 0;
+			bool hookOnStartup = true;
 		};
-		template <typename GetTargetOffsetRetType>
+		template <typename OffsetRetType>
 		class ByteHook : public HookBase {
 		public:
-			ByteHook(const std::string_view& name, GetTargetOffsetRetType(*pGetOffsetFunc)(), unsigned char* patchBytes, size_t bytesAmount) : HookBase(name), pGetOffsetFunc(pGetOffsetFunc), patchBytes(patchBytes), bytesAmount(bytesAmount) {}
+			ByteHook(const std::string_view& name, OffsetRetType(*pGetOffsetFunc)(), unsigned char* patchBytes, size_t bytesAmount, bool hookOnStartup = true) : HookBase(name, hookOnStartup), pGetOffsetFunc(pGetOffsetFunc), patchBytes(patchBytes), bytesAmount(bytesAmount) {}
 
-			bool HookLoop() override {
+			bool TryHooking() override {
 				if (IsHooked())
 					return true;
 				if (IsHooking())
 					return true;
 
 				SetHooking(true);
-				timeSpentHooking = Utils::Time::Timer(120000);
+				timeSpentHooking.Reset();
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking \"{}\" after 120 seconds", GetName().data());
+						SPDLOG_ERROR("Failed hooking \"{}\" after {} seconds", GetName().data(), maxTimeSpentHooking);
 						SetHooking(false);
 						return false;
 					}
 					if (!pGetOffsetFunc || !pGetOffsetFunc())
 						continue;
 
-					DWORD originalProtection = 0;
-					DWORD oldProtection = 0;
+					unsigned long originalProtection = 0;
+					unsigned long oldProtection = 0;
 
 					VirtualProtect(pGetOffsetFunc(), bytesAmount, PAGE_EXECUTE_READWRITE, &originalProtection);
 					if (!origBytes) {
-						origBytes = new unsigned char[bytesAmount];
+						origBytes = new uint8_t[bytesAmount];
 						memcpy_s(origBytes, bytesAmount, pGetOffsetFunc(), bytesAmount);
 					}
 					memcpy_s(pGetOffsetFunc(), bytesAmount, patchBytes, bytesAmount);
@@ -90,15 +84,15 @@ namespace EGSDK::Utils {
 			}
 
 			void Enable() {
-				if (IsHooked())
+				if (IsHooked() || !pGetOffsetFunc || !pGetOffsetFunc())
 					return;
 
-				DWORD originalProtection = 0;
-				DWORD oldProtection = 0;
+				unsigned long originalProtection = 0;
+				unsigned long oldProtection = 0;
 
 				VirtualProtect(pGetOffsetFunc(), bytesAmount, PAGE_EXECUTE_READWRITE, &originalProtection);
 				if (!origBytes) {
-					origBytes = new unsigned char[bytesAmount];
+					origBytes = new uint8_t[bytesAmount];
 					memcpy_s(origBytes, bytesAmount, pGetOffsetFunc(), bytesAmount);
 				}
 				memcpy_s(pGetOffsetFunc(), bytesAmount, patchBytes, bytesAmount);
@@ -106,11 +100,11 @@ namespace EGSDK::Utils {
 				SetHooked(true);
 			}
 			void Disable() {
-				if (!IsHooked())
+				if (!IsHooked() || !pGetOffsetFunc || !pGetOffsetFunc())
 					return;
 
-				DWORD originalProtection = 0;
-				DWORD oldProtection = 0;
+				unsigned long originalProtection = 0;
+				unsigned long oldProtection = 0;
 
 				VirtualProtect(pGetOffsetFunc(), bytesAmount, PAGE_EXECUTE_READWRITE, &originalProtection);
 				memcpy_s(pGetOffsetFunc(), bytesAmount, origBytes, bytesAmount);
@@ -118,32 +112,32 @@ namespace EGSDK::Utils {
 				SetHooked(false);
 			}
 		private:
-			GetTargetOffsetRetType(*pGetOffsetFunc)() = nullptr;
-			unsigned char* origBytes = nullptr;
-			unsigned char* patchBytes = nullptr;
+			OffsetRetType(*pGetOffsetFunc)() = nullptr;
+			uint8_t* origBytes = nullptr;
+			uint8_t* patchBytes = nullptr;
 			size_t bytesAmount = 0;
 
-			Utils::Time::Timer timeSpentHooking{ 120000 };
+			Utils::Time::Timer timeSpentHooking{ maxTimeSpentHookingMs };
 		};
-		template <typename GetTargetOffsetRetType, typename OrigType, typename... Args>
+		template <typename OffsetRetType, typename OrigFuncType, typename... Args>
 		class MHook : public HookBase {
 		public:
 			using CallbackType = std::function<void(Args...)>;
 
-			MHook(const std::string_view& name, GetTargetOffsetRetType(*pGetOffsetFunc)(), OrigType pDetour) : HookBase(name), pGetOffsetFunc(pGetOffsetFunc), pDetour(pDetour) {}
+			MHook(const std::string_view& name, OffsetRetType(*pGetOffsetFunc)(), OrigFuncType pDetour, bool hookOnStartup = true) : HookBase(name, hookOnStartup), pGetOffsetFunc(pGetOffsetFunc), pDetour(pDetour) {}
 
-			bool HookLoop() override {
+			bool TryHooking() override {
 				if (pOriginal)
 					return true;
 				if (IsHooking())
 					return true;
 
 				SetHooking(true);
-				timeSpentHooking = Utils::Time::Timer(120000);
+				timeSpentHooking.Reset();
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", GetName().data());
+						SPDLOG_ERROR("Failed hooking function \"{}\" after {} seconds", GetName().data(), maxTimeSpentHooking);
 						SetHooking(false);
 						return false;
 					}
@@ -151,7 +145,7 @@ namespace EGSDK::Utils {
 						continue;
 
 					if (!pTarget)
-						pTarget = reinterpret_cast<OrigType>(pGetOffsetFunc());
+						pTarget = reinterpret_cast<OrigFuncType>(pGetOffsetFunc());
 					else if (!pOriginal && MH_CreateHook(pTarget, pDetour, reinterpret_cast<void**>(&pOriginal)) == MH_OK) {
 						MH_EnableHook(pTarget);
 						SetHooked(true);
@@ -163,6 +157,10 @@ namespace EGSDK::Utils {
 				}
 			}
 
+			auto ExecuteOriginal(Args... args) {
+				return pOriginal(args...);
+			}
+
 			void RegisterCallback(CallbackType callback) {
 				callbacks.push_back(callback);
 			}
@@ -172,47 +170,47 @@ namespace EGSDK::Utils {
 			}
 			auto ExecuteCallbacksWithOriginal(Args... args) {
 				ExecuteCallbacks(args...);
-				return pOriginal(args...);
+				return ExecuteOriginal(args...);
 			}
-
-			OrigType pOriginal = nullptr;
-			OrigType pTarget = nullptr;
 		private:
-			GetTargetOffsetRetType(*pGetOffsetFunc)() = nullptr;
-			OrigType pDetour = nullptr;
+			OffsetRetType(*pGetOffsetFunc)() = nullptr;
+			OrigFuncType pOriginal = nullptr;
+			OrigFuncType pTarget = nullptr;
+			OrigFuncType pDetour = nullptr;
 
-			Utils::Time::Timer timeSpentHooking{ 120000 };
-			std::vector<CallbackType> callbacks;
+			Utils::Time::Timer timeSpentHooking{ maxTimeSpentHookingMs };
+			std::vector<CallbackType> callbacks{};
 		};
-		template <typename GetTargetOffsetRetType, typename OrigType, typename... Args>
+		template <typename OffsetRetType, typename OrigFuncType, typename... Args>
 		class VTHook : public HookBase {
 		public:
 			using CallbackType = std::function<void(Args...)>;
 
-			VTHook(const std::string_view& name, GetTargetOffsetRetType(*pGetOffsetFunc)(), OrigType pDetour, DWORD offset) : HookBase(name), pGetOffsetFunc(pGetOffsetFunc), pDetour(pDetour), offset(offset) {}
+			VTHook(const std::string_view& name, OffsetRetType(*pGetOffsetFunc)(), OrigFuncType pDetour, bool hookOnStartup = true) : HookBase(name, hookOnStartup), pGetOffsetFunc(pGetOffsetFunc), pDetour(pDetour) {}
 
-			bool HookLoop() override {
+			bool TryHooking() override {
 				if (pOriginal)
 					return true;
 				if (IsHooking())
 					return true;
 
 				SetHooking(true);
-				timeSpentHooking = Utils::Time::Timer(120000);
+				timeSpentHooking.Reset();
 
 				while (true) {
 					if (timeSpentHooking.DidTimePass()) {
-						SPDLOG_ERROR("Failed hooking function \"{}\" after 120 seconds", GetName().data());
+						SPDLOG_ERROR("Failed hooking function \"{}\" after {} seconds", GetName().data(), maxTimeSpentHooking);
 						SetHooking(false);
 						return false;
 					}
 					if (!pGetOffsetFunc)
 						continue;
 
-					if (!pInstance)
-						pInstance = pGetOffsetFunc();
+					if (!pTarget)
+						pTarget = reinterpret_cast<OrigFuncType>(pGetOffsetFunc());
 					else if (!pOriginal) {
-						HookVT(pInstance, pDetour, reinterpret_cast<void**>(&pOriginal), offset);
+						uint32_t offset = OffsetManager::GetOffset(GetName().data());
+						HookVT(pTarget, pDetour, reinterpret_cast<void**>(&pOriginal), offset);
 						if (pOriginal) {
 							SetHooked(true);
 							SetHooking(false);
@@ -224,6 +222,10 @@ namespace EGSDK::Utils {
 				}
 			}
 
+			auto ExecuteOriginal(Args... args) {
+				return pOriginal(args...);
+			}
+
 			void RegisterCallback(CallbackType callback) {
 				callbacks.push_back(callback);
 			}
@@ -233,19 +235,16 @@ namespace EGSDK::Utils {
 			}
 			auto ExecuteCallbacksWithOriginal(Args... args) {
 				ExecuteCallbacks(args...);
-				return pOriginal(args...);
+				return ExecuteOriginal(args...);
 			}
-
-			OrigType pOriginal = nullptr;
 		private:
-			GetTargetOffsetRetType(*pGetOffsetFunc)() = nullptr;
-			void* pInstance = nullptr;
-			OrigType pDetour = nullptr;
+			OffsetRetType(*pGetOffsetFunc)() = nullptr;
+			OrigFuncType pOriginal = nullptr;
+			OrigFuncType pTarget = nullptr;
+			OrigFuncType pDetour = nullptr;
 
-			Utils::Time::Timer timeSpentHooking{ 120000 };
-			std::vector<CallbackType> callbacks;
-
-			DWORD offset = 0x0;
+			Utils::Time::Timer timeSpentHooking{ maxTimeSpentHookingMs };
+			std::vector<CallbackType> callbacks{};
 		};
 	}
 }

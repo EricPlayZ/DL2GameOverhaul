@@ -34,13 +34,7 @@
     <ClCompile Include="src\Engine\CVideoSettings.cpp">
       <Filter>src\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Engine_Hooks.cpp">
-      <Filter>src\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\Engine_Misc.cpp">
-      <Filter>src\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Engine\CBaseCamera.cpp">
       <Filter>src\Engine</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\CBulletPhysicsCharacter.cpp">
@@ -144,6 +138,21 @@
     </ClCompile>
     <ClCompile Include="SteamAPI.cpp">
       <Filter>src\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Offsets.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\RendererCVars.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMemory.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\IBaseCamera.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\IPhysicsCharacter.cpp">
+      <Filter>src\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -317,9 +326,6 @@
     <ClInclude Include="include\EGSDK\Engine\CVideoSettings.h">
       <Filter>include\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="include\EGSDK\Engine\Engine_Hooks.h">
-      <Filter>include\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="include\EGSDK\Engine\Engine_Misc.h">
       <Filter>include\Engine</Filter>
     </ClInclude>
@@ -346,6 +352,21 @@
     </ClInclude>
     <ClInclude Include="include\EGSDK\Core\SteamAPI.h">
       <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\RendererCVars.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Utils\WinMemory.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\IBaseCamera.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\IPhysicsCharacter.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\TimeWeather\ISubsystem.h">
+      <Filter>include\GamePH\TimeWeather</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\Menu\Debug.h>
 
+#include <EGSDK\GamePH\CoPlayerRestrictions.h>
 #include <EGSDK\GamePH\DayNightCycle.h>
 #include <EGSDK\GamePH\FreeCamera.h>
 #include <EGSDK\GamePH\GameDI_PH.h>
@@ -34,6 +35,7 @@ namespace EGT::Menu {
 	namespace Debug {
 		static const std::vector<std::pair<std::string_view, void*(*)()>> GamePHClassAddrMap = {
 			{ "TimeWeather\\CSystem", reinterpret_cast<void*(*)()>(&EGSDK::GamePH::TimeWeather::CSystem::Get)},
+			{ "CoPlayerRestrictions", reinterpret_cast<void*(*)()>(&EGSDK::GamePH::CoPlayerRestrictions::Get) },
 			{ "DayNightCycle", reinterpret_cast<void*(*)()>(&EGSDK::GamePH::DayNightCycle::Get) },
 			{ "FreeCamera", reinterpret_cast<void*(*)()>(&EGSDK::GamePH::FreeCamera::Get) },
 			{ "GameDI_PH", reinterpret_cast<void*(*)()>(&EGSDK::GamePH::GameDI_PH::Get) },

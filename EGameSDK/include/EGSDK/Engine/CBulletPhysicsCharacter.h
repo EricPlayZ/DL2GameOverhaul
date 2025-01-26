@@ -1,14 +1,15 @@
 #pragma once
 #include <EGSDK\Vector3.h>
+#include <EGSDK\Engine\IPhysicsCharacter.h>
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::Engine {
-	class EGameSDK_API CBulletPhysicsCharacter {
+	class EGameSDK_API CBulletPhysicsCharacter : IPhysicsCharacter {
 	public:
 		union {
-			ClassHelpers::buffer<0xCB8, Vector3> playerPos2;
-			ClassHelpers::buffer<0xCD0, Vector3> playerPos;
-			ClassHelpers::buffer<0x1050, float> playerDownwardVelocity;
+			DynamicField(CBulletPhysicsCharacter, Vector3, playerPos);
+			DynamicField(CBulletPhysicsCharacter, Vector3, playerPos2);
+			DynamicField(CBulletPhysicsCharacter, float, playerDownwardVelocity);
 		};
 
 		static Vector3 posBeforeFreeze;

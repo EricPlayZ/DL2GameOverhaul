@@ -156,18 +156,24 @@ I have some things planned for the next updates, but time will decide when I'll 
 - Added "Disable Safezone Restrictions" (Player); big thank you to @Synsteric on Discord for finding how to add this feature!
 
 - Added compatibility with v1.20.1 "Winter Tales" hotfix update
+- Added compatibility with v1.12.0 (including E3 Definitive Mod support!)
 - Added EGameSDK.dll as a dependency library for EGameTools (EGameSDK coming soon TM :] I hope some of you developers are looking forward to it!)
 - Added automatic savegame backups to "%localappdata%\EGameSDK\SavegameBackups" using Steamworks API for Steam; also supports the Epic Games version
 - Added "Camera Offset" sliders for camera position (Camera)
 - Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
 - Added separate FOV sliders for each type of camera (Camera)
 - Added "E3 2019 Truck Chase - Tall Building" location (Teleport)
+- Added "Renderer CVars list" (Misc) for changing game rendering variables
 - Added "Disable Low Level Mouse Hook" for developer debugging purposes, or in case of performance issues on the end-user side (Debug)
 - Added "Disable Vftable Scanning" for developer debugging purposes, or in case of performance issues or class detection issues on the end-user side (Debug)
 - Added "Enable Debugging Console" for developer debugging purposes (Debug)
 
+- Changed DirectX 11 and DirectX 12 hooks to be more reliable and less likely to crash the game
+- Fixed time and weather changing taking a long time to apply (now it is instant!)
 - Fixed random classes not getting detected properly, resulting in NULL values in the Debug tab, which was caused by unreliable class vftable scanning which can now be disabled through the "Disable Vftable Scanning" in the Debug tab in case of class detection issues
 - Fixed game progression not working properly if you modify Player Variables related to game progression, because game and mod Player Variables interfere with each other
+- Fixed ownership of Player Variables managed by EGameTools, removing conflict in managing Player Variables between different modules (e.g. Player and World) and any bugs associated with this issue
+- Fixed conflict between ImGui state and Player Variables list, causing the game to crash when changing Player Variables
 - Fixed random crashes related to Player Variables (if you still experience crashes at startup, please open a bug report)
 - Fixed FOV slider not affecting Third Person Camera
 - Fixed not all options in the mod menu being disabled whilst the game is starting up)" }

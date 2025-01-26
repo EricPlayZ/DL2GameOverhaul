@@ -5,7 +5,7 @@ namespace EGSDK::Engine {
 	class EGameSDK_API CVideoSettings {
 	public:
 		union {
-			ClassHelpers::buffer<0x7C, float> extraFOV;
+			DynamicField(CVideoSettings, float, extraFOV);
 		};
 
 		static CVideoSettings* Get();

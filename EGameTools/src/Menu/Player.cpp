@@ -343,7 +343,7 @@ namespace EGT::Menu {
 					SaveVariablesAsDefault();
 
 				ImGui::Separator();
-				ImGui::InputTextWithHint("##VarsSearch", "Search variables", playerVarsSearchFilter, 64);
+				ImGui::InputTextWithHint("##PlayerVariablesSearch", "Search variables", playerVarsSearchFilter, 64);
 
 				EGSDK::GamePH::PlayerVariables::playerVars.ForEach([](std::unique_ptr<EGSDK::GamePH::PlayerVariable>& playerVarPtr) {
 					if (ShouldDisplayVariable(playerVarPtr, playerVarsSearchFilter))
@@ -455,7 +455,7 @@ namespace EGT::Menu {
 			if (flagsPtr)
 				coPlayerRestrictions->flags = *flagsPtr;
 
-			disableSafezoneRestrictions.HasChangedTo(false) ? playerDI_PH->EnablePlayerRestrictions(&coPlayerRestrictions->flags.data) : playerDI_PH->DisablePlayerRestrictions(&coPlayerRestrictions->flags.data);
+			disableSafezoneRestrictions.HasChangedTo(false) ? playerDI_PH->EnablePlayerRestrictions(&*coPlayerRestrictions->flags.getPointer()) : playerDI_PH->DisablePlayerRestrictions(&*coPlayerRestrictions->flags.getPointer());
 
 			disableSafezoneRestrictions.SetPrevValue(disableSafezoneRestrictions.GetValue());
 		}

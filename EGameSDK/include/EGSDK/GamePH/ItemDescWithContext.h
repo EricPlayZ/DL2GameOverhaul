@@ -5,7 +5,7 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API ItemDescWithContext {
 	public:
 		union {
-			ClassHelpers::buffer<0xA8, float> weaponDurability;
+			ClassHelpers::StaticBuffer<0xA8, float> weaponDurability;
 		};
 	};
 }

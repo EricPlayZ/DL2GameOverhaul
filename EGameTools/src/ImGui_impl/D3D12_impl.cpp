@@ -3,13 +3,14 @@
 #include <dxgi.h>
 #include <dxgi1_4.h>
 #include <d3d12.h>
-#include <kiero\kiero.h>
 #include <spdlog\spdlog.h>
 #include <ImGui\backends\imgui_impl_dx12.h>
 #include <ImGui\backends\imgui_impl_win32.h>
 #include <EGSDK\Utils\Memory.h>
+#include <EGSDK\Utils\Hook.h>
 #include <EGT\ImGui_impl\Win32_impl.h>
 #include <EGT\ImGui_impl\DeferredActions.h>
+#include <EGT\ImGui_impl\NextFrameTask.h>
 #include <EGT\Menu\Menu.h>
 #include <EGT\Menu\Init.h>
 
@@ -45,14 +46,27 @@ namespace EGT::ImGui_impl {
 				}
 			}
 		}
+		static void CleanupRenderTarget() {
+			if (!frameContext)
+				return;
 
-		static void RenderImGui_DX12(IDXGISwapChain3* pSwapChain) {
+			for (UINT i = 0; i < buffersCounts; ++i) {
+				if (frameContext[i].main_render_target_resource) {
+					frameContext[i].main_render_target_resource->Release();
+					frameContext[i].main_render_target_resource = NULL;
+				}
+			}
+		}
+
+		static void InitImGuiRendering(IDXGISwapChain3* pSwapChain) {
 			static bool init = false;
 
 			if (!init) {
 				DXGI_SWAP_CHAIN_DESC desc{};
 				pSwapChain->GetDesc(&desc);
 				pSwapChain->GetDevice(__uuidof(ID3D12Device), (void**)&d3d12Device);
+				if (!d3d12Device)
+					return;
 
 				buffersCounts = desc.BufferCount;
 				frameContext = new FrameContext[buffersCounts];
@@ -111,6 +125,9 @@ namespace EGT::ImGui_impl {
 
 				init = true;
 			}
+		}
+		static void RenderImGui(IDXGISwapChain3* pSwapChain) {
+			InitImGuiRendering(pSwapChain);
 
 			if (!frameContext[0].main_render_target_resource)
 				CreateRenderTarget(pSwapChain);
@@ -128,6 +145,7 @@ namespace EGT::ImGui_impl {
 			ImGui::Render();
 
 			DeferredActions::Process();
+			NextFrameTask::ExecuteTasks();
 
 			UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex();
 			ID3D12CommandAllocator* commandAllocator = frameContext[backBufferIdx].commandAllocator;
@@ -157,70 +175,47 @@ namespace EGT::ImGui_impl {
 			d3d12CommandQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&d3d12CommandList));
 		}
 
-		HRESULT(__stdcall* oPresent)(IDXGISwapChain3*, UINT, UINT);
-		HRESULT __stdcall hkPresent12(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain3*, UINT, UINT), IDXGISwapChain3*, UINT, UINT> DXPresentHook{ "DX12Present", &EGSDK::OffsetManager::Get_DXPresent, [](IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) -> HRESULT {
 			__try {
-				RenderImGui_DX12(pSwapChain);
+				RenderImGui(pSwapChain);
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
 				SPDLOG_ERROR("Exception thrown rendering ImGui in DX12");
 			}
 
-			return oPresent(pSwapChain, SyncInterval, Flags);
-		}
-
-		HRESULT(__stdcall* oPresent1)(IDXGISwapChain3*, UINT, UINT, const DXGI_PRESENT_PARAMETERS* pPresentParameters);
-		HRESULT __stdcall hkPresent112(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT PresentFlags, const DXGI_PRESENT_PARAMETERS* pPresentParameters) {
+			return DXPresentHook.ExecuteOriginal(pSwapChain, SyncInterval, Flags);
+		}, false };
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain3*, UINT, UINT, const DXGI_PRESENT_PARAMETERS*), IDXGISwapChain3*, UINT, UINT, const DXGI_PRESENT_PARAMETERS*> DX12Present1Hook{ "DX12Present1", &EGSDK::OffsetManager::Get_DX12Present1, [](IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT PresentFlags, const DXGI_PRESENT_PARAMETERS* pPresentParameters) -> HRESULT {
 			__try {
-				RenderImGui_DX12(pSwapChain);
+				RenderImGui(pSwapChain);
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
 				SPDLOG_ERROR("Exception thrown rendering ImGui in DX12");
 			}
 
-			return oPresent1(pSwapChain, SyncInterval, PresentFlags, pPresentParameters);
-		}
+			return DX12Present1Hook.ExecuteOriginal(pSwapChain, SyncInterval, PresentFlags, pPresentParameters);
+		}, false };
 
-		static void CleanupRenderTarget() {
-			if (!frameContext)
-				return;
-
-			for (UINT i = 0; i < buffersCounts; ++i) {
-				if (frameContext[i].main_render_target_resource) {
-					frameContext[i].main_render_target_resource->Release();
-					frameContext[i].main_render_target_resource = NULL;
-				}
-			}
-		}
-
-		HRESULT(__stdcall* oResizeBuffers)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
-		HRESULT hookResizeBuffers12(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT), IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT> DXResizeBuffersHook{ "DX12ResizeBuffers", &EGSDK::OffsetManager::Get_DXResizeBuffers, [](IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) -> HRESULT {
 			CleanupRenderTarget();
 
-			return oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-		}
-
-		HRESULT(__stdcall* oResizeBuffers1)(IDXGISwapChain3*, UINT, UINT, UINT, DXGI_FORMAT, UINT, const UINT*, IUnknown* const*);
-		HRESULT hookResizeBuffers112(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags, const UINT* pCreationNodeMask, IUnknown* const* ppPresentQueue) {
+			return DXResizeBuffersHook.ExecuteOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+		}, false };
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDXGISwapChain3*, UINT, UINT, UINT, DXGI_FORMAT, UINT, const UINT*, IUnknown* const*), IDXGISwapChain3*, UINT, UINT, UINT, DXGI_FORMAT, UINT, const UINT*, IUnknown* const*> DX12ResizeBuffers1Hook{ "DX12ResizeBuffers1", &EGSDK::OffsetManager::Get_DX12ResizeBuffers1, [](IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags, const UINT* pCreationNodeMask, IUnknown* const* ppPresentQueue) -> HRESULT {
 			CleanupRenderTarget();
 
-			return oResizeBuffers1(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags, pCreationNodeMask, ppPresentQueue);
-		}
+			return DX12ResizeBuffers1Hook.ExecuteOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags, pCreationNodeMask, ppPresentQueue);
+		}, false };
 
-		void(__stdcall* oExecuteCommandLists)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*);
-		void hookExecuteCommandLists12(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) {
-			if (!d3d12CommandQueue)
-				d3d12CommandQueue = queue;
-
-			oExecuteCommandLists(queue, NumCommandLists, ppCommandLists);
-		}
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*), ID3D12CommandQueue*, UINT, ID3D12CommandList* const*> DX12ExecuteCommandListsHook{ "DX12ExecuteCommandLists", &EGSDK::OffsetManager::Get_DX12ExecuteCommandLists, [](ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) -> void {
+			d3d12CommandQueue = queue;
+			DX12ExecuteCommandListsHook.ExecuteOriginal(queue, NumCommandLists, ppCommandLists);
+		}, false };
 
 		void Init() {
-			assert(kiero::bind(140, (void**)&oPresent, hkPresent12) == kiero::Status::Success);
-			assert(kiero::bind(154, (void**)&oPresent1, hkPresent112) == kiero::Status::Success);
-
-			assert(kiero::bind(145, (void**)&oResizeBuffers, hookResizeBuffers12) == kiero::Status::Success);
-			assert(kiero::bind(171, (void**)&oResizeBuffers1, hookResizeBuffers112) == kiero::Status::Success);
-
-			assert(kiero::bind(54, (void**)&oExecuteCommandLists, hookExecuteCommandLists12) == kiero::Status::Success);
+			assert(DXPresentHook.TryHooking());
+			assert(DX12Present1Hook.TryHooking());
+			assert(DXResizeBuffersHook.TryHooking());
+			assert(DX12ResizeBuffers1Hook.TryHooking());
+			assert(DX12ExecuteCommandListsHook.TryHooking());
 		}
 	}
 }

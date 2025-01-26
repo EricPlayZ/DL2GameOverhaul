@@ -13,9 +13,9 @@ namespace EGSDK {
 		class EGameSDK_API CGame {
 		public:
 			union {
-				ClassHelpers::buffer<0x8, GamePH::GameDI_PH*> pGameDI_PH;
-				ClassHelpers::buffer<0x28, CVideoSettings*> pCVideoSettings;
-				ClassHelpers::buffer<0x390, CLevel*> pCLevel;
+				ClassHelpers::StaticBuffer<0x8, GamePH::GameDI_PH*> pGameDI_PH;
+				ClassHelpers::StaticBuffer<0x28, CVideoSettings*> pCVideoSettings;
+				DynamicField(CGame, CLevel*, pCLevel);
 			};
 
 			static CGame* Get();

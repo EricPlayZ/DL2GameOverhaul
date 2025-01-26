@@ -4,6 +4,6 @@
 
 namespace EGSDK::Engine {
 	CLobbySteam* CLobbySteam::Get() {
-		return ClassHelpers::SafeGetter<CLobbySteam>(Offsets::Get_CLobbySteam, true);
+		return ClassHelpers::SafeGetter<CLobbySteam>(OffsetManager::Get_CLobbySteam, true);
 	}
 }

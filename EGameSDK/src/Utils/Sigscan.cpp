@@ -4,11 +4,12 @@
 #include <memscan\memscan.h>
 #include <EGSDK\Utils\Sigscan.h>
 #include <EGSDK\Utils\Memory.h>
+#include <EGSDK\Utils\WinMemory.h>
 
 namespace EGSDK::Utils {
 	namespace SigScan {
 		void* PatternScanner::FindPattern(const std::string_view moduleName, const Pattern& pattern) {
-			HMODULE hModule = GetModuleHandleA(moduleName.data());
+			HMODULE hModule = GetModuleHandle(moduleName.data());
 			if (!hModule)
 				return nullptr;
 
@@ -16,25 +17,25 @@ namespace EGSDK::Utils {
 		}
 		void* PatternScanner::FindPattern(const Pattern& pattern) {
 			MODULEINFO hModuleInfo;
-			GetModuleInformation(GetCurrentProcess(), GetModuleHandleA(nullptr), &hModuleInfo, sizeof(hModuleInfo));
-			return PatternScanner::FindPattern(GetModuleHandleA(nullptr), hModuleInfo.SizeOfImage, pattern);
+			GetModuleInformation(GetCurrentProcess(), GetModuleHandle(nullptr), &hModuleInfo, sizeof(hModuleInfo));
+			return PatternScanner::FindPattern(GetModuleHandle(nullptr), hModuleInfo.SizeOfImage, pattern);
 		}
 
 		std::vector<void*> PatternScanner::FindPatterns(const std::string_view moduleName, const Pattern& pattern) {
-			HMODULE hModule = GetModuleHandleA(moduleName.data());
+			HMODULE hModule = GetModuleHandle(moduleName.data());
 			if (!hModule)
 				return {};
 
 			return PatternScanner::FindPatterns(hModule, Utils::Memory::GetModuleInfo(moduleName.data()).SizeOfImage, pattern);
 		}
-		std::vector<void*> PatternScanner::FindPatterns(void* startAddress, DWORD64 searchSize, const Pattern& pattern) {
+		std::vector<void*> PatternScanner::FindPatterns(void* startAddress, uint64_t searchSize, const Pattern& pattern) {
 			std::vector<void*> ret;
 
 			void* base = startAddress;
-			DWORD64 size = searchSize;
+			uint64_t size = searchSize;
 			void* addr = base;
 			do {
-				addr = PatternScanner::FindPattern(reinterpret_cast<void*>((reinterpret_cast<DWORD64>(addr) + 1)), size - (reinterpret_cast<DWORD64>(addr) - reinterpret_cast<DWORD64>(base) + 1), pattern);
+				addr = PatternScanner::FindPattern(reinterpret_cast<void*>((reinterpret_cast<uint64_t>(addr) + 1)), size - (reinterpret_cast<uint64_t>(addr) - reinterpret_cast<uint64_t>(base) + 1), pattern);
 				if (addr)
 					ret.push_back(addr);
 			} while (!addr);
@@ -42,11 +43,11 @@ namespace EGSDK::Utils {
 			return ret;
 		}
 
-		void* PatternScanner::FindPattern(void* startAddress, DWORD64 searchSize, const Pattern& pattern) {
+		void* PatternScanner::FindPattern(void* startAddress, uint64_t searchSize, const Pattern& pattern) {
 			int offset = 0;
 			std::string patt = Memory::ConvertSigToScannerSig(pattern.pattern, &offset);
 
-			const auto scanner = memscan::mapped_region_t(reinterpret_cast<DWORD64>(startAddress), reinterpret_cast<DWORD64>(startAddress) + searchSize);
+			const auto scanner = memscan::mapped_region_t(reinterpret_cast<uint64_t>(startAddress), reinterpret_cast<uint64_t>(startAddress) + searchSize);
 			auto patternFind = scanner.find_pattern<ms_uptr_t>(patt);
 
 			void* ret = nullptr;
@@ -56,19 +57,19 @@ namespace EGSDK::Utils {
 
 			switch (pattern.type) {
 			case PatternType::Pointer:
-				ret = PatternScanner::ResolvePtr<DWORD64>(ret);
+				ret = PatternScanner::ResolvePtr<uint64_t>(ret);
 				break;
 
 			case PatternType::PointerBYTE:
-				ret = PatternScanner::ResolvePtr<BYTE>(ret);
+				ret = PatternScanner::ResolvePtr<uint8_t>(ret);
 				break;
 
 			case PatternType::PointerWORD:
-				ret = PatternScanner::ResolvePtr<WORD>(ret);
+				ret = PatternScanner::ResolvePtr<uint16_t>(ret);
 				break;
 
 			case PatternType::PointerQWORD:
-				ret = PatternScanner::ResolvePtr<DWORD64>(ret);
+				ret = PatternScanner::ResolvePtr<uint64_t>(ret);
 				break;
 
 			case PatternType::RelativePointer:
@@ -76,15 +77,15 @@ namespace EGSDK::Utils {
 				break;
 
 			case PatternType::RelativePointerBYTE:
-				ret = PatternScanner::ResolveRelativePtr<BYTE>(ret);
+				ret = PatternScanner::ResolveRelativePtr<uint8_t>(ret);
 				break;
 
 			case PatternType::RelativePointerWORD:
-				ret = PatternScanner::ResolveRelativePtr<WORD>(ret);
+				ret = PatternScanner::ResolveRelativePtr<uint16_t>(ret);
 				break;
 
 			case PatternType::RelativePointerQWORD:
-				ret = PatternScanner::ResolveRelativePtr<DWORD64>(ret);
+				ret = PatternScanner::ResolveRelativePtr<uint64_t>(ret);
 				break;
 			default:
 				break;
@@ -93,7 +94,7 @@ namespace EGSDK::Utils {
 			return ret;
 		}
 
-		void* PatternScanner::FindPattern(void* startAddress, DWORD64 searchSize, const Pattern* patterns, float* ratio) {
+		void* PatternScanner::FindPattern(void* startAddress, uint64_t searchSize, const Pattern* patterns, float* ratio) {
 			int totalCount = 0;
 			struct result {
 				void* addr;

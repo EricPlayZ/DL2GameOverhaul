@@ -1,12 +1,12 @@
 #pragma once
-#include <Windows.h>
+#include <stdint.h>
 #include <EGSDK\Exports.h>
 
 namespace EGSDK::Engine {
 	class EGameSDK_API CInput {
 	public:
-		DWORD64 BlockGameInput();
 		void UnlockGameInput();
+		uint64_t BlockGameInput();
 
 		static CInput* Get();
 	};

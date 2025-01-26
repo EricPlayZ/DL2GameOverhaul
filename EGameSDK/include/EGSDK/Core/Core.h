@@ -1,7 +1,8 @@
 #pragma once
-#include <atomic>
+#include <stdint.h>
 #include <vector>
 #include <memory>
+#include <semaphore>
 #include <spdlog\spdlog.h>
 #include <EGSDK\Exports.h>
 
@@ -12,17 +13,30 @@
 #endif
 
 namespace EGSDK {
-    constexpr unsigned long GAME_VER_COMPAT = 12001;
+    static constexpr uint32_t GAME_VER_COMPAT = 12001;
+    static constexpr std::array<uint32_t, 2> SUPPORTED_GAME_VERSIONS = { 11200, 12001 };
 
     namespace Core {
-        extern EGameSDK_API std::atomic<bool> exiting;
         extern EGameSDK_API std::vector<spdlog::sink_ptr> spdlogSinks;
+#ifdef EGameSDK_EXPORTS
+        extern std::counting_semaphore<4> maxHookThreads;
+#endif
 
         extern EGameSDK_API int rendererAPI;
-        extern EGameSDK_API unsigned long gameVer;
+        extern EGameSDK_API uint32_t gameVer;
 
         extern EGameSDK_API void SetDefaultLoggerSettings(std::shared_ptr<spdlog::logger> logger);
+#ifdef EGameSDK_EXPORTS
+        extern void InitLogger();
+#endif
 
         extern EGameSDK_API std::string GetSDKStoragePath();
+
+#ifdef EGameSDK_EXPORTS
+        extern void OnPostUpdate();
+
+        extern DWORD64 WINAPI MainThread(HMODULE hModule);
+        extern void Cleanup();
+#endif
     }
 }

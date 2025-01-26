@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include <stdint.h>
 #include <EGSDK\GamePH\InventoryContainerDI.h>
 #include <EGSDK\GamePH\InventoryMoney.h>
 #include <EGSDK\ClassHelpers.h>
@@ -7,6 +7,6 @@
 namespace EGSDK::GamePH {
 	class EGameSDK_API InventoryContainerDI {
 	public:
-		InventoryMoney* GetInventoryMoney(UINT indexMaybe);
+		InventoryMoney* GetInventoryMoney(uint32_t indexMaybe);
 	};
 }

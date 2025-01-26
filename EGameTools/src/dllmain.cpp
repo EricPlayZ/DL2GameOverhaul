@@ -14,10 +14,10 @@ BOOL APIENTRY DllMain(HMODULE moduleHandle, DWORD64 reasonForCall, void* lpReser
         MH_Initialize();
 
         SPDLOG_INFO("Initializing hooks");
-        EGT::Engine::Hooks::MountDataPaksHook.HookLoop();
-        EGT::Engine::Hooks::AuthenticateDataAddNewFileHook.HookLoop();
-        EGT::Engine::Hooks::FsCheckZipCrcHook.HookLoop();
-        EGT::Engine::Hooks::FsOpenHook.HookLoop();
+        EGT::Engine::Hooks::MountDataPaksHook.TryHooking();
+        EGT::Engine::Hooks::AuthenticateDataAddNewFileHook.TryHooking();
+        EGT::Engine::Hooks::FsCheckZipCrcHook.TryHooking();
+        EGT::Engine::Hooks::FsOpenHook.TryHooking();
 
         SPDLOG_INFO("Disabling thread library calls");
         DisableThreadLibraryCalls(moduleHandle);

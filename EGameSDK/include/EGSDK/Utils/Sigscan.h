@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include <stdint.h>
 #include <string_view>
 #include <vector>
 #include <EGSDK\Exports.h>
@@ -21,20 +21,20 @@ namespace EGSDK::Utils {
 		};
 
 		struct EGameSDK_API Pattern {
-			const char* pattern;
+			const char* pattern = nullptr;
 			PatternType type;
 		};
 
 		class EGameSDK_API PatternScanner {
 		public:
-			static void* FindPattern(void* startAddress, DWORD64 searchSize, const Pattern& pattern);
+			static void* FindPattern(void* startAddress, uint64_t searchSize, const Pattern& pattern);
 			static void* FindPattern(const std::string_view moduleName, const Pattern& pattern);
 			static void* FindPattern(const Pattern& pattern);
 
 			static std::vector<void*> FindPatterns(const std::string_view moduleName, const Pattern& pattern);
-			static std::vector<void*> FindPatterns(void* startAddress, DWORD64 searchSize, const Pattern& pattern);
+			static std::vector<void*> FindPatterns(void* startAddress, uint64_t searchSize, const Pattern& pattern);
 
-			static void* FindPattern(void* startAddress, DWORD64 searchSize, const Pattern* patterns, float* ratio = nullptr);
+			static void* FindPattern(void* startAddress, uint64_t searchSize, const Pattern* patterns, float* ratio = nullptr);
 			static void* FindPattern(const std::string_view moduleName, Pattern* patterns, float* ratio = nullptr);
 		private:
 			template <typename T> static void* ResolveRelativePtr(void* Address) {
@@ -45,7 +45,7 @@ namespace EGSDK::Utils {
 				if (!offset)
 					return nullptr;
 
-				return reinterpret_cast<void*>(reinterpret_cast<DWORD64>(Address) + offset + sizeof(T));
+				return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(Address) + offset + sizeof(T));
 			}
 
 			template <typename T> static void* ResolvePtr(void* Address) {

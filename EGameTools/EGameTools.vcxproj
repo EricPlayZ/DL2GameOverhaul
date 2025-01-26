@@ -23,7 +23,6 @@
     <ClCompile Include="deps\ImGui\imgui_tables.cpp" />
     <ClCompile Include="deps\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="deps\ImGui\misc\freetype\imgui_freetype.cpp" />
-    <ClCompile Include="deps\kiero\kiero.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
@@ -32,6 +31,7 @@
     <ClCompile Include="src\ImGui_impl\D3D11_impl.cpp" />
     <ClCompile Include="src\ImGui_impl\D3D12_impl.cpp" />
     <ClCompile Include="src\ImGui_impl\DeferredActions.cpp" />
+    <ClCompile Include="src\ImGui_impl\NextFrameTask.cpp" />
     <ClCompile Include="src\ImGui_impl\Win32_impl.cpp" />
     <ClCompile Include="src\Menu\Camera.cpp" />
     <ClCompile Include="src\Menu\Debug.cpp" />
@@ -56,6 +56,7 @@
     <ClInclude Include="include\EGT\ImGui_impl\D3D11_impl.h" />
     <ClInclude Include="include\EGT\ImGui_impl\D3D12_impl.h" />
     <ClInclude Include="include\EGT\ImGui_impl\DeferredActions.h" />
+    <ClInclude Include="include\EGT\ImGui_impl\NextFrameTask.h" />
     <ClInclude Include="include\EGT\ImGui_impl\Win32_impl.h" />
     <ClInclude Include="include\EGT\Menu\Camera.h" />
     <ClInclude Include="include\EGT\Menu\Debug.h" />

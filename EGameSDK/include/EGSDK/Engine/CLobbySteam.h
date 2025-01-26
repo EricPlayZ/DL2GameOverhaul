@@ -7,7 +7,7 @@ namespace EGSDK::Engine {
 	class EGameSDK_API CLobbySteam {
 	public:
 		union {
-			ClassHelpers::buffer<0xF8, CGame*> pCGame;
+			ClassHelpers::StaticBuffer<0xF8, CGame*> pCGame;
 		};
 
 		static CLobbySteam* Get();

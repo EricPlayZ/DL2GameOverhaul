@@ -6,6 +6,8 @@
 #include <EGSDK\GamePH\PlayerVariables.h>
 #include <EGSDK\GamePH\TimeWeather\CSystem.h>
 #include <EGSDK\GamePH\TimeWeather\EWeather.h>
+#include <EGT\ImGui_impl\NextFrameTask.h>
+#include <EGT\Engine\Engine_Hooks.h>
 #include <EGT\Menu\World.h>
 
 namespace EGT::Menu {
@@ -32,27 +34,9 @@ namespace EGT::Menu {
 			"Rainy",
 			"Stormy"
 		};
+		static bool requestedTimeWeatherInterpolation = false;
 
-		static void UpdateWeatherIndex() {
-			auto iLevel = EGSDK::GamePH::LevelDI::Get();
-			bool weatherDisabledFlag = !iLevel || !iLevel->IsLoaded() || !EGSDK::GamePH::TimeWeather::CSystem::Get();
-
-			static EGSDK::GamePH::TimeWeather::EWeather previousWeatherIndex = EGSDK::GamePH::TimeWeather::EWeather::Default;
-			static bool weatherHasReset = true;
-			if (weatherDisabledFlag && weatherHasReset) {
-				weatherHasReset = false;
-				previousWeatherIndex = weather;
-				weather = EGSDK::GamePH::TimeWeather::EWeather::Default;
-			} else if (!weatherHasReset) {
-				weather = previousWeatherIndex;
-				weatherHasReset = true;
-			}
-		}
-
-		Tab Tab::instance{};
-		void Tab::Update() {
-			UpdateWeatherIndex();
-
+		static void UpdateFreezeTime() {
 			auto dayNightCycle = EGSDK::GamePH::DayNightCycle::Get();
 			if (!dayNightCycle)
 				return;
@@ -67,6 +51,15 @@ namespace EGT::Menu {
 				dayNightCycle->SetDaytime(timeBeforeFreeze);
 				freezeTime.SetPrevValue(false);
 			}
+
+			time = dayNightCycle->time1 * 24.0f;
+			if (freezeTime.GetValue() && !EGSDK::Utils::Values::are_samef(time, timeBeforeFreeze, 0.0095f))
+				dayNightCycle->SetDaytime(timeBeforeFreeze);
+		}
+		static void UpdateSlowMo() {
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
+			if (!iLevel || !iLevel->IsLoaded())
+				return;
 
 			static bool slowMoHasChanged = true;
 			if (slowMotion.HasChangedTo(false)) {
@@ -99,25 +92,72 @@ namespace EGT::Menu {
 				}
 			}
 
-			time = dayNightCycle->time1 * 24.0f;
-			if (freezeTime.GetValue() && !EGSDK::Utils::Values::are_samef(time, timeBeforeFreeze, 0.0095f))
-				dayNightCycle->SetDaytime(timeBeforeFreeze);
-
 			if (!isModifyingGameSpeed) {
 				if (!slowMotion.GetValue() && !slowMotion.HasChanged() && !EGSDK::Utils::Values::are_samef(gameSpeed, 1.0f))
 					iLevel->TimerSetSpeedUp(gameSpeed);
 				actualGameSpeed = iLevel->TimerGetSpeedUp();
 			}
 		}
+		static void UpdateWeatherIndex() {
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
+			bool weatherDisabledFlag = !iLevel || !iLevel->IsLoaded() || !EGSDK::GamePH::TimeWeather::CSystem::Get();
+			if (weatherDisabledFlag)
+				weather = EGSDK::GamePH::TimeWeather::EWeather::Default;
+		}
+		static void UpdateWeatherInterpolation() {
+			auto timeWeather = EGSDK::GamePH::TimeWeather::CSystem::Get();
+			if (!timeWeather)
+				return;
+
+			static float previousBlendTime = 0.0f;
+			static float previousBlendTime2 = 0.0f;
+			if (requestedTimeWeatherInterpolation) {
+				if (EGSDK::Utils::Values::are_samef(previousBlendTime, 0.0f)) {
+					Engine::Hooks::HandleTimeWeatherInterpolationOnDemandTextureIsLoadedHook.Enable();
+					previousBlendTime = timeWeather->blendTime;
+					previousBlendTime2 = timeWeather->blendTime2;
+
+					timeWeather->blendTime = 1.0f;
+					timeWeather->blendTime2 = 1.0f;
+				} else if (!timeWeather->IsFullyBlended()) {
+					 if (!EGSDK::Utils::Values::are_samef(timeWeather->blendTime, 1.0f) || !EGSDK::Utils::Values::are_samef(timeWeather->blendTime2, 1.0f)) {
+						previousBlendTime = timeWeather->blendTime;
+						previousBlendTime2 = timeWeather->blendTime2;
+
+						timeWeather->blendTime = 1.0f;
+						timeWeather->blendTime2 = 1.0f;
+					}
+				} else {
+					timeWeather->blendTime = previousBlendTime;
+					timeWeather->blendTime2 = previousBlendTime2;
+
+					Engine::Hooks::HandleTimeWeatherInterpolationOnDemandTextureIsLoadedHook.Disable();
+					requestedTimeWeatherInterpolation = false;
+					previousBlendTime = 0.0f;
+					previousBlendTime2 = 0.0f;
+				}
+			}
+		}
+
+		Tab Tab::instance{};
+		void Tab::Update() {
+			UpdateFreezeTime();
+			UpdateSlowMo();
+			UpdateWeatherIndex();
+			UpdateWeatherInterpolation();
+		}
 		void Tab::Render() {
 			auto dayNightCycle = EGSDK::GamePH::DayNightCycle::Get();
+			auto timeWeatherSystem = EGSDK::GamePH::TimeWeather::CSystem::Get();
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			ImGui::SeparatorText("Time##World");
-			ImGui::BeginDisabled(!iLevel || !iLevel->IsLoaded() || !dayNightCycle);
+			ImGui::BeginDisabled(!iLevel || !iLevel->IsLoaded() || !dayNightCycle || !timeWeatherSystem);
 			bool timeSlider = ImGui::SliderFloat("Time", &time, 0.01f, 24.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
-			EGSDK::GamePH::PlayerVariables::ManagePlayerVarByBool("AntizinDrainBlocked", false, true, timeSlider);
+			EGSDK::GamePH::PlayerVariables::ManagePlayerVarByBool("AntizinDrainBlocked", true, false, timeSlider);
 			if (timeSlider) {
+				requestedTimeWeatherInterpolation = true;
 				timeBeforeFreeze = time;
+				UpdateWeatherInterpolation();
 				dayNightCycle->SetDaytime(time);
 			}
 
@@ -136,13 +176,14 @@ namespace EGT::Menu {
 			ImGui::SliderFloat("Slow Motion Speed", &slowMotionSpeed, 0.01f, 0.99f, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::SliderFloat("Slow Motion Transition Time", &slowMotionTransitionTime, 0.00f, 5.00f, "%.2fs", ImGuiSliderFlags_AlwaysClamp);
 
-			auto timeWeatherSystem = EGSDK::GamePH::TimeWeather::CSystem::Get();
 			bool weatherDisabledFlag = !iLevel || !iLevel->IsLoaded() || !timeWeatherSystem;
 			ImGui::SeparatorText("Weather##World");
 			ImGui::BeginDisabled(weatherDisabledFlag);
-			if (ImGui::Combo("Weather", reinterpret_cast<int*>(&weather), weatherItems, IM_ARRAYSIZE(weatherItems)) && timeWeatherSystem)
+			if (ImGui::Combo("Weather", reinterpret_cast<int*>(&weather), weatherItems, IM_ARRAYSIZE(weatherItems))) {
+				requestedTimeWeatherInterpolation = true;
+				UpdateWeatherInterpolation();
 				timeWeatherSystem->SetForcedWeather(static_cast<EGSDK::GamePH::TimeWeather::EWeather>(weather - 1));
-			ImGui::Text("Setting weather to: %s", !weatherDisabledFlag ? weatherItems[weather] : "");
+			}
 			ImGui::Text("Current weather: %s", !weatherDisabledFlag ? weatherItems[timeWeatherSystem->GetCurrentWeather() + 1] : "");
 			ImGui::EndDisabled();
 		}

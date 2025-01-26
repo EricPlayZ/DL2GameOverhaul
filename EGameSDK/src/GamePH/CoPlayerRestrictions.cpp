@@ -1,12 +1,13 @@
 #include <EGSDK\Offsets.h>
 #include <EGSDK\GamePH\CoPlayerRestrictions.h>
 #include <EGSDK\ClassHelpers.h>
+#include <EGSDK\Utils\WinMemory.h>
 
 namespace EGSDK::GamePH {
 	static CoPlayerRestrictions* pCoPlayerRestrictions = nullptr;
 
-	DWORD64* CoPlayerRestrictions::GetPlayerRestrictionsFlags(DWORD64* flagsOut) {
-		return Utils::Memory::SafeCallFunctionOffset<DWORD64*>(Offsets::Get_GetPlayerRestrictionsFlags, nullptr, this, flagsOut);
+	uint64_t* CoPlayerRestrictions::GetPlayerRestrictionsFlags(uint64_t* flagsOut) {
+		return Utils::Memory::SafeCallFunctionOffset<uint64_t*>(OffsetManager::Get_GetPlayerRestrictionsFlags, nullptr, this, flagsOut);
 	}
 
 	static CoPlayerRestrictions* GetOffset_CoPlayerRestrictions() {

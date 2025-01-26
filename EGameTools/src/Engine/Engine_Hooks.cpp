@@ -1,6 +1,8 @@
 #include <filesystem>
 #include <EGSDK\Utils\Time.h>
+#include <EGSDK\Utils\WinMemory.h>
 #include <EGSDK\GamePH\LevelDI.h>
+#include <EGSDK\Engine\RendererCVars.h>
 #include <EGSDK\Engine\CBaseCamera.h>
 #include <EGSDK\Engine\Engine_Misc.h>
 #include <EGSDK\Offsets.h>
@@ -14,7 +16,7 @@ namespace EGT::Engine {
 		bool switchedFreeCamByGamePause = false;
 		EGSDK::Vector3 freeCamPosBeforeGamePause{};
 
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float*, float*, EGSDK::Vector3*), void*, float*, float*, EGSDK::Vector3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::Offsets::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, float* a3, float* a4, EGSDK::Vector3* pos) -> void {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float*, float*, EGSDK::Vector3*), void*, float*, float*, EGSDK::Vector3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::OffsetManager::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, float* a3, float* a4, EGSDK::Vector3* pos) -> void {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded() || iLevel->IsTimerFrozen())
 				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
@@ -111,8 +113,8 @@ namespace EGT::Engine {
 		static void* GetFsOpen() {
 			return EGSDK::Utils::Memory::GetProcAddr("filesystem_x64_rwdi.dll", "?open@fs@@YAPEAUSFsFile@@V?$string_const@D@ttl@@W4TYPE@EFSMode@@W45FFSOpenFlags@@@Z");
 		}
-		EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD, DWORD), DWORD64, DWORD, DWORD> FsOpenHook{ "fs::open", &GetFsOpen, [](DWORD64 file, DWORD a2, DWORD a3) -> DWORD64 {
-			const DWORD64 firstByte = (file >> 56) & 0xFF; // get first byte of addr
+		EGSDK::Utils::Hook::MHook<void*, uint64_t(*)(uint64_t, DWORD, DWORD), uint64_t, DWORD, DWORD> FsOpenHook{ "fs::open", &GetFsOpen, [](uint64_t file, DWORD a2, DWORD a3) -> uint64_t {
+			const uint64_t firstByte = (file >> 56) & 0xFF; // get first byte of addr
 			const char* filePath = reinterpret_cast<const char*>(file & 0x1FFFFFFFFFFFFFFF); // remove first byte of addr in case it exists
 			const std::string fileName = std::filesystem::path(filePath).filename().string();
 			if (fileName.empty() || fileName.contains("EGameTools") || fileName.ends_with(".model"))
@@ -129,11 +131,11 @@ namespace EGT::Engine {
 					const char* modFileCStr = modFilePath->c_str();
 					SPDLOG_INFO("Loading user mod file: {}", modFilePath->c_str());
 
-					DWORD64 modFileAddr = reinterpret_cast<DWORD64>(modFileCStr);
+					uint64_t modFileAddr = reinterpret_cast<uint64_t>(modFileCStr);
 					if (firstByte != 0x0)
 						modFileAddr |= (firstByte << 56);
 
-					DWORD64 result = FsOpenHook.ExecuteCallbacksWithOriginal(modFileAddr, a2, a3);
+					uint64_t result = FsOpenHook.ExecuteCallbacksWithOriginal(modFileAddr, a2, a3);
 					if (!result) {
 						SPDLOG_ERROR("fs::open returned 0! Something went wrong with loading user mod file \"{}\"!\nPlease make sure the path to the file is no longer than 260 characters!", finalPath.c_str());
 						return FsOpenHook.ExecuteCallbacksWithOriginal(file, a2, a3);
@@ -152,13 +154,13 @@ namespace EGT::Engine {
 			struct mount_path {
 				union {
 					const char* gamePath;
-					EGSDK::ClassHelpers::buffer<0x8, const char*> pakPath;
-					EGSDK::ClassHelpers::buffer<0x10, const char*> fullPakPath;
+					EGSDK::ClassHelpers::StaticBuffer<0x8, const char*> pakPath;
+					EGSDK::ClassHelpers::StaticBuffer<0x10, const char*> fullPakPath;
 				};
 			};
 
-			static DWORD64 mount(mount_path* path, USHORT flags, void** a3) {
-				return EGSDK::Utils::Memory::SafeCallFunction<DWORD64>("filesystem_x64_rwdi.dll", "?mount@fs@@YA_NAEBUmount_path@1@GPEAPEAVCFsMount@@@Z", 0, path, flags, a3);
+			static uint64_t mount(mount_path* path, USHORT flags, void** a3) {
+				return EGSDK::Utils::Memory::SafeCallFunction<uint64_t>("filesystem_x64_rwdi.dll", "?mount@fs@@YA_NAEBUmount_path@1@GPEAPEAVCFsMount@@@Z", 0, path, flags, a3);
 			}
 		}
 
@@ -209,7 +211,6 @@ namespace EGT::Engine {
 			std::string gamePath = userModFilesFullPath;
 			EGSDK::Utils::Values::str_replace(gamePath, "\\ph\\source\\data\\EGameTools\\UserModFiles", "");
 
-			SPDLOG_INFO("Mounting user PAK mod files from: {}", userModFilesFullPath);
 			IterateAndMountUserPakFiles(userModFilesFullPath, gamePath);
 
 			return CResourceLoadingRuntimeCreateHook.ExecuteCallbacksWithOriginal(noTexStreaming);
@@ -219,13 +220,13 @@ namespace EGT::Engine {
 #pragma region MountDataPaks
 		int mountDataPaksRanWith8Count = 0;
 
-		EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, UINT, UINT, DWORD64*, DWORD64(*)(DWORD64, DWORD, DWORD64, char*, int), INT16, DWORD64, UINT), DWORD64, UINT, UINT, DWORD64*, DWORD64(*)(DWORD64, DWORD, DWORD64, char*, int), INT16, DWORD64, UINT> MountDataPaksHook{ "MountDataPaks", &EGSDK::Offsets::Get_MountDataPaks, [](DWORD64 a1, UINT a2, UINT a3, DWORD64* a4, DWORD64(*a5)(DWORD64, DWORD, DWORD64, char*, int), INT16 a6, DWORD64 a7, UINT a8) -> DWORD64 {
+		EGSDK::Utils::Hook::MHook<void*, uint64_t(*)(uint64_t, UINT, UINT, uint64_t*, uint64_t(*)(uint64_t, DWORD, uint64_t, char*, int), INT16, uint64_t, UINT), uint64_t, UINT, UINT, uint64_t*, uint64_t(*)(uint64_t, DWORD, uint64_t, char*, int), INT16, uint64_t, UINT> MountDataPaksHook{ "MountDataPaks", &EGSDK::OffsetManager::Get_MountDataPaks, [](uint64_t a1, UINT a2, UINT a3, uint64_t* a4, uint64_t(*a5)(uint64_t, DWORD, uint64_t, char*, int), INT16 a6, uint64_t a7, UINT a8) -> uint64_t {
 			if (Menu::Misc::increaseDataPAKsLimit.GetValue()) {
 				if (a8 == 8)
 					mountDataPaksRanWith8Count++;
 				a8 = 200;
 			}
-			return MountDataPaksHook.pOriginal(a1, a2, a3, a4, a5, a6, a7, a8);
+			return MountDataPaksHook.ExecuteOriginal(a1, a2, a3, a4, a5, a6, a7, a8);
 		} };
 #pragma endregion
 
@@ -248,6 +249,28 @@ namespace EGT::Engine {
 				EGSDK::Engine::AuthenticateDataResultsClear(instance);
 			return result;
 		} };
+#pragma endregion
+
+#pragma region UpdateVarFloat
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(uint64_t, uint64_t, float*, uint64_t, uint64_t), uint64_t, uint64_t, float*, uint64_t, uint64_t> UpdateCVarFloatHook{ "UpdateCVarFloat", &EGSDK::OffsetManager::Get_UpdateCVarFloat, [](uint64_t a1, uint64_t a2, float* varValue, uint64_t a4, uint64_t a5) -> void {
+			UpdateCVarFloatHook.ExecuteOriginal(a1, a2, varValue, a4, a5);
+			const char* name = reinterpret_cast<const char*>(a1 - 0x60);
+
+			auto floatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::rendererCVars.Find(a1));
+			if (!floatRendererCVar)
+				floatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::rendererCVars.try_emplace(std::make_unique<EGSDK::Engine::FloatRendererCVar>(name, a1)).get());
+
+			auto customFloatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::customRendererCVars.Find(a1));
+			if (customFloatRendererCVar)
+				*varValue = customFloatRendererCVar->GetValue();
+			else if (floatRendererCVar)
+				floatRendererCVar->SetValue(*varValue);
+		} };
+#pragma endregion
+
+#pragma region HandleTimeWeatherInterpolationOnDemandTextureIsLoaded
+		static unsigned char HandleTimeWeatherInterpolationOnDemandTextureIsLoadedBytes[9] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }; // nop
+		EGSDK::Utils::Hook::ByteHook<void*> HandleTimeWeatherInterpolationOnDemandTextureIsLoadedHook{ "HandleTimeWeatherInterpolationOnDemandTextureIsLoaded", &EGSDK::OffsetManager::Get_HandleTimeWeatherInterpolationOnDemandTextureIsLoaded, HandleTimeWeatherInterpolationOnDemandTextureIsLoadedBytes, sizeof(HandleTimeWeatherInterpolationOnDemandTextureIsLoadedBytes), false }; // test bpl, bpl; jz loc_CFA242
 #pragma endregion
 	}
 }

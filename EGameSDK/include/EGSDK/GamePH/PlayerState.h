@@ -7,7 +7,7 @@ namespace EGSDK::GamePH {
 	class EGameSDK_API PlayerState {
 	public:
 		union {
-			ClassHelpers::buffer<0x300, PlayerVariables*> playerVariables;
+			DynamicField(PlayerState, PlayerVariables*, playerVariables);
 		};
 
 		static PlayerState* Get();

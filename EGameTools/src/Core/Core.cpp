@@ -1,8 +1,8 @@
 #include <spdlog\spdlog.h>
 #include <spdlog\sinks\rotating_file_sink.h>
-#include <kiero\kiero.h>
 #include <EGSDK\Core\Core.h>
 #include <EGSDK\Utils\Files.h>
+#include <EGSDK\Utils\Hook.h>
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGSDK\GamePH\PlayerHealthModule.h>
 #include <EGSDK\GamePH\PlayerInfectionModule.h>
@@ -53,9 +53,9 @@ namespace EGT::Core {
 
 	// Core
 	std::atomic<bool> exiting = false;
+	std::counting_semaphore<4> maxHookThreads(4);
 	static std::vector<std::thread> threads{};
 	static HANDLE keepAliveEvent{};
-	std::counting_semaphore<4> maxHookThreads(4);
 
 	static bool LoopHookRenderer() {
 		SPDLOG_INFO("Entering LoopHookRenderer loop");
@@ -68,29 +68,25 @@ namespace EGT::Core {
 			Sleep(1000);
 
 			if (!EGSDK::Core::rendererAPI) {
+				auto d3d11Module = GetModuleHandle("rd3d11_x64_rwdi.dll");
+				auto d3d12Module = GetModuleHandle("rd3d12_x64_rwdi.dll");
+
+				EGSDK::Core::rendererAPI = d3d12Module ? 12 : d3d11Module ? 11 : 0;
 				SPDLOG_INFO("rendererAPI is null, skipping iteration");
 				continue;
 			}
-			kiero::Status::Enum initStatus = kiero::init(EGSDK::Core::rendererAPI == 11 ? kiero::RenderType::D3D11 : kiero::RenderType::D3D12);
-			if (initStatus != kiero::Status::Success) {
-				//SPDLOG_ERROR("kiero::init failed with status {}", initStatus);
-				continue;
-			}
-
-			SPDLOG_INFO("kiero::init successful");
-
-			switch (kiero::getRenderType()) {
-			case kiero::RenderType::D3D11:
-				SPDLOG_INFO("Initializing D3D11 ImGui implementation");
-				EGT::ImGui_impl::D3D11::Init();
-				break;
-			case kiero::RenderType::D3D12:
-				SPDLOG_INFO("Initializing D3D12 ImGui implementation");
-				EGT::ImGui_impl::D3D12::Init();
-				break;
-			default:
-				SPDLOG_ERROR("Unknown renderer type");
-				break;
+			switch (EGSDK::Core::rendererAPI) {
+				case 11:
+					SPDLOG_INFO("Initializing D3D11 ImGui implementation");
+					EGT::ImGui_impl::D3D11::Init();
+					break;
+				case 12:
+					SPDLOG_INFO("Initializing D3D12 ImGui implementation");
+					EGT::ImGui_impl::D3D12::Init();
+					break;
+				default:
+					SPDLOG_ERROR("Unknown renderer type");
+					break;
 			}
 
 			break;
@@ -325,9 +321,9 @@ namespace EGT::Core {
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				} else if (hook->IsHooked())
 					SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
-				else {
+				else if (hook->CanHookOnStartup()) {
 					SPDLOG_INFO("Hooking \"{}\"", hook->GetName().data());
-					if (hook->HookLoop())
+					if (hook->TryHooking())
 						SPDLOG_INFO("Hooked \"{}\"!", hook->GetName().data());
 				}
 
@@ -338,7 +334,7 @@ namespace EGT::Core {
 		SPDLOG_INFO("Hooking DX11/DX12 renderer");
 		threads.emplace_back([]() {
 			if (LoopHookRenderer())
-				SPDLOG_INFO("Hooked \"DX11/DX12 renderer\"!");
+				SPDLOG_INFO("Hooked \"DX{} renderer\"!", EGSDK::Core::rendererAPI);
 			else
 				SPDLOG_ERROR("Failed to hook renderer");
 		}).detach();

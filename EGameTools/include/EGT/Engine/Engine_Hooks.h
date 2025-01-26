@@ -14,5 +14,7 @@ namespace EGT::Engine {
 		extern EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, UINT, UINT, DWORD64*, DWORD64(*)(DWORD64, DWORD, DWORD64, char*, int), INT16, DWORD64, UINT), DWORD64, UINT, UINT, DWORD64*, DWORD64(*)(DWORD64, DWORD, DWORD64, char*, int), INT16, DWORD64, UINT> MountDataPaksHook;
 		extern EGSDK::Utils::Hook::MHook<void*, bool(*)(void*), void*> FsCheckZipCrcHook;
 		extern EGSDK::Utils::Hook::MHook<void*, void* (*)(void*), void*> AuthenticateDataAddNewFileHook;
+
+		extern EGSDK::Utils::Hook::ByteHook<void*> HandleTimeWeatherInterpolationOnDemandTextureIsLoadedHook;
 	}
 }
