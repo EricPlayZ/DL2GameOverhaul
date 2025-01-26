@@ -4,8 +4,8 @@
 
 namespace EGSDK::Engine {
 	struct EGameSDK_API CameraMtx {
-		Mtx34* mtx1{};
-		Mtx34* mtx2{};
+		Mtx34 mtx1;
+		Mtx34 mtx2;
 	};
 
 	class EGameSDK_API IBaseCamera {
