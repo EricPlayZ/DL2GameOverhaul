@@ -12,8 +12,8 @@ namespace EGSDK::GamePH {
 				ClassHelpers::StaticBuffer<0x14, int> nextWeather;
 				ClassHelpers::StaticBuffer<0x20, float> deltaBlend;
 				ClassHelpers::StaticBuffer<0x24, char> hasFinishedFlag;
-				ClassHelpers::StaticBuffer<0x28, float> deltaBlend2;
-				ClassHelpers::StaticBuffer<0x2C, float> deltaBlend3;
+				ClassHelpers::StaticBuffer<0x28, float> blendTime;
+				ClassHelpers::StaticBuffer<0x2C, float> deltaBlend2;
 			};
 		};
 	}

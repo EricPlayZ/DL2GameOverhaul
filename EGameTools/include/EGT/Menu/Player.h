@@ -29,6 +29,7 @@ namespace EGT::Menu {
 		class Tab : MenuTab {
 		public:
 			Tab() : MenuTab("Player", 0) {}
+			void Init() override;
 			void Update() override;
 			void Render() override;
 

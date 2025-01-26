@@ -35,6 +35,7 @@ namespace EGSDK {
 			{ GetOffsetNameFromClassMember(&GamePH::GameDI_PH::pSessionCooperativeDI), 0xE8 },
 			{ GetOffsetNameFromClassMember(&GamePH::LocalClientDI::pPlayerDI_PH), 0x88 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pCoPhysicsProperty), 0xE8 },
+			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pInventoryContainerDI), 0x550 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::restrictionsEnabled), 0x2CF0 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel1), 0x2DC1 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel2), 0x2DC2 },
@@ -57,6 +58,7 @@ namespace EGSDK {
 			{ GetOffsetNameFromClassMember(&GamePH::GameDI_PH::pSessionCooperativeDI), 0x130 },
 			{ GetOffsetNameFromClassMember(&GamePH::LocalClientDI::pPlayerDI_PH), 0x90 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pCoPhysicsProperty), 0xF0 },
+			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pInventoryContainerDI), 0x470 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::restrictionsEnabled), 0x3520 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel1), 0x35E9 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel2), 0x35EA },
@@ -71,6 +73,9 @@ namespace EGSDK {
 			{ "IsNotOutOfMapBounds", { "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 4C 8B C2", Utils::SigScan::PatternType::Address } },
 			{ "IsNotOutOfMissionBounds", { "48 89 5C 24 ?? 57 48 83 EC ?? 4C 8B C2 48 8B F9", Utils::SigScan::PatternType::Address } },
 			{ "PlaySoundEvent", { "4C 8B DC 49 89 5B ?? 49 89 73 ?? 57 48 81 EC ?? ?? ?? ?? 4C 8B 4C 24 ?? 48 8B F9 4D 8B D0 66 C7 84 24 ?? ?? ?? ?? ?? ?? 49 8B C1 66 C7 84 24", Utils::SigScan::PatternType::Address } },
+			{ "GetPlayerRestrictionsFlags", { "48 89 5C 24 ?? 57 48 83 EC ?? 48 8B F9 48 8B DA 48 8B CA E8 ?? ?? ?? ?? 48 8B 4F", Utils::SigScan::PatternType::Address } },
+			{ "EnablePlayerRestrictionsSubFunc", { "40 53 48 83 EC ?? 48 8B D9 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B CB 48 83 C4 ?? 5B E9 ?? ?? ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC CC 48 89 4C 24", Utils::SigScan::PatternType::Address } },
+			{ "DisablePlayerRestrictionsSubFunc", { "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 54 41 56 41 57 48 83 EC ?? 0F B7 81", Utils::SigScan::PatternType::Address } },
 			{ "HandlePlayerRestrictions", { "40 57 48 83 EC ?? 48 89 5C 24 ?? 48 8B F9 48 89 6C 24 ?? 0F B6 A9", Utils::SigScan::PatternType::Address } }
 			});
 		AddPatterns(12001, {
@@ -80,6 +85,9 @@ namespace EGSDK {
 			{ "IsNotOutOfMapBounds", { "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 4C 8B F9 48 85 D2", Utils::SigScan::PatternType::Address } },
 			{ "IsNotOutOfMissionBounds", { "48 89 5C 24 ?? 57 48 83 EC ?? 48 8B F9 48 85 D2 74 ?? 48 8D 8A", Utils::SigScan::PatternType::Address } },
 			{ "PlaySoundEvent", { "4C 8B DC 49 89 5B ?? 49 89 73 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 44 24 ?? 48 8B F9 48 8B DA", Utils::SigScan::PatternType::Address } },
+			{ "GetPlayerRestrictionsFlags", { "48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 48 8B FA 48 8B CA E8 ?? ?? ?? ?? 48 8B 4B", Utils::SigScan::PatternType::Address } },
+			{ "EnablePlayerRestrictionsSubFunc", { "40 53 48 83 EC ?? 48 8B D9 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B CB 48 83 C4 ?? 5B E9 ?? ?? ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 57", Utils::SigScan::PatternType::Address } },
+			{ "DisablePlayerRestrictionsSubFunc", { "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 54 41 56 41 57 48 83 EC ?? 0F B6 81", Utils::SigScan::PatternType::Address } },
 			{ "HandlePlayerRestrictions", { "40 57 48 83 EC ?? 48 89 5C 24 ?? 48 8B F9 48 89 74 24 ?? 0F B6 B1", Utils::SigScan::PatternType::Address } }
 			});
 

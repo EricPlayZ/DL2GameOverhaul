@@ -13,6 +13,7 @@ namespace EGT::Menu {
 		class Tab : MenuTab {
 		public:
 			Tab() : MenuTab("Weapon", 1) {}
+			void Init() override;
 			void Update() override;
 			void Render() override;
 

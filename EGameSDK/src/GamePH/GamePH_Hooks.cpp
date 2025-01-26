@@ -28,10 +28,10 @@ namespace EGSDK::GamePH {
 		bool didOnPostUpdateHookExecute = false;
 
 		Utils::Hook::VTHook<GameDI_PH2*, void(*)(void*), void*> OnPostUpdateHook{ "OnPostUpdate", &GameDI_PH2::Get, [](void* pGameDI_PH2) -> void {
-			didOnPostUpdateHookExecute = true;
 			Core::OnPostUpdate();
+			OnPostUpdateHook.ExecuteCallbacksWithOriginal(pGameDI_PH2);
 
-			return OnPostUpdateHook.ExecuteCallbacksWithOriginal(pGameDI_PH2);
+			didOnPostUpdateHookExecute = true;
 		} };
 #pragma endregion
 	}

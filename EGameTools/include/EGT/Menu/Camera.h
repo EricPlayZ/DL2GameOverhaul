@@ -33,6 +33,7 @@ namespace EGT::Menu {
 		class Tab : MenuTab {
 		public:
 			Tab() : MenuTab("Camera", 2) {}
+			void Init() override;
 			void Update() override;
 			void Render() override;
 

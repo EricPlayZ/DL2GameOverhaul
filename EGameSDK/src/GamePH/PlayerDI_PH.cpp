@@ -17,7 +17,7 @@ namespace EGSDK::GamePH {
 	}
 
 	static InventoryContainerDI* GetOffset_InventoryContainerDI(PlayerDI_PH* pPlayerDI_PH) {
-		return reinterpret_cast<InventoryContainerDI*>(*reinterpret_cast<uint64_t*>(reinterpret_cast<uint64_t>(pPlayerDI_PH) + 0x470));
+		return pPlayerDI_PH->pInventoryContainerDI;
 	}
 	InventoryContainerDI* PlayerDI_PH::GetInventoryContainer() {
 		return ClassHelpers::SafeGetter<InventoryContainerDI>(GetOffset_InventoryContainerDI, false, true, this);

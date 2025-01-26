@@ -82,6 +82,7 @@ namespace EGT::Menu {
 		}
 
 		Tab Tab::instance{};
+		void Tab::Init() {}
 		void Tab::Update() {
 			UpdateDisabledOptions();
 

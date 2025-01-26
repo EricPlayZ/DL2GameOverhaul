@@ -15,7 +15,7 @@
 
 namespace EGT::Menu {
 	namespace Camera {
-		static constexpr float baseFOV = 57;
+		static float baseFOV = 57;
 		static constexpr float baseSafezoneFOVReduction = -10.0f;
 		static constexpr float baseSprintHeadCorrectionFactor = 0.55f;
 
@@ -258,6 +258,14 @@ namespace EGT::Menu {
 		}
 
 		Tab Tab::instance{};
+		void Tab::Init() {
+			if (EGSDK::Core::gameVer == 11200) {
+				baseFOV = 52;
+				firstPersonFOV = baseFOV;
+				thirdPersonFOV = baseFOV;
+				freeCamFOV = baseFOV;
+			}
+		}
 		void Tab::Update() {
 			UpdateFirstPersonFOV();
 			FreeCamUpdate();

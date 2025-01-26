@@ -1,11 +1,10 @@
 #pragma once
+#include <EGSDK\GamePH\TimeWeather\ISubsystem.h>
 #include <EGSDK\Exports.h>
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::GamePH {
 	namespace TimeWeather {
-		class ISubsystem;
-
 		class EGameSDK_API CSystem {
 		public:
 			union {

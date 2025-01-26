@@ -13,6 +13,7 @@ namespace EGSDK::GamePH {
 	public:
 		union {
 			DynamicField(PlayerDI_PH, Engine::CoPhysicsProperty*, pCoPhysicsProperty);
+			DynamicField(PlayerDI_PH, InventoryContainerDI*, pInventoryContainerDI);
 			DynamicField(PlayerDI_PH, bool, restrictionsEnabled);
 			DynamicField(PlayerDI_PH, bool, enableTPPModel1);
 			DynamicField(PlayerDI_PH, bool, enableTPPModel2);

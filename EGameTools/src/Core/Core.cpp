@@ -231,8 +231,11 @@ namespace EGT::Core {
 	}
 
 	static void OnPostUpdate(void* pGameDI_PH2) {
-		for (auto& menuTab : *Menu::MenuTab::GetInstances())
+		for (auto& menuTab : *Menu::MenuTab::GetInstances()) {
+			if (!EGSDK::GamePH::Hooks::didOnPostUpdateHookExecute)
+				menuTab.second->Init();
 			menuTab.second->Update();
+		}
 
 		static bool mountDataPaksErrorShown = false;
 		if (!mountDataPaksErrorShown && EGT::Engine::Hooks::mountDataPaksRanWith8Count < 3 && Menu::Misc::increaseDataPAKsLimit.GetValue() && EGSDK::GamePH::PlayerVariables::Get()) {

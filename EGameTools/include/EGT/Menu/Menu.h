@@ -11,6 +11,7 @@ namespace EGT::Menu {
         ~MenuTab() { GetInstances()->erase({ tabIndex, this }); }
         static std::set<std::pair<int, MenuTab*>>* GetInstances() { static std::set<std::pair<int, MenuTab*>> instances{}; return &instances; };
 
+        virtual void Init() {};
         virtual void Render() {};
         virtual void Update() {};
 
