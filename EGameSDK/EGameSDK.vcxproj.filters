@@ -124,7 +124,7 @@
     <ClCompile Include="src\dllmain.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Vector3.cpp">
+    <ClCompile Include="src\Vec3.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ClassHelpers.cpp">
@@ -153,6 +153,9 @@
     </ClCompile>
     <ClCompile Include="src\Engine\IPhysicsCharacter.cpp">
       <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mtx34.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -212,7 +215,7 @@
     <ClInclude Include="include\EGSDK\Offsets.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\EGSDK\Vector3.h">
+    <ClInclude Include="include\EGSDK\Vec3.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Utils\Hook.h">
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="include\EGSDK\GamePH\TimeWeather\ISubsystem.h">
       <Filter>include\GamePH\TimeWeather</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Mtx34.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

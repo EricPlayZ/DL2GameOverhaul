@@ -15,11 +15,11 @@
 
 namespace EGT::Menu {
 	namespace Camera {
-		static float baseFOV = 57;
+		static float baseFOV = 0.0f;
 		static constexpr float baseSafezoneFOVReduction = -10.0f;
 		static constexpr float baseSprintHeadCorrectionFactor = 0.55f;
 
-		EGSDK::Vector3 cameraOffset{};
+		EGSDK::Vec3 cameraOffset{};
 		float firstPersonFOV = baseFOV;
 		float originalFirstPersonFOVAfterZoomIn = firstPersonFOV;
 		ImGui::KeyBindOption firstPersonZoomIn{ 'Q' , false };
@@ -46,15 +46,38 @@ namespace EGT::Menu {
 		ImGui::KeyBindOption disablePhotoModeLimits{ VK_NONE };
 		ImGui::KeyBindOption disableHeadCorrection{ VK_NONE };
 
+		static void CalculateBaseFOV() {
+			if (!EGSDK::Utils::Values::are_samef(baseFOV, 0.0f))
+				return;
+
+			auto pCVideoSettings = EGSDK::Engine::CVideoSettings::Get();
+			if (!pCVideoSettings)
+				return;
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
+			if (!iLevel || !iLevel->IsLoaded())
+				return;
+			auto viewCam = reinterpret_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera());
+			if (!viewCam)
+				return;
+			
+			baseFOV = std::roundf(viewCam->GetFOV() - pCVideoSettings->extraFOV);
+			firstPersonFOV = baseFOV;
+			if (EGSDK::Utils::Values::are_samef(thirdPersonFOV, 0.0f))
+				thirdPersonFOV = baseFOV;
+			if (EGSDK::Utils::Values::are_samef(freeCamFOV, 0.0f))
+				freeCamFOV = baseFOV;
+		}
 		static void UpdateFirstPersonFOV() {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
-			auto viewCam = iLevel ? reinterpret_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera()) : nullptr;
+			auto viewCam = iLevel && iLevel->IsLoaded() ? reinterpret_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera()) : nullptr;
 
 			static float previousFirstPersonFOV = firstPersonFOV;
 			static bool hasChangedZoomLevel = false;
 			static int zoomLevel = 0;
 
-			if (iLevel && viewCam) {
+			if (iLevel && iLevel->IsLoaded() && viewCam) {
+				auto shit = viewCam->GetViewMatrix();
+
 				if (goProMode.GetValue()) {
 					if (goProMode.HasChangedTo(true)) {
 						previousFirstPersonFOV = firstPersonFOV;
@@ -71,7 +94,7 @@ namespace EGT::Menu {
 				}
 			}
 			
-			if (iLevel && viewCam && !thirdPersonCamera.GetValue() && !freeCam.GetValue()) {
+			if (iLevel && iLevel->IsLoaded() && viewCam && !thirdPersonCamera.GetValue() && !freeCam.GetValue()) {
 				if (firstPersonZoomIn.IsKeyDown()) {
 					if (firstPersonZoomIn.IsKeyPressed()) {
 						hasChangedZoomLevel = true;
@@ -128,8 +151,8 @@ namespace EGT::Menu {
 			}
 
 			auto videoSettings = EGSDK::Engine::CVideoSettings::Get();
-			if (videoSettings && !goProMode.GetValue() && !menuToggle.GetValue() && !isZoomingIn)
-				firstPersonFOV = static_cast<int>(videoSettings->extraFOV) + baseFOV;
+			if (videoSettings && !EGSDK::Utils::Values::are_samef(baseFOV, 0.0f) && !goProMode.GetValue() && !menuToggle.GetValue() && !isZoomingIn)
+				firstPersonFOV = videoSettings->extraFOV + baseFOV;
 		}
 		static void FreeCamUpdate() {
 			if (photoMode.GetValue())
@@ -166,7 +189,7 @@ namespace EGT::Menu {
 					}
 
 					pFreeCam->speedMultiplier = freeCamSpeed;
-					pFreeCam->SetFOV(static_cast<float>(freeCamFOV));
+					pFreeCam->SetFOV(freeCamFOV);
 
 					if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
 						pFreeCam->speedMultiplier *= 2.0f;
@@ -258,15 +281,9 @@ namespace EGT::Menu {
 		}
 
 		Tab Tab::instance{};
-		void Tab::Init() {
-			if (EGSDK::Core::gameVer == 11200) {
-				baseFOV = 52;
-				firstPersonFOV = baseFOV;
-				thirdPersonFOV = baseFOV;
-				freeCamFOV = baseFOV;
-			}
-		}
+		void Tab::Init() {}
 		void Tab::Update() {
+			CalculateBaseFOV();
 			UpdateFirstPersonFOV();
 			FreeCamUpdate();
 			UpdateTPPModel();
@@ -277,10 +294,10 @@ namespace EGT::Menu {
 		void Tab::Render() {
 			ImGui::SeparatorText("First Person Camera");
 			auto pCVideoSettings = EGSDK::Engine::CVideoSettings::Get();
-			ImGui::BeginDisabled(!pCVideoSettings || goProMode.GetValue() || isZoomingIn);
+			ImGui::BeginDisabled(!pCVideoSettings || EGSDK::Utils::Values::are_samef(baseFOV, 0.0f) || goProMode.GetValue() || isZoomingIn);
 			if (ImGui::SliderFloat("FOV##FirstPerson", "First person camera field of view", &firstPersonFOV, 20.0f, 160.0f, "%.0f") && pCVideoSettings)
 				pCVideoSettings->extraFOV = firstPersonFOV - baseFOV;
-			else if (pCVideoSettings && !goProMode.GetValue())
+			else if (pCVideoSettings && !goProMode.GetValue() && !EGSDK::Utils::Values::are_samef(baseFOV, 0.0f))
 				firstPersonFOV = pCVideoSettings->extraFOV + baseFOV;
 			ImGui::EndDisabled();
 			ImGui::BeginDisabled(freeCam.GetChangesAreDisabled());
@@ -300,7 +317,9 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Use Third Person Player (TPP) Model", &tpUseTPPModel, "Uses Aiden's TPP (Third Person Player) model while the third person camera is enabled");
 			ImGui::EndDisabled();
 
+			ImGui::BeginDisabled(EGSDK::Utils::Values::are_samef(baseFOV, 0.0f));
 			ImGui::SliderFloat("FOV##ThirdPerson", "Third person camera field of view", &thirdPersonFOV, 20.0f, 160.0f, "%.0f");
+			ImGui::EndDisabled();
 			ImGui::SliderFloat("Distance behind player", &thirdPersonDistanceBehindPlayer, 1.0f, 10.0f, "%.2fm");
 			ImGui::SliderFloat("Height above player", &thirdPersonHeightAbovePlayer, 1.0f, 3.0f, "%.2fm");
 			ImGui::SliderFloat("Horizontal distance from player", &thirdPersonHorizontalDistanceFromPlayer, -2.0f, 2.0f, "%.2fm");
@@ -316,7 +335,9 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Teleport Player to Camera", &teleportPlayerToCamera, "Teleports the player to the camera while Free Camera is activated");
 			ImGui::EndDisabled();
 
+			ImGui::BeginDisabled(EGSDK::Utils::Values::are_samef(baseFOV, 0.0f));
 			ImGui::SliderFloat("FOV##FreeCam", "Free camera field of view", &freeCamFOV, 20.0f, 160.0f, "%.0f");
+			ImGui::EndDisabled();
 			ImGui::SliderFloat("Speed##FreeCam", &freeCamSpeed, 0.1f, 200.0f, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 
 			ImGui::SeparatorText("Misc");

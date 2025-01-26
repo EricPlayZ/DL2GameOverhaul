@@ -1,60 +1,66 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <EGSDK\Vector3.h>
+#include <EGSDK\Vec3.h>
 #include <EGSDK\Utils\Values.h>
 
 namespace EGSDK {
-	Vector3::Vector3() : X(0.0f), Y(0.0f), Z(0.0f) {}
-	Vector3::Vector3(float x, float y, float z) : X(x), Y(y), Z(z) {}
+	Vec3::Vec3() : X(0.0f), Y(0.0f), Z(0.0f) {}
+	Vec3::Vec3(float x, float y, float z) : X(x), Y(y), Z(z) {}
 
-	bool Vector3::operator==(const Vector3& v) const {
+	bool Vec3::operator==(const Vec3& v) const {
 		return Utils::Values::are_samef(X, v.X) && Utils::Values::are_samef(Y, v.Y) && Utils::Values::are_samef(Z, v.Z);
 	}
-	Vector3& Vector3::operator+=(const Vector3& v) {
+	Vec3& Vec3::operator+=(const Vec3& v) {
 		X += v.X;
 		Y += v.Y;
 		Z += v.Z;
 		return *this;
 	}
-	Vector3& Vector3::operator-=(const Vector3& v) {
+	Vec3& Vec3::operator-=(const Vec3& v) {
 		X -= v.X;
 		Y -= v.Y;
 		Z -= v.Z;
 		return *this;
 	}
-	Vector3 Vector3::operator+(const Vector3& v) const {
+	Vec3 Vec3::operator+(const Vec3& v) const {
 		return { X + v.X, Y + v.Y, Z + v.Z };
 	}
-	Vector3 Vector3::operator-(const Vector3& v) const {
+	Vec3 Vec3::operator-(const Vec3& v) const {
 		return { X - v.X, Y - v.Y, Z - v.Z };
 	}
-	Vector3 Vector3::operator*(float scalar) const {
+	Vec3 Vec3::operator*(const Vec3& scalar) const {
+		return { X * scalar.X, Y * scalar.Y, Z * scalar.Z };
+	}
+	Vec3 Vec3::operator/(const Vec3& scalar) const {
+		return { X / scalar.X, Y / scalar.Y, Z / scalar.Z };
+	}
+	Vec3 Vec3::operator*(float scalar) const {
 		return { X * scalar, Y * scalar, Z * scalar };
 	}
-	Vector3 Vector3::operator/(float scalar) const {
+	Vec3 Vec3::operator/(float scalar) const {
 		return { X / scalar, Y / scalar, Z / scalar };
 	}
 
-	Vector3 Vector3::normalize() {
+	Vec3 Vec3::normalize() {
 		float length = std::sqrt(X * X + Y * Y + Z * Z);
 		return { X / length, Y / length, Z / length };
 	}
-	Vector3 Vector3::cross(const Vector3& v) const {
+	Vec3 Vec3::cross(const Vec3& v) const {
 		return {
 			Y * v.Z - Z * v.Y,
 			Z * v.X - X * v.Z,
 			X * v.Y - Y * v.X
 		};
 	}
-	Vector3 Vector3::round() {
+	Vec3 Vec3::round() {
 		return { std::roundf(X), std::roundf(Y), std::roundf(Z) };
 	}
-	Vector3 Vector3::round(int decimals) {
+	Vec3 Vec3::round(int decimals) {
 		float power = std::powf(10.0f, static_cast<float>(decimals));
 		return { std::roundf(X * power) / power, std::roundf(Y * power) / power, std::roundf(Z * power) / power };
 	}
 
-	bool Vector3::isDefault() const {
+	bool Vec3::isDefault() const {
 		return Utils::Values::are_samef(X, 0.0f) && Utils::Values::are_samef(Y, 0.0f) && Utils::Values::are_samef(Z, 0.0f);
 	}
 }

@@ -52,6 +52,7 @@
     <ClCompile Include="src\GamePH\SessionCooperativeDI.cpp" />
     <ClCompile Include="src\GamePH\TimeWeather\CSystem.cpp" />
     <ClCompile Include="src\GamePH\TPPCameraDI.cpp" />
+    <ClCompile Include="src\Mtx34.cpp" />
     <ClCompile Include="src\Utils\Files.cpp" />
     <ClCompile Include="src\Utils\Hook.cpp" />
     <ClCompile Include="src\Utils\Memory.cpp" />
@@ -59,7 +60,7 @@
     <ClCompile Include="src\Utils\Sigscan.cpp" />
     <ClCompile Include="src\Utils\Time.cpp" />
     <ClCompile Include="src\Utils\Values.cpp" />
-    <ClCompile Include="src\Vector3.cpp" />
+    <ClCompile Include="src\Vec3.cpp" />
     <ClCompile Include="SteamAPI.cpp" />
     <ClCompile Include="WinMemory.cpp" />
   </ItemGroup>
@@ -109,6 +110,7 @@
     <ClInclude Include="include\EGSDK\GamePH\TimeWeather\EWeather.h" />
     <ClInclude Include="include\EGSDK\GamePH\TimeWeather\ISubsystem.h" />
     <ClInclude Include="include\EGSDK\GamePH\TPPCameraDI.h" />
+    <ClInclude Include="include\EGSDK\Mtx34.h" />
     <ClInclude Include="include\EGSDK\Offsets.h" />
     <ClInclude Include="include\EGSDK\Utils\Files.h" />
     <ClInclude Include="include\EGSDK\Utils\Hook.h" />
@@ -118,7 +120,7 @@
     <ClInclude Include="include\EGSDK\Utils\Time.h" />
     <ClInclude Include="include\EGSDK\Utils\Values.h" />
     <ClInclude Include="include\EGSDK\Utils\WinMemory.h" />
-    <ClInclude Include="include\EGSDK\Vector3.h" />
+    <ClInclude Include="include\EGSDK\Vec3.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

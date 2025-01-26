@@ -1,11 +1,11 @@
 #pragma once
-#include <EGSDK\Vector3.h>
+#include <EGSDK\Vec3.h>
 #include <EGT\Core\Core.h>
 #include <EGT\Menu\Menu.h>
 
 namespace EGT::Menu {
 	namespace Camera {
-		extern EGSDK::Vector3 cameraOffset;
+		extern EGSDK::Vec3 cameraOffset;
 		extern float firstPersonFOV;
 		extern float originalFirstPersonFOVAfterZoomIn;
 		extern ImGui::KeyBindOption firstPersonZoomIn;

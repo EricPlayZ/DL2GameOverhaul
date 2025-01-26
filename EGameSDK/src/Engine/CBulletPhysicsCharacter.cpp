@@ -4,12 +4,12 @@
 #include <EGSDK\ClassHelpers.h>
 
 namespace EGSDK::Engine {
-	Vector3 CBulletPhysicsCharacter::posBeforeFreeze{};
+	Vec3 CBulletPhysicsCharacter::posBeforeFreeze{};
 
 	void CBulletPhysicsCharacter::FreezeCharacter() {
 		MoveCharacter(posBeforeFreeze);
 	}
-	void CBulletPhysicsCharacter::MoveCharacter(const Vector3& pos) {
+	void CBulletPhysicsCharacter::MoveCharacter(const Vec3& pos) {
 		playerDownwardVelocity = 0.0f;
 		playerPos = pos;
 		playerPos2 = pos;

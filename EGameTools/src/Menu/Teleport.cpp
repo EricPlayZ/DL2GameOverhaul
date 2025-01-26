@@ -17,10 +17,10 @@ namespace EGT::Menu {
 		static int selectedTPLocation = -1;
 		static char newLocationName[125]{};
 
-		EGSDK::Vector3 waypointCoords{};
+		EGSDK::Vec3 waypointCoords{};
 		bool* waypointIsSet = nullptr;
 		bool justTeleportedToWaypoint = false;
-		static EGSDK::Vector3 teleportCoords{};
+		static EGSDK::Vec3 teleportCoords{};
 
 		ImGui::KeyBindOption teleportToSelectedLocation{ VK_F9 };
 		ImGui::KeyBindOption teleportToCoords{ VK_NONE };
@@ -91,7 +91,7 @@ namespace EGT::Menu {
 
 			return ss.str();
 		}
-		static std::string GetFormattedPosition(const EGSDK::Vector3* position) {
+		static std::string GetFormattedPosition(const EGSDK::Vec3* position) {
 			if (!position || position->isDefault())
 				return "X: 0.00, Y: 0.00, Z: 0.00";
 			static std::string formattedStr{};
@@ -125,7 +125,7 @@ namespace EGT::Menu {
 					teleportCoords = playerCharacter->playerPos;
 			}
 		}
-		static bool TeleportPlayerTo(const EGSDK::Vector3& pos) {
+		static bool TeleportPlayerTo(const EGSDK::Vec3& pos) {
 			if (isTeleportationDisabled() || pos.isDefault())
 				return false;
 
@@ -202,7 +202,7 @@ namespace EGT::Menu {
 				return false;
 			}
 
-			EGSDK::Vector3 playerPos{};
+			EGSDK::Vec3 playerPos{};
 
 			if (Camera::freeCam.GetValue()) {
 				EGSDK::GamePH::FreeCamera* freeCam = EGSDK::GamePH::FreeCamera::Get();
@@ -213,7 +213,7 @@ namespace EGT::Menu {
 					return false;
 				}
 
-				EGSDK::Vector3 camPos{};
+				EGSDK::Vec3 camPos{};
 				freeCam->GetPosition(&camPos);
 				if (camPos.isDefault()) {
 					ImGui::CloseCurrentPopup();
@@ -307,7 +307,7 @@ namespace EGT::Menu {
 			auto playerCharacter = EGSDK::Engine::CBulletPhysicsCharacter::Get();
 			auto freeCam = EGSDK::GamePH::FreeCamera::Get();
 
-			EGSDK::Vector3 camPos{};
+			EGSDK::Vec3 camPos{};
 			ImGui::Text("Player Position: %s", GetFormattedPosition(playerCharacter ? &*playerCharacter->playerPos.getPointer() : nullptr).data());
 			ImGui::Text("Free Camera Position: %s", GetFormattedPosition(freeCam && Camera::freeCam.GetValue() ? freeCam->GetPosition(&camPos) : nullptr).data());
 			ImGui::Text("Waypoint Position: %s", GetFormattedPosition(waypointIsSet && *waypointIsSet && !waypointCoords.isDefault() ? &waypointCoords : nullptr).data());

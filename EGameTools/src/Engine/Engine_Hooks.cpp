@@ -14,9 +14,9 @@ namespace EGT::Engine {
 	namespace Hooks {
 #pragma region MoveCameraFromForwardUpPos
 		bool switchedFreeCamByGamePause = false;
-		EGSDK::Vector3 freeCamPosBeforeGamePause{};
+		EGSDK::Vec3 freeCamPosBeforeGamePause{};
 
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float*, float*, EGSDK::Vector3*), void*, float*, float*, EGSDK::Vector3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::OffsetManager::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, float* a3, float* a4, EGSDK::Vector3* pos) -> void {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float*, float*, EGSDK::Vec3*), void*, float*, float*, EGSDK::Vec3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::OffsetManager::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, float* a3, float* a4, EGSDK::Vec3* pos) -> void {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel || !iLevel->IsLoaded() || iLevel->IsTimerFrozen())
 				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
@@ -35,7 +35,7 @@ namespace EGT::Engine {
 			if (!viewCam)
 				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
 
-			EGSDK::Vector3 forwardVec, upVec, leftVec = {};
+			EGSDK::Vec3 forwardVec, upVec, leftVec = {};
 			viewCam->GetForwardVector(&forwardVec);
 			viewCam->GetUpVector(&upVec);
 			viewCam->GetLeftVector(&leftVec);
@@ -44,7 +44,7 @@ namespace EGT::Engine {
 			const auto normUpVec = upVec.normalize();
 			const auto normLeftVec = leftVec.normalize();
 
-			EGSDK::Vector3 newCamPos = *pos;
+			EGSDK::Vec3 newCamPos = *pos;
 
 			if (!Menu::Camera::cameraOffset.isDefault() && !Menu::Camera::thirdPersonCamera.GetValue()) {
 				newCamPos -= normLeftVec * Menu::Camera::cameraOffset.X;

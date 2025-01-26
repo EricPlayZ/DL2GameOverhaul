@@ -130,7 +130,8 @@ namespace EGT::Menu {
 						timeWeather->blendTime2 = 1.0f;
 						if (!EGSDK::Utils::Memory::IsBadReadPtr(timeWeather->nextSubSystem))
 							timeWeather->nextSubSystem->blendTime = 1.0f;
-					}
+					} else if (!EGSDK::Utils::Memory::IsBadReadPtr(timeWeather->nextSubSystem) && !EGSDK::Utils::Values::are_samef(timeWeather->nextSubSystem->blendTime, 1.0f))
+						timeWeather->nextSubSystem->blendTime = 1.0f;
 				} else {
 					timeWeather->blendTime = previousBlendTime;
 					timeWeather->blendTime2 = previousBlendTime2;
@@ -162,7 +163,6 @@ namespace EGT::Menu {
 			if (timeSlider) {
 				requestedTimeWeatherInterpolation = true;
 				timeBeforeFreeze = time;
-				//UpdateWeatherInterpolation();
 				dayNightCycle->SetDaytime(time);
 			}
 
@@ -186,7 +186,6 @@ namespace EGT::Menu {
 			ImGui::BeginDisabled(weatherDisabledFlag);
 			if (ImGui::Combo("Weather", reinterpret_cast<int*>(&weather), weatherItems, IM_ARRAYSIZE(weatherItems))) {
 				requestedTimeWeatherInterpolation = true;
-				//UpdateWeatherInterpolation();
 				timeWeatherSystem->SetForcedWeather(static_cast<EGSDK::GamePH::TimeWeather::EWeather>(weather - 1));
 			}
 			ImGui::Text("Current weather: %s", !weatherDisabledFlag ? weatherItems[timeWeatherSystem->GetCurrentWeather() + 1] : "");
