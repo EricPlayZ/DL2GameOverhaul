@@ -157,6 +157,9 @@
     <ClCompile Include="src\Mtx34.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Vec4.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
@@ -372,6 +375,9 @@
       <Filter>include\GamePH\TimeWeather</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Mtx34.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Vec4.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

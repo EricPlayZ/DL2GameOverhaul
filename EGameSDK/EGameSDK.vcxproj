@@ -61,6 +61,7 @@
     <ClCompile Include="src\Utils\Time.cpp" />
     <ClCompile Include="src\Utils\Values.cpp" />
     <ClCompile Include="src\Vec3.cpp" />
+    <ClCompile Include="src\Vec4.cpp" />
     <ClCompile Include="SteamAPI.cpp" />
     <ClCompile Include="WinMemory.cpp" />
   </ItemGroup>
@@ -121,6 +122,7 @@
     <ClInclude Include="include\EGSDK\Utils\Values.h" />
     <ClInclude Include="include\EGSDK\Utils\WinMemory.h" />
     <ClInclude Include="include\EGSDK\Vec3.h" />
+    <ClInclude Include="include\EGSDK\Vec4.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

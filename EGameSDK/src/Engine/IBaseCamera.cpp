@@ -20,10 +20,16 @@ namespace EGSDK::Engine {
 	Vec3* IBaseCamera::GetPosition(Vec3* outPos) {
 		return Utils::Memory::SafeCallFunction<Vec3*>("engine_x64_rwdi.dll", "?GetPosition@IBaseCamera@@UEBA?BVvec3@@XZ", nullptr, this, outPos);
 	}
-	CameraMtx* IBaseCamera::GetViewMatrix() {
-		return Utils::Memory::SafeCallFunction<CameraMtx*>("engine_x64_rwdi.dll", "?GetViewMatrix@IBaseCamera@@QEAAAEBVmtx34@@XZ", nullptr, this);
+	Mtx34* IBaseCamera::GetViewMatrix() {
+		return Utils::Memory::SafeCallFunction<Mtx34*>("engine_x64_rwdi.dll", "?GetViewMatrix@IBaseCamera@@QEAAAEBVmtx34@@XZ", nullptr, this);
+	}
+	Mtx34* IBaseCamera::GetInvCameraMatrix() {
+		return Utils::Memory::SafeCallFunction<Mtx34*>("engine_x64_rwdi.dll", "?GetInvCameraMatrix@IBaseCamera@@QEAAAEBVmtx34@@XZ", nullptr, this);
 	}
 
+	void IBaseCamera::Rotate(float angle, const Vec3* axis) {
+		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?Rotate@IBaseCamera@@QEAAXMAEBVvec3@@@Z", this, angle, axis);
+	}
 	void IBaseCamera::SetFOV(float fov) {
 		isSetFOVCalledByEGSDK = true;
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetFOV@IBaseCamera@@QEAAXM@Z", this, fov);
@@ -32,7 +38,10 @@ namespace EGSDK::Engine {
 	void IBaseCamera::SetPosition(const Vec3* pos) {
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetPosition@IBaseCamera@@QEAAXAEBVvec3@@@Z", this, pos);
 	}
-	void IBaseCamera::SetCameraMatrix(const CameraMtx* mtx) {
+	void IBaseCamera::SetCameraMatrix(const Mtx34* mtx) {
 		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetCameraMatrix@IBaseCamera@@QEAAXAEBVmtx34@@@Z", this, mtx);
+	}
+	void IBaseCamera::SetInvCameraMatrix(const Mtx34* mtx) {
+		Utils::Memory::SafeCallFunctionVoid("engine_x64_rwdi.dll", "?SetInvCameraMatrix@IBaseCamera@@QEAAXAEBVmtx34@@@Z", this, mtx);
 	}
 }

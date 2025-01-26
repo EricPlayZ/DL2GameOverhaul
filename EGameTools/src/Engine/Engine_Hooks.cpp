@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <filesystem>
 #include <EGSDK\Utils\Time.h>
 #include <EGSDK\Utils\WinMemory.h>
@@ -5,6 +7,7 @@
 #include <EGSDK\Engine\RendererCVars.h>
 #include <EGSDK\Engine\CBaseCamera.h>
 #include <EGSDK\Engine\Engine_Misc.h>
+#include <EGSDK\GamePH\FreeCamera.h>
 #include <EGSDK\Offsets.h>
 #include <EGT\Engine\Engine_Hooks.h>
 #include <EGT\Menu\Camera.h>
@@ -13,27 +16,42 @@
 namespace EGT::Engine {
 	namespace Hooks {
 #pragma region MoveCameraFromForwardUpPos
-		bool switchedFreeCamByGamePause = false;
-		EGSDK::Vec3 freeCamPosBeforeGamePause{};
+		static bool switchedFreeCamByGamePause = false;
+		static EGSDK::Vec3 freeCamPosBeforeGamePause{};
+		static EGSDK::Vec3 freeCamTargetDirBeforeGamePause{};
+		static EGSDK::Vec3 freeCamUpDirBeforeGamePause{};
 
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, float*, float*, EGSDK::Vec3*), void*, float*, float*, EGSDK::Vec3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::OffsetManager::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, float* a3, float* a4, EGSDK::Vec3* pos) -> void {
+		static EGSDK::Utils::Hook::MHook<void*, void(*)(void*, EGSDK::Vec3*, EGSDK::Vec3*, EGSDK::Vec3*), void*, EGSDK::Vec3*, EGSDK::Vec3*, EGSDK::Vec3*> MoveCameraFromForwardUpPosHook{ "MoveCameraFromForwardUpPos", &EGSDK::OffsetManager::Get_MoveCameraFromForwardUpPos, [](void* pCBaseCamera, EGSDK::Vec3* targetDirection, EGSDK::Vec3* upDirection, EGSDK::Vec3* pos) -> void {
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
-			if (!iLevel || !iLevel->IsLoaded() || iLevel->IsTimerFrozen())
-				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
-			if (!pos)
-				return;
-
-			if (Menu::Camera::freeCam.GetValue() && switchedFreeCamByGamePause) {
-				switchedFreeCamByGamePause = false;
-				*pos = freeCamPosBeforeGamePause;
-				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
+			if (!iLevel || !iLevel->IsLoaded())
+				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
+			if (iLevel->IsTimerFrozen()) {
+				switchedFreeCamByGamePause = Menu::Camera::freeCam.GetValue() && iLevel->IsTimerFrozen();
+				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
 			}
-			if ((!Menu::Camera::thirdPersonCamera.GetValue() && Menu::Camera::cameraOffset.isDefault()) || Menu::Camera::photoMode.GetValue() || Menu::Camera::freeCam.GetValue())
-				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
+			if (!targetDirection || !upDirection || !pos)
+				return;
 
 			auto viewCam = static_cast<EGSDK::Engine::CBaseCamera*>(iLevel->GetViewCamera());
 			if (!viewCam)
-				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
+				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
+
+			if (Menu::Camera::freeCam.GetValue() && viewCam == EGSDK::GamePH::FreeCamera::Get()) {
+				if (switchedFreeCamByGamePause) {
+					switchedFreeCamByGamePause = false;
+					*pos = freeCamPosBeforeGamePause;
+					*targetDirection = freeCamTargetDirBeforeGamePause;
+					*upDirection = freeCamUpDirBeforeGamePause;
+				} else {
+					freeCamPosBeforeGamePause = *pos;
+					freeCamTargetDirBeforeGamePause = *targetDirection;
+					freeCamUpDirBeforeGamePause = *upDirection;
+				}
+				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
+			}
+
+			if ((!Menu::Camera::thirdPersonCamera.GetValue() && Menu::Camera::cameraOffset.isDefault()) || Menu::Camera::photoMode.GetValue() || Menu::Camera::freeCam.GetValue())
+				return MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
 
 			EGSDK::Vec3 forwardVec, upVec, leftVec = {};
 			viewCam->GetForwardVector(&forwardVec);
@@ -57,7 +75,7 @@ namespace EGT::Engine {
 			}
 
 			*pos = newCamPos;
-			MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, a3, a4, pos);
+			MoveCameraFromForwardUpPosHook.ExecuteCallbacksWithOriginal(pCBaseCamera, targetDirection, upDirection, pos);
 		} };
 #pragma endregion
 

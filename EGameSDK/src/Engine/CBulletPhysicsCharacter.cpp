@@ -12,7 +12,7 @@ namespace EGSDK::Engine {
 	void CBulletPhysicsCharacter::MoveCharacter(const Vec3& pos) {
 		playerDownwardVelocity = 0.0f;
 		playerPos = pos;
-		playerPos2 = pos;
+		//playerPos2 = pos;
 	}
 
 	static CBulletPhysicsCharacter* GetOffset_CBulletPhysicsCharacter() {

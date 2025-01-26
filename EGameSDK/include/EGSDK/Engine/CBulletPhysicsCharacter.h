@@ -8,7 +8,6 @@ namespace EGSDK::Engine {
 	public:
 		union {
 			DynamicField(CBulletPhysicsCharacter, Vec3, playerPos);
-			DynamicField(CBulletPhysicsCharacter, Vec3, playerPos2);
 			DynamicField(CBulletPhysicsCharacter, float, playerDownwardVelocity);
 		};
 

@@ -9,7 +9,6 @@
 #include <EGSDK\GamePH\PlayerDI_PH.h>
 #include <EGSDK\GamePH\GamePH_Misc.h>
 #include <EGSDK\Offsets.h>
-#include <EGT\Engine\Engine_Hooks.h>
 #include <EGT\Menu\Camera.h>
 #include <EGT\Menu\Menu.h>
 
@@ -195,8 +194,6 @@ namespace EGT::Menu {
 						pFreeCam->speedMultiplier *= 2.0f;
 					else if (ImGui::IsKeyDown(ImGuiKey_LeftAlt))
 						pFreeCam->speedMultiplier /= 2.0f;
-
-					pFreeCam->GetPosition(&EGT::Engine::Hooks::freeCamPosBeforeGamePause);
 					return;
 				}
 
@@ -207,8 +204,6 @@ namespace EGT::Menu {
 				pGameDI_PH->TogglePhotoMode();
 				pFreeCam->AllowCameraMovement(2);
 			} else {
-				Engine::Hooks::switchedFreeCamByGamePause = freeCam.GetValue() && iLevel->IsTimerFrozen();
-
 				if (prevFreeCam) {
 					pFreeCam->enableSpeedMultiplier1 = prevEnableSpeedMultiplier;
 					pFreeCam->speedMultiplier = prevSpeedMultiplier;

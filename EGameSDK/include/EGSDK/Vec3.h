@@ -20,8 +20,9 @@ namespace EGSDK {
 		Vec3 operator*(float scalar) const;
 		Vec3 operator/(float scalar) const;
 
-		Vec3 normalize();
+		Vec3 normalize() const;
 		Vec3 cross(const Vec3& v) const;
+		float dot(const Vec3& v) const;
 		Vec3 round();
 		Vec3 round(int decimals);
 

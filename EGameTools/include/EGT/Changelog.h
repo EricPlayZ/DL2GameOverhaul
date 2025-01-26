@@ -170,12 +170,14 @@ I have some things planned for the next updates, but time will decide when I'll 
 
 - Changed DirectX 11 and DirectX 12 hooks to be more reliable and less likely to crash the game
 - Fixed time and weather changing taking a long time to apply (now it is instant!)
-- Fixed random classes not getting detected properly, resulting in NULL values in the Debug tab, which was caused by unreliable class vftable scanning which can now be disabled through the "Disable Vftable Scanning" in the Debug tab in case of class detection issues
+
 - Fixed game progression not working properly if you modify Player Variables related to game progression, because game and mod Player Variables interfere with each other
 - Fixed ownership of Player Variables managed by EGameTools, removing conflict in managing Player Variables between different modules (e.g. Player and World) and any bugs associated with this issue
 - Fixed conflict between ImGui state and Player Variables list, causing the game to crash when changing Player Variables
 - Fixed random crashes related to Player Variables (if you still experience crashes at startup, please open a bug report)
+- Fixed Free Camera orientation resetting back to player orientation after pausing and unpausing the game
 - Fixed FOV slider not affecting Third Person Camera
+- Fixed random classes not getting detected properly, resulting in NULL values in the Debug tab, which was caused by unreliable class vftable scanning which can now be disabled through the "Disable Vftable Scanning" in the Debug tab in case of class detection issues
 - Fixed not all options in the mod menu being disabled whilst the game is starting up)" }
 	};
 }

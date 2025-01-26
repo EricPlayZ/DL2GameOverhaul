@@ -6,8 +6,6 @@
 
 namespace EGT::Engine {
 	namespace Hooks {
-		extern bool switchedFreeCamByGamePause;
-		extern EGSDK::Vec3 freeCamPosBeforeGamePause;
 		extern int mountDataPaksRanWith8Count;
 
 		extern EGSDK::Utils::Hook::MHook<void*, DWORD64(*)(DWORD64, DWORD, DWORD), DWORD64, DWORD, DWORD> FsOpenHook;

@@ -41,7 +41,10 @@ namespace EGSDK {
 		return { X / scalar, Y / scalar, Z / scalar };
 	}
 
-	Vec3 Vec3::normalize() {
+	Vec3 Vec3::normalize() const {
+		if (isDefault())
+			return *this;
+
 		float length = std::sqrt(X * X + Y * Y + Z * Z);
 		return { X / length, Y / length, Z / length };
 	}
@@ -51,6 +54,9 @@ namespace EGSDK {
 			Z * v.X - X * v.Z,
 			X * v.Y - Y * v.X
 		};
+	}
+	float Vec3::dot(const Vec3& v) const {
+		return (X * v.X) + (Y * v.Y) + (Z * v.Z);
 	}
 	Vec3 Vec3::round() {
 		return { std::roundf(X), std::roundf(Y), std::roundf(Z) };
