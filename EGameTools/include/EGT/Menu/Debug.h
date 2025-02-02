@@ -3,7 +3,6 @@
 	
 namespace EGT::Menu {
 	namespace Debug {
-		extern ImGui::Option disableLowLevelMouseHook;
 		extern ImGui::Option disableVftableScanning;
 		extern ImGui::Option enableDebuggingConsole;
 

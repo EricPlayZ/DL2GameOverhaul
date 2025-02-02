@@ -121,7 +121,6 @@ namespace EGT::Config {
 			{ "Misc:GameChecks", "IncreaseDataPAKsLimit", Menu::Misc::increaseDataPAKsLimit.GetValue(), &Menu::Misc::increaseDataPAKsLimit, OPTION },
 			{ "World:Time", "SlowMotionSpeed", Menu::World::slowMotionSpeed, &Menu::World::slowMotionSpeed, Float },
 			{ "World:Time", "SlowMotionTransitionTime", Menu::World::slowMotionTransitionTime, &Menu::World::slowMotionTransitionTime, Float },
-			{ "Debug:Misc", "DisableLowLevelMouseHook", Menu::Debug::disableLowLevelMouseHook.GetValue(), &Menu::Debug::disableLowLevelMouseHook, OPTION },
 			{ "Debug:Misc", "DisableVftableScanning", Menu::Debug::disableVftableScanning.GetValue(), &Menu::Debug::disableVftableScanning, OPTION },
 			{ "Debug:Misc", "EnableDebuggingConsole", Menu::Debug::enableDebuggingConsole.GetValue(), &Menu::Debug::enableDebuggingConsole, OPTION }
 		});
@@ -231,12 +230,6 @@ namespace EGT::Config {
 					ImGui::Option* option = reinterpret_cast<ImGui::Option*>(entry.optionPtr);
 					if (option->GetChangesAreDisabled())
 						break;
-#ifdef _DEBUG
-					if (entry.key == "DisableLowLevelMouseHook") {
-						option->SetBothValues(true);
-						break;
-					}
-#endif
 
 					option->SetBothValues(reader.Get(entry.section.data(), entry.key.data(), std::any_cast<bool>(entry.value)));
 					break;

@@ -48,6 +48,7 @@ namespace EGSDK {
 
 		// Input related
 		AddPattern(CInput, "engine_x64_rwdi.dll", "48 8B 0D [?? ?? ?? ?? 48 85 C9 74 ?? 48 8B 01 84 D2", Utils::SigScan::PatternType::RelativePointer, uint64_t**) // g_CInput
+		AddPattern(CDIDev_GetDeviceData, "dinput8.dll", "40 53 57 48 83 EC ?? 48 8B 01", Utils::SigScan::PatternType::Address, void*)
 
 		// Rendering related
 		AddPattern(DXPresent, "sl.interposer.dll", "48 89 5C 24 ?? 48 89 74 24 ?? 57 41 56", Utils::SigScan::PatternType::Address, void*)

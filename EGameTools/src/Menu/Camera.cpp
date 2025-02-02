@@ -75,11 +75,9 @@ namespace EGT::Menu {
 			static int zoomLevel = 0;
 
 			if (iLevel && iLevel->IsLoaded() && viewCam) {
-				auto shit = viewCam->GetViewMatrix();
-
 				if (goProMode.GetValue()) {
 					if (goProMode.HasChangedTo(true)) {
-						previousFirstPersonFOV = firstPersonFOV;
+						previousFirstPersonFOV = viewCam->GetFOV();
 						goProMode.SetPrevValue(true);
 					}
 
@@ -88,8 +86,6 @@ namespace EGT::Menu {
 				} else if (goProMode.HasChangedTo(false)) {
 					firstPersonFOV = previousFirstPersonFOV;
 					goProMode.SetPrevValue(false);
-
-					viewCam->SetFOV(firstPersonFOV);
 				}
 			}
 			
@@ -98,7 +94,7 @@ namespace EGT::Menu {
 					if (firstPersonZoomIn.IsKeyPressed()) {
 						hasChangedZoomLevel = true;
 						if (!isZoomingIn) {
-							originalFirstPersonFOVAfterZoomIn = firstPersonFOV;
+							originalFirstPersonFOVAfterZoomIn = viewCam->GetFOV();
 							previousFirstPersonFOV = originalFirstPersonFOVAfterZoomIn;
 						} else
 							previousFirstPersonFOV = firstPersonFOV;

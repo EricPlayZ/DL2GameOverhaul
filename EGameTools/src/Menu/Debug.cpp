@@ -64,11 +64,6 @@ namespace EGT::Menu {
 			{ "CoPhysicsProperty", reinterpret_cast<void*(*)()>(&EGSDK::Engine::CoPhysicsProperty::Get) }
 		};
 
-#ifdef _DEBUG
-		ImGui::Option disableLowLevelMouseHook{ true };
-#else
-		ImGui::Option disableLowLevelMouseHook { false };
-#endif
 		ImGui::Option disableVftableScanning { false };
 #ifdef _DEBUG
 		ImGui::Option enableDebuggingConsole { true };
@@ -107,8 +102,6 @@ namespace EGT::Menu {
 		void Tab::Update() {}
 		void Tab::Render() {
 			ImGui::SeparatorText("Misc##Debug");
-			if (ImGui::Checkbox("Disable Low Level Mouse Hook", &disableLowLevelMouseHook, "Disables the low level mouse hook that is used to capture mouse input in the game; this option is used for debugging purposes"))
-				ImGui_impl::Win32::ToggleMouseHook(disableLowLevelMouseHook.GetValue());
 			if (ImGui::Checkbox("Disable Vftable Scanning", &disableVftableScanning, "Disables the vftable scanning for classes that are used in the game and used to validate a class in memory; this option is used for debugging purposes"))
 				EGSDK::ClassHelpers::SetIsVftableScanningDisabled(disableVftableScanning.GetValue());
 			ImGui::Checkbox("Enable Debugging Console *", &enableDebuggingConsole, "Enables EGameTools' debugging console that shows up when starting up the game; this option is used for debugging purposes");

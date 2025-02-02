@@ -36,6 +36,7 @@ namespace EGSDK {
 			{ GetOffsetNameFromClassMember(&GamePH::LocalClientDI::pPlayerDI_PH), 0x88 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pCoPhysicsProperty), 0xE8 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::pInventoryContainerDI), 0x550 },
+			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::nextPlayerOrientation), 0xC68 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::restrictionsEnabled), 0x2CF0 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel1), 0x2DC1 },
 			{ GetOffsetNameFromClassMember(&GamePH::PlayerDI_PH::enableTPPModel2), 0x2DC2 },

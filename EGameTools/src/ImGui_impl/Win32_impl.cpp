@@ -1,9 +1,11 @@
 ﻿#include <Windows.h>
+#include <dinput.h>
 #include <spdlog\spdlog.h>
 #include <ImGui\imgui_hotkey.h>
+#include <EGSDK\Utils\Hook.h>
 #include <EGSDK\Engine\CInput.h>
 #include <EGT\Menu\Menu.h>
-#include <EGT\Menu\Debug.h>
+#include <EGT\Menu\Camera.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -11,7 +13,6 @@ namespace EGT::ImGui_impl {
 	namespace Win32 {
 		static HWND gHwnd = nullptr;
 		static WNDPROC oWndProc = nullptr;
-		static HHOOK oMouseProc = nullptr;
 
 		static LRESULT __stdcall hkWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
 			switch (uMsg) {
@@ -82,90 +83,45 @@ namespace EGT::ImGui_impl {
 			return CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
 		}
 
-		static LRESULT CALLBACK hkMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
-			if (nCode != HC_ACTION)
-				return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
-			if (GetForegroundWindow() != gHwnd)
-				return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
+		static EGSDK::Utils::Hook::MHook<void*, HRESULT(*)(IDirectInputDevice8*, unsigned long, LPDIDEVICEOBJECTDATA, unsigned long*, unsigned long), IDirectInputDevice8*, unsigned long, LPDIDEVICEOBJECTDATA, unsigned long*, unsigned long> CDIDev_GetDeviceDataHook{ "CDIDev_GetDeviceData", &EGSDK::OffsetManager::Get_CDIDev_GetDeviceData, [](IDirectInputDevice8* device, unsigned long cbObjectData, LPDIDEVICEOBJECTDATA rgdod, unsigned long* pdwInOut, unsigned long dwFlags) -> HRESULT {
+			HRESULT result = CDIDev_GetDeviceDataHook.ExecuteOriginal(device, cbObjectData, rgdod, pdwInOut, dwFlags);
 
-			switch (wParam) {
-			case WM_MOUSEWHEEL:
-			case WM_MOUSEHWHEEL:
-			{
-				MSLLHOOKSTRUCT* pMouseStruct = (MSLLHOOKSTRUCT*)lParam;
-				if (pMouseStruct == nullptr)
-					break;
+			if (!rgdod || !pdwInOut || *pdwInOut == 0)
+				return result;
 
-				if (GET_WHEEL_DELTA_WPARAM(pMouseStruct->mouseData)) {
-					if (Menu::firstTimeRunning.GetValue())
-						break;
+			unsigned int validEvents = 0;
+			for (unsigned int i = 0; i < *pdwInOut; i++) {
+				if (rgdod[i].dwOfs == DIMOFS_Z) {
+					long scrollDelta = rgdod[i].dwData;
+
 					for (auto& option : *ImGui::KeyBindOption::GetInstances()) {
 						if (option->GetChangesAreDisabled())
 							continue;
 
-						if ((option->GetKeyBind() == VK_MWHEELUP && GET_WHEEL_DELTA_WPARAM(pMouseStruct->mouseData) > 0) ||
-							(option->GetKeyBind() == VK_MWHEELDOWN && GET_WHEEL_DELTA_WPARAM(pMouseStruct->mouseData) < 0))
+						if ((option->GetKeyBind() == VK_MWHEELUP && scrollDelta > 0) ||
+							(option->GetKeyBind() == VK_MWHEELDOWN && scrollDelta < 0))
 							option->Toggle();
 					}
 
-					if (GET_WHEEL_DELTA_WPARAM(pMouseStruct->mouseData) > 0)
+					if (scrollDelta > 0)
 						ImGui::KeyBindOption::scrolledMouseWheelUp = true;
-					else if (GET_WHEEL_DELTA_WPARAM(pMouseStruct->mouseData) < 0)
+					else if (scrollDelta < 0)
 						ImGui::KeyBindOption::scrolledMouseWheelDown = true;
+
+					if (Menu::Camera::firstPersonZoomIn.IsKeyDown())
+						continue;
 				}
-				break;
+				rgdod[validEvents++] = rgdod[i];
 			}
-			}
 
-			return CallNextHookEx(oMouseProc, nCode, wParam, lParam);
-		}
-		static void MouseHkMsgLoop() {
-			MSG msg{};
-			while (oMouseProc) {
-				if (oMouseProc && GetMessageA(&msg, NULL, 0, 0)) {
-					TranslateMessage(&msg);
-					DispatchMessageA(&msg);
-				}
-			}
-		}
+			*pdwInOut = validEvents;
 
-		static void EnableMouseHook() {
-			if (oMouseProc)
-				return;
-
-			std::thread([]() {
-				if (oMouseProc)
-					return;
-
-				oMouseProc = SetWindowsHookExA(WH_MOUSE_LL, hkMouseProc, GetModuleHandleA(nullptr), 0);
-				if (!oMouseProc) {
-					SPDLOG_ERROR("Failed to enable low level mouse hook; mouse input-related functions (such as FreeCam speed changing through the scrollwheel) may not work");
-					return;
-				}
-
-				MouseHkMsgLoop();
-			}).detach();
-		}
-		static void DisableMouseHook() {
-			if (!oMouseProc)
-				return;
-
-			UnhookWindowsHookEx(oMouseProc);
-			oMouseProc = nullptr;
-		}
-		void ToggleMouseHook(bool disableLowLevelMouseHook) {
-			if (disableLowLevelMouseHook)
-				DisableMouseHook();
-			else
-				EnableMouseHook();
-		}
+			return result;
+		} };
 
 		void Init(HWND hwnd) {
 			gHwnd = hwnd;
 			oWndProc = (WNDPROC)SetWindowLongPtrA(hwnd, GWLP_WNDPROC, (LONG_PTR)hkWindowProc);
-
-			if (!Menu::Debug::disableLowLevelMouseHook.GetValue())
-				EnableMouseHook();
 		}
 	}
 }
