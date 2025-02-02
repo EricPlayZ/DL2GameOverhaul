@@ -5,7 +5,6 @@
 #include <EGSDK\Engine\IControlObject.h>
 #include <EGSDK\GamePH\InventoryItem.h>
 #include <EGSDK\GamePH\InventoryContainerDI.h>
-#include <EGSDK\GamePH\PlayerFppVis_PH.h>
 
 namespace EGSDK::Engine {
 	class CoPhysicsProperty;

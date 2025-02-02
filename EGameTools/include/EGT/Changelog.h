@@ -159,6 +159,7 @@ I have some things planned for the next updates, but time will decide when I'll 
 - Added compatibility with v1.12.0 (including E3 Definitive Mod support!)
 - Added EGameSDK.dll as a dependency library for EGameTools (EGameSDK coming soon TM :] I hope some of you developers are looking forward to it!)
 - Added automatic savegame backups to "%localappdata%\EGameSDK\SavegameBackups" using Steamworks API for Steam; also supports the Epic Games version
+- Added proper Nightrunner/Fury Mode effects when Nightrunner Mode is enabled (Player)
 - Added "Camera Offset" sliders for camera position (Camera)
 - Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
 - Added separate FOV sliders for each type of camera (Camera)

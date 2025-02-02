@@ -430,6 +430,19 @@ namespace EGT::Menu {
 			if (!playerInfectionModule)
 				return;
 
+			static float previousNightrunnerTimer = playerInfectionModule->nightrunnerTimer;
+			if (nightrunnerMode.GetValue()) {
+				if (nightrunnerMode.HasChanged()) {
+					previousNightrunnerTimer = playerInfectionModule->nightrunnerTimer;
+					nightrunnerMode.SetPrevValue(true);
+				}
+				playerInfectionModule->nightrunnerTimer = FLT_MAX;
+			}
+			else if (nightrunnerMode.HasChanged()) {
+				playerInfectionModule->nightrunnerTimer = previousNightrunnerTimer;
+				nightrunnerMode.SetPrevValue(false);
+			}
+
 			playerMaxImmunity = playerInfectionModule->maxImmunity * 100.0f;
 
 			if (menuToggle.GetValue())

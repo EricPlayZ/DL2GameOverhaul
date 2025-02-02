@@ -163,15 +163,6 @@
     <ClCompile Include="src\Engine\IControlObject.cpp">
       <Filter>src\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\IGSObject.cpp">
-      <Filter>src\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GamePH\CameraFPPDI.cpp">
-      <Filter>src\GamePH</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GamePH\PlayerFppVis_PH.cpp">
-      <Filter>src\GamePH</Filter>
-    </ClCompile>
     <ClCompile Include="src\Vec2.cpp">
       <Filter>src</Filter>
     </ClCompile>

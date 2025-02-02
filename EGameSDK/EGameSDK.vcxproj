@@ -29,12 +29,10 @@
     <ClCompile Include="src\Engine\CoPhysicsProperty.cpp" />
     <ClCompile Include="src\Engine\IBaseCamera.cpp" />
     <ClCompile Include="src\Engine\IControlObject.cpp" />
-    <ClCompile Include="src\Engine\IGSObject.cpp" />
     <ClCompile Include="src\Engine\IPhysicsCharacter.cpp" />
     <ClCompile Include="src\Engine\RendererCVars.cpp" />
     <ClCompile Include="src\Engine\CVideoSettings.cpp" />
     <ClCompile Include="src\Engine\Engine_Misc.cpp" />
-    <ClCompile Include="src\GamePH\CameraFPPDI.cpp" />
     <ClCompile Include="src\GamePH\CoPlayerRestrictions.cpp" />
     <ClCompile Include="src\GamePH\DayNightCycle.cpp" />
     <ClCompile Include="src\GamePH\FreeCamera.cpp" />
@@ -48,7 +46,6 @@
     <ClCompile Include="src\GamePH\LocalClientDI.cpp" />
     <ClCompile Include="src\GamePH\LogicalPlayer.cpp" />
     <ClCompile Include="src\GamePH\PlayerDI_PH.cpp" />
-    <ClCompile Include="src\GamePH\PlayerFppVis_PH.cpp" />
     <ClCompile Include="src\GamePH\PlayerHealthModule.cpp" />
     <ClCompile Include="src\GamePH\PlayerInfectionModule.cpp" />
     <ClCompile Include="src\GamePH\PlayerState.cpp" />
