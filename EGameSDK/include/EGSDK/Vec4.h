@@ -21,6 +21,8 @@ namespace EGSDK {
 		Vec4 operator*(float scalar) const;
 		Vec4 operator/(float scalar) const;
 
+		Vec4 operator-() const;
+
 		Vec4 normalize() const;
 		Vec4 round();
 		Vec4 round(int decimals);

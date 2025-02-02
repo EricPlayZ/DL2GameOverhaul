@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 #include <EGSDK\Utils\Values.h>
 
@@ -16,6 +17,19 @@ namespace EGSDK::Utils {
                 multiplier *= 10.0f;
 
             return std::round(value * multiplier) / multiplier;
+        }
+
+        float GetPitchDegreesRelativeTo(const Vec3& dirVec, const Vec3& referenceAxis) {
+            Vec3 relativeDirVec = dirVec;
+
+            if (referenceAxis == Vec3(0.0f, 1.0f, 0.0f))
+                relativeDirVec = Vec3(dirVec.X, dirVec.Z, dirVec.Y);
+            else if (referenceAxis == Vec3(1.0f, 0.0f, 0.0f))
+                relativeDirVec = Vec3(dirVec.Z, dirVec.Y, dirVec.X);
+
+            Vec3 normalizedVec = relativeDirVec.normalize();
+            float pitchRadians = std::atan2(normalizedVec.Y, std::sqrt(normalizedVec.X * normalizedVec.X + normalizedVec.Z * normalizedVec.Z));
+            return pitchRadians * (180.0f / M_PI);
         }
 
         bool str_ends_with_ci(const std::string& text, const std::string& substr) {

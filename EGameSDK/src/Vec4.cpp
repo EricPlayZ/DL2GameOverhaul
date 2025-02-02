@@ -43,6 +43,10 @@ namespace EGSDK {
 		return { X / scalar, Y / scalar, Z / scalar, W / scalar };
 	}
 
+	Vec4 Vec4::operator-() const {
+		return { -X, -Y, -Z, -W };
+	}
+
 	Vec4 Vec4::normalize() const {
 		float length = std::sqrt(X * X + Y * Y + Z * Z + W * W);
 		return { X / length, Y / length, Z / length, W / length };

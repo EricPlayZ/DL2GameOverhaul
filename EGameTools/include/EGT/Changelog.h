@@ -162,6 +162,9 @@ I have some things planned for the next updates, but time will decide when I'll 
 - Added "Camera Offset" sliders for camera position (Camera)
 - Added "Zoom In" with default key set to Q (Camera); this is similar to the zoom-in feature from Cyberpunk 2077
 - Added separate FOV sliders for each type of camera (Camera)
+- Added the ability to save player orientation in the Saved Locations list (Teleport)
+- Added the ability to automatically set player orientation when teleporting to a saved location (Teleport)
+- Added "Overwrite Selected Location" button for Saved Locations list (Teleport)
 - Added "E3 2019 Truck Chase - Tall Building" location (Teleport)
 - Added "Renderer CVars list" (Misc) for changing game rendering variables
 - Added "Disable Low Level Mouse Hook" for developer debugging purposes, or in case of performance issues on the end-user side (Debug)

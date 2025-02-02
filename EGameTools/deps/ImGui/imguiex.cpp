@@ -146,10 +146,14 @@ namespace ImGui {
         const float indentation = (window_width - text_width) * 0.5f;
         return (indentation > min_indentation ? indentation : min_indentation);
     }
-    void TextCentered(const char* text, const bool calculateWithScrollbar) {
+    void TextCenteredV(const char* fmt, va_list args) {
         const float min_indentation = 20.0f;
-        const float window_width = GetWindowSize().x - (calculateWithScrollbar ? GImGui->Style.ScrollbarSize : 0.0f) - (GImGui->Style.WindowPadding.x);
+        const float window_width = GetWindowSize().x - GImGui->Style.ScrollbarSize - (GImGui->Style.WindowPadding.x);
         const float wrap_pos = window_width - min_indentation;
+
+        const char* text{};
+        const char* text_end{};
+        ImFormatStringToTempBufferV(&text, &text_end, fmt, args);
 
         std::istringstream iss(text);
         std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -163,48 +167,33 @@ namespace ImGui {
             }
 
             SameLine(CalculateIndentation(window_width, CalcTextSize(line.c_str()).x, min_indentation));
-            TextUnformatted(line.c_str());
+            TextV(line.c_str(), args);
             NewLine();
             line = word;
         }
 
         if (!line.empty()) {
             SameLine(CalculateIndentation(window_width, CalcTextSize(line.c_str()).x, min_indentation));
-            TextUnformatted(line.c_str());
+            TextV(line.c_str(), args);
             NewLine();
         }
     }
-    void TextCenteredColored(const char* text, const ImU32 col, const bool calculateWithScrollbar) {
-        const float min_indentation = 20.0f;
-        const float window_width = GetWindowSize().x - (calculateWithScrollbar ? GImGui->Style.ScrollbarSize : 0.0f) - (GImGui->Style.WindowPadding.x);
-        const float wrap_pos = window_width - min_indentation;
-
-        std::istringstream iss(text);
-        std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-
-        std::string line{};
-        for (const auto& word : words) {
-            std::string new_line = line.empty() ? word : line + " " + word;
-            if (CalcTextSize(new_line.c_str()).x <= wrap_pos) {
-                line = new_line;
-                continue;
-            }
-
-            SameLine(CalculateIndentation(window_width, CalcTextSize(line.c_str()).x, min_indentation));
-            PushStyleColor(ImGuiCol_Text, col);
-            TextUnformatted(line.c_str());
-            PopStyleColor();
-            NewLine();
-            line = word;
-        }
-
-        if (!line.empty()) {
-            SameLine(CalculateIndentation(window_width, CalcTextSize(line.c_str()).x, min_indentation));
-            PushStyleColor(ImGuiCol_Text, col);
-            TextUnformatted(line.c_str());
-            PopStyleColor();
-            NewLine();
-        }
+    void TextCentered(const char* fmt, ...) {
+        va_list args;
+        va_start(args, fmt);
+        TextCenteredV(fmt, args);
+        va_end(args);
+    }
+    void TextCenteredColoredV(const char* fmt, ImU32 col, va_list args) {
+        PushStyleColor(ImGuiCol_Text, col);
+        TextCenteredV(fmt, args);
+        PopStyleColor();
+    }
+    void TextCenteredColored(const char* fmt, ImU32 col, ...) {
+        va_list args;
+        va_start(args, col);
+        TextCenteredColoredV(fmt, col, args);
+        va_end(args);
     }
     bool ButtonCentered(const char* label, const ImVec2 size) {
         ImGuiStyle& style = GetStyle();
@@ -220,35 +209,25 @@ namespace ImGui {
         return Button(label, size);
         NewLine();
     }
-    void SeparatorTextColored(const char* label, const ImU32 col) {
+    void SeparatorTextColored(const char* label, ImU32 col) {
         PushStyleColor(ImGuiCol_Text, col);
         SeparatorText(label);
         PopStyleColor();
     }
-    static void DisplaySimplePopupMessageBase(const char* popupTitle, const char* fmt, ...) {
-        char buffer[512];
-        va_list args;
-        va_start(args, fmt);
-        FormatString(buffer, sizeof(buffer), fmt, args);
-        va_end(args);
-
+    static void DisplaySimplePopupMessageBase(const char* popupTitle, const char* fmt, va_list args) {
         if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text("%s", buffer);
+            ImGui::TextV(fmt, args);
+
             if (ImGui::Button("OK", ImVec2(120.0f, 0.0f)))
                 ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
         }
     }
-    static void DisplaySimplePopupMessageBase(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
-        char buffer[512];
-        va_list args;
-        va_start(args, fmt);
-        FormatString(buffer, sizeof(buffer), fmt, args);
-        va_end(args);
-
+    static void DisplaySimplePopupMessageBase(float itemWidth, float scale, const char* popupTitle, const char* fmt, va_list args) {
         if (ImGui::BeginPopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetNextItemWidth(itemWidth * scale);
-            ImGui::TextCentered("%s", buffer);
+            ImGui::TextCenteredV(fmt, args);
+
             ImGui::SetNextItemWidth(itemWidth * scale);
             if (ImGui::Button("OK", ImVec2(itemWidth, 0.0f) * scale))
                 ImGui::CloseCurrentPopup();
@@ -256,42 +235,30 @@ namespace ImGui {
         }
     }
     void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...) {
-        char buffer[512];
         va_list args;
         va_start(args, fmt);
-        FormatString(buffer, sizeof(buffer), fmt, args);
+        DisplaySimplePopupMessageBase(popupTitle, fmt, args);
         va_end(args);
-
-        DisplaySimplePopupMessageBase(popupTitle, fmt, buffer);
     }
     void DisplaySimplePopupMessageCentered(const char* popupTitle, const char* fmt, ...) {
-        char buffer[512];
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
         va_list args;
         va_start(args, fmt);
-        FormatString(buffer, sizeof(buffer), fmt, args);
+        DisplaySimplePopupMessageBase(popupTitle, fmt, args);
         va_end(args);
-
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
-        DisplaySimplePopupMessageBase(popupTitle, fmt, buffer);
     }
     void DisplaySimplePopupMessage(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        char buffer[512];
-        vsnprintf(buffer, sizeof(buffer), fmt, args);
+        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, args);
         va_end(args);
-
-        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, buffer);
     }
     void DisplaySimplePopupMessageCentered(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...) {
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
         va_list args;
         va_start(args, fmt);
-        char buffer[512];
-        vsnprintf(buffer, sizeof(buffer), fmt, args);
+        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, args);
         va_end(args);
-
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
-        DisplaySimplePopupMessageBase(itemWidth, scale, popupTitle, fmt, buffer);
     }
     void Spacing(const ImVec2 size, const bool customPosOffset) {
         ImGuiWindow* window = GetCurrentWindow();

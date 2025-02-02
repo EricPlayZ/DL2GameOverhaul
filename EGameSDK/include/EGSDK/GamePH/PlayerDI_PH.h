@@ -1,19 +1,23 @@
 #pragma once
 #include <stdint.h>
 #include <EGSDK\ClassHelpers.h>
+#include <EGSDK\Vec2.h>
+#include <EGSDK\Engine\IControlObject.h>
 #include <EGSDK\GamePH\InventoryItem.h>
 #include <EGSDK\GamePH\InventoryContainerDI.h>
+#include <EGSDK\GamePH\PlayerFppVis_PH.h>
 
 namespace EGSDK::Engine {
 	class CoPhysicsProperty;
 }
 
 namespace EGSDK::GamePH {
-	class EGameSDK_API PlayerDI_PH {
+	class EGameSDK_API PlayerDI_PH : public Engine::IControlObject {
 	public:
 		union {
 			DynamicField(PlayerDI_PH, Engine::CoPhysicsProperty*, pCoPhysicsProperty);
 			DynamicField(PlayerDI_PH, InventoryContainerDI*, pInventoryContainerDI);
+			DynamicField(PlayerDI_PH, Vec2, nextPlayerOrientation);
 			DynamicField(PlayerDI_PH, bool, restrictionsEnabled);
 			DynamicField(PlayerDI_PH, bool, enableTPPModel1);
 			DynamicField(PlayerDI_PH, bool, enableTPPModel2);

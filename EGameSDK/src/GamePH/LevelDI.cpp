@@ -38,8 +38,8 @@ namespace EGSDK::GamePH {
 		relyOnTimer = false;
 		hasLoaded = false;
 	}
-	void* LevelDI::GetViewCamera() {
-		return Utils::Memory::SafeCallFunction<void*>("engine_x64_rwdi.dll", "?GetViewCamera@ILevel@@QEBAPEAVIBaseCamera@@XZ", nullptr, this);
+	Engine::IBaseCamera* LevelDI::GetViewCamera() {
+		return Utils::Memory::SafeCallFunction<Engine::IBaseCamera*>("engine_x64_rwdi.dll", "?GetViewCamera@ILevel@@QEBAPEAVIBaseCamera@@XZ", nullptr, this);
 	}
 	float LevelDI::GetTimeDelta() {
 		return Utils::Memory::SafeCallFunction<float>("gamedll_ph_x64_rwdi.dll", "?GetTimeDelta@IGSObject@@UEBAMXZ", 0.0f, this);

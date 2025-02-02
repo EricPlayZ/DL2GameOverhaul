@@ -1,19 +1,15 @@
 #pragma once
+#include <EGSDK\Engine\IBaseCamera.h>
+#include <EGSDK\GamePH\TimeWeather\CSystem.h>
 #include <EGSDK\ClassHelpers.h>
 #include <EGSDK\Utils\Time.h>
 
 namespace EGSDK::GamePH {
-	namespace TimeWeather {
-		class CSystem;
-	}
-
-	class PlayerDI_PH;
-
 	class EGameSDK_API LevelDI {
 	public:
 		bool IsLoading();
 		bool IsLoaded();
-		void* GetViewCamera();
+		Engine::IBaseCamera* GetViewCamera();
 		float GetTimeDelta();
 		void SetViewCamera(void* viewCam);
 		float GetTimePlayed();

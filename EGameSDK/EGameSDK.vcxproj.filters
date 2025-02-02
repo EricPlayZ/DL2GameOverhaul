@@ -160,6 +160,21 @@
     <ClCompile Include="src\Vec4.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\IControlObject.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\IGSObject.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\CameraFPPDI.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GamePH\PlayerFppVis_PH.cpp">
+      <Filter>src\GamePH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Vec2.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
@@ -378,6 +393,21 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Vec4.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\IControlObject.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\IGSObject.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\CameraFPPDI.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\GamePH\PlayerFppVis_PH.h">
+      <Filter>include\GamePH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Vec2.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

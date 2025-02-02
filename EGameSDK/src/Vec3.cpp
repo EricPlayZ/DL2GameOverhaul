@@ -41,6 +41,10 @@ namespace EGSDK {
 		return { X / scalar, Y / scalar, Z / scalar };
 	}
 
+	Vec3 Vec3::operator-() const {
+		return { -X, -Y, -Z };
+	}
+
 	Vec3 Vec3::normalize() const {
 		if (isDefault())
 			return *this;

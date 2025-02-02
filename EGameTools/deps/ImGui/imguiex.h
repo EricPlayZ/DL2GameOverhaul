@@ -14,10 +14,10 @@ namespace ImGui {
 	extern bool CheckboxHotkey(const char* label, KeyBindOption* v, const char* tooltip = nullptr);
 	extern bool SliderInt(const char* label, const char* tooltip, int* v, int v_min, int v_max, const char* format = "%d", ImGuiSliderFlags flags = 0);
 	extern bool SliderFloat(const char* label, const char* tooltip, float* v, float v_min, float v_max, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
-	extern void TextCentered(const char* text, const bool calculateWithScrollbar = true);
-	extern void TextCenteredColored(const char* text, const ImU32 col, const bool calculateWithScrollbar = true);
+	extern void TextCentered(const char* fmt, ...);
+	extern void TextCenteredColored(const char* fmt, ImU32 col, ...);
 	extern bool ButtonCentered(const char* label, const ImVec2 size = ImVec2(0.0f, 0.0f));
-	extern void SeparatorTextColored(const char* text, const ImU32 col);
+	extern void SeparatorTextColored(const char* text, ImU32 col);
 	extern void DisplaySimplePopupMessage(const char* popupTitle, const char* fmt, ...);
 	extern void DisplaySimplePopupMessageCentered(const char* popupTitle, const char* fmt, ...);
 	extern void DisplaySimplePopupMessage(float itemWidth, float scale, const char* popupTitle, const char* fmt, ...);

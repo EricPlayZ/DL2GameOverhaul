@@ -26,16 +26,16 @@ namespace EGSDK {
 	} 
 
 	#define AddStaticOffset(name, off)\
-	static DWORD64 Get_## name () {\
-		static DWORD64 name = 0;\
+	static uint64_t Get_## name () {\
+		static uint64_t name = 0;\
 		if (name) return name; \
-		return name=static_cast<DWORD64>(off);\
+		return name=static_cast<uint64_t>(off);\
 	} 
 	#define AddStaticOffset2(name, moduleName, off) \
-	static DWORD64 Get_## name () {\
-		static DWORD64 name = 0;\
+	static uint64_t Get_## name () {\
+		static uint64_t name = 0;\
 		if (!Utils::Memory::IsBadReadPtr(name)) return name;\
-		return name=reinterpret_cast<DWORD64>(GetModuleHandleA(moduleName)) + static_cast<DWORD64>(off);\
+		return name=reinterpret_cast<uint64_t>(GetModuleHandleA(moduleName)) + static_cast<uint64_t>(off);\
 	}
 
 	class EGameSDK_API OffsetManager {
@@ -47,7 +47,7 @@ namespace EGSDK {
 		static Utils::SigScan::Pattern GetPattern(const std::string& patternName);
 
 		// Input related
-		AddPattern(CInput, "engine_x64_rwdi.dll", "48 8B 0D [?? ?? ?? ?? 48 85 C9 74 ?? 48 8B 01 84 D2", Utils::SigScan::PatternType::RelativePointer, DWORD64**) // g_CInput
+		AddPattern(CInput, "engine_x64_rwdi.dll", "48 8B 0D [?? ?? ?? ?? 48 85 C9 74 ?? 48 8B 01 84 D2", Utils::SigScan::PatternType::RelativePointer, uint64_t**) // g_CInput
 
 		// Rendering related
 		AddPattern(DXPresent, "sl.interposer.dll", "48 89 5C 24 ?? 48 89 74 24 ?? 57 41 56", Utils::SigScan::PatternType::Address, void*)
@@ -67,8 +67,8 @@ namespace EGSDK {
 		AddPattern(CLobbySteam, "engine_x64_rwdi.dll", "48 8B 05 [?? ?? ?? ?? 48 85 C0 74 ?? 48 83 C0", Utils::SigScan::PatternType::RelativePointer, void*)
 		//AddPattern(g_PlayerDI_PH, "gamedll_ph_x64_rwdi.dll", "48 89 0D [?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0", Utils::SigScan::PatternType::RelativePointer, void*) // also PlayerObjProperties
 		AddPattern(DayNightCycle, "gamedll_ph_x64_rwdi.dll", "48 8B 0D [?? ?? ?? ?? 48 85 C9 74 ?? E8 ?? ?? ?? ?? 84 C0 74 ?? B0 ?? 48 83 C4 ?? C3 32 C0", Utils::SigScan::PatternType::RelativePointer, void*) // g_DayNightCycle
-		//AddPattern(g_CameraFPPDI, "gamedll_ph_x64_rwdi.dll", "48 89 05 [?? ?? ?? ?? 40 84 FF", PatternType::RelativePointer, DWORD64*)
-		AddPattern(FreeCamera, "gamedll_ph_x64_rwdi.dll", "48 89 05 [?? ?? ?? ?? 48 89 4C 24", Utils::SigScan::PatternType::RelativePointer, DWORD64*) // g_FreeCamera
+		//AddPattern(CameraFPPDI, "gamedll_ph_x64_rwdi.dll", "48 89 05 [?? ?? ?? ?? 40 84 FF", Utils::SigScan::PatternType::RelativePointer, uint64_t*)
+		AddPattern(FreeCamera, "gamedll_ph_x64_rwdi.dll", "48 89 05 [?? ?? ?? ?? 48 89 4C 24", Utils::SigScan::PatternType::RelativePointer, uint64_t*) // g_FreeCamera
 		AddDynamicPattern(SaveGameCRCBoolCheck, "gamedll_ph_x64_rwdi.dll", void*)
 
 		// Functions

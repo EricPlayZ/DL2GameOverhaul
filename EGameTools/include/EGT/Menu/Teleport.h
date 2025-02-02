@@ -2,12 +2,14 @@
 #include <vector>
 #include <EGT\Menu\Menu.h>
 #include <EGSDK\Vec3.h>
+#include <EGSDK\Vec2.h>
 	
 namespace EGT::Menu {
 	namespace Teleport {
 		struct TeleportLocation {
 			std::string name{};
 			EGSDK::Vec3 pos{};
+			EGSDK::Vec2 orientation{};
 		};
 
 		extern std::string savedTeleportLocationsStr;

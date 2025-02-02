@@ -87,8 +87,8 @@ namespace EGSDK {
             operator T() const {
                 return *getPointer();
             }
-            T operator->() const {
-                return *getPointer();
+            T* operator->() const {
+                return getPointer();
             }
 
             uint64_t operator&(const uint64_t other) const {

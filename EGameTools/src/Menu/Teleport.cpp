@@ -1,8 +1,10 @@
 #include <spdlog\spdlog.h>
 #include <ImGui\imgui_hotkey.h>
 #include <ImGui\imguiex.h>
+#include <EGSDK\Vec2.h>
 #include <EGSDK\Engine\CBulletPhysicsCharacter.h>
 #include <EGSDK\GamePH\FreeCamera.h>
+#include <EGSDK\GamePH\PlayerDI_PH.h>
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGT\Menu\Camera.h>
 #include <EGT\Menu\Player.h>
@@ -10,7 +12,7 @@
 
 namespace EGT::Menu {
 	namespace Teleport {
-		std::string savedTeleportLocationsStr = "Bazaar - Highest Point:1944,123.6,932.8;Bazaar - Main Entrance:1962.9,50.1,927.9;Colonel Williams Stronghold - Main Entrance Bridge:994.3,22.8,-1138.6;Dynamo Cars Factory - Main Entrance:2295.9,-2.1,-78.6;Fish Eye - Player Safehouse:1180.4,32.4,-146.8;Fish Eye - Top of The Baloon:1122.6,98.8,-101.2;Observatory - Meeting Room:1951.2,-13.4,-329.6;Observatory - The 2 Domes (No Chemicals):1985.4,19.9,-357.2;Out of Bounds - Cut Road Quest:2693.3,-4.7,-241.5;PK Metro Station - Main Entrance:1886.9,50,628.9;PK Ship - Main Entrance:801.8,4.2,139.8;St. Paul Cathedral - GRE Entrance:463.4,4.2,-421;Tolga & Fatin Quest - Underground Loot Box:2343.9,12.2,-661.5;VNC Tower - \"V\" Logo:1434.2,4.3,-319.3;VNC Tower - Highest Player Safehouse:1424.7,354.6,-455;VNC Tower - Highest Point:1403.8,446.7,-389.8;X13 - Tunnel Near the City Walls Towards Facility:2407.9,36.2,-461.7;X13 - Underground Facility:2437.8,12.2,-649.9;X13 - Waltz Arena:2551.9,15.3,-569.1;E3 2019 Truck Chase - Tall Building:1019.6,43.6,-213.6";
+		std::string savedTeleportLocationsStr = "Bazaar - Highest Point:1944.4,123.6,931.9,-111.1,-16.3;Bazaar - Main Entrance:1962.8,50.1,928,-148.1,-0.9;Colonel Williams Stronghold - Main Entrance Bridge:994.3,22.8,-1138.6,-225,-3.3;Dynamo Cars Factory - Main Entrance:2295.9,-2.1,-78.6,11.4,-0.3;Fish Eye - Player Safehouse:1180.4,32.4,-146.8,90.4,-14.5;Fish Eye - Top of The Baloon:1122.6,98.8,-101.2,-35.5,-15.9;Observatory - Meeting Room:1951.2,-13.4,-329.6,89.5,-2.9;Observatory - The 2 Domes (No Chemicals):1985.4,19.9,-357.2,366.8,20.9;Out of Bounds - Cut Road Quest:2693.3,-4.7,-241.5,325.3,-3.4;PK Metro Station - Main Entrance:1886.9,50,628.9,661.7,-1.7;PK Ship - Main Entrance:801.8,4.2,139.8,781.1,-2.7;St. Paul Cathedral - GRE Entrance:463.4,4.2,-421,900,-1.1;Tolga & Fatin Quest - Underground Loot Box:2343.9,12.2,-661.5,1259.7,-0.8;VNC Tower - \"V\" Logo:1434.2,4.3,-319.3,1350.7,14.6;VNC Tower - Highest Player Safehouse:1424.8,354.6,-457.9,1171.2,-3.8;VNC Tower - Highest Point:1403.8,446.7,-389.8,1887.3,-19;X13 - Tunnel Near the City Walls Towards Facility:2407.9,36.2,-461.7,1919.8,-0.9;X13 - Underground Facility:2437.8,12.2,-649.9,1439.6,-2;X13 - Waltz Arena:2551.9,15.3,-569.1,1348.5,1.6;E3 2019 Truck Chase - Tall Building:1018.2,43.6,-213.9,-154.5,-7.4";
 		std::vector<TeleportLocation> savedTeleportLocations{};
 		static std::vector<std::string> savedTeleportLocationNames{};
 		static std::vector<const char*> savedTeleportLocationNamesPtrs{};
@@ -51,19 +53,21 @@ namespace EGT::Menu {
 					std::string tpLocCoords = item.substr(colonPos + 1);
 
 					std::stringstream coordStream(tpLocCoords);
-					std::string coordItem{};
+					std::string coordStreamLine{};
 					std::vector<float> coordValues{};
-					while (std::getline(coordStream, coordItem, ',')) {
+					while (std::getline(coordStream, coordStreamLine, ',')) {
 						try {
-							coordValues.push_back(std::stof(coordItem));
+							coordValues.push_back(std::stof(coordStreamLine));
 						} catch (...) {
-							SPDLOG_ERROR("Invalid coordinate value: {}, for location: {}", coordItem, tpLocName);
+							SPDLOG_ERROR("Invalid coordinate value: {}, for location: {}", coordStreamLine, tpLocName);
 							break;
 						}
 					}
 
 					if (coordValues.size() == 3)
 						teleportLocations.push_back({ tpLocName, { coordValues[0], coordValues[1], coordValues[2] } });
+					else if (coordValues.size() == 5)
+						teleportLocations.push_back({ tpLocName, { coordValues[0], coordValues[1], coordValues[2] }, { coordValues[3], coordValues[4] } });
 					else
 						SPDLOG_ERROR("Invalid number of coordinates ({}) for location: {}", coordValues.size(), tpLocName);
 				} else
@@ -73,7 +77,7 @@ namespace EGT::Menu {
 			SPDLOG_INFO("Successfully parsed teleport locations:");
 			int tpLocIndex = 1;
 			for (const auto& loc : teleportLocations) {
-				SPDLOG_INFO("{}. \"{}\" (X: {}, Y: {}, Z: {})", tpLocIndex, loc.name, loc.pos.X, loc.pos.Y, loc.pos.Z);
+				SPDLOG_INFO("{}. \"{}\" (X: {}, Y: {}, Z: {}, Yaw: {}, Pitch: {})", tpLocIndex, loc.name, loc.pos.X, loc.pos.Y, loc.pos.Z, loc.orientation.X, loc.orientation.Y);
 				tpLocIndex++;
 			}
 
@@ -84,7 +88,7 @@ namespace EGT::Menu {
 
 			for (size_t i = 0; i < teleportLocations.size(); ++i) {
 				const TeleportLocation& loc = teleportLocations[i];
-				ss << loc.name << ":" << loc.pos.X << "," << loc.pos.Y << "," << loc.pos.Z;
+				ss << loc.name << ":" << loc.pos.X << "," << loc.pos.Y << "," << loc.pos.Z << "," << loc.orientation.X << "," << loc.orientation.Y;
 				if (i < teleportLocations.size() - 1)
 					ss << ";";
 			}
@@ -111,7 +115,7 @@ namespace EGT::Menu {
 			return false;
 		}
 
-		static void SyncTPCoordsToPlayer() {
+		static void SyncPlayerCoordsToTPCoords() {
 			if (isTeleportationDisabled())
 				return;
 
@@ -125,9 +129,12 @@ namespace EGT::Menu {
 					teleportCoords = playerCharacter->playerPos;
 			}
 		}
-		static bool TeleportPlayerTo(const EGSDK::Vec3& pos) {
-			if (isTeleportationDisabled() || pos.isDefault())
+		static bool TeleportPlayerTo(const EGSDK::Vec3& pos, const EGSDK::Vec2& orientation = {}) {
+			if (isTeleportationDisabled() || pos.isDefault()) {
+				if (pos.isDefault())
+					SPDLOG_ERROR("Teleport position was default, couldn't teleport player");
 				return false;
+			}
 
 			if (Camera::freeCam.GetValue()) {
 				auto freeCam = EGSDK::GamePH::FreeCamera::Get();
@@ -138,9 +145,16 @@ namespace EGT::Menu {
 				auto playerCharacter = EGSDK::Engine::CBulletPhysicsCharacter::Get();
 				if (!playerCharacter)
 					return false;
+				auto playerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+				if (!playerDI_PH && !orientation.isDefault())
+					SPDLOG_ERROR("PlayerDI_PH was null, won't be able to set player teleport orientation");
+
 				if (Player::freezePlayer.GetValue())
 					playerCharacter->posBeforeFreeze = pos;
+
 				playerCharacter->MoveCharacter(pos);
+				if (playerDI_PH && !orientation.isDefault())
+					playerDI_PH->nextPlayerOrientation->X = orientation.X;
 			}
 			
 			return true;
@@ -171,7 +185,7 @@ namespace EGT::Menu {
 			teleportToCoords.SetChangesAreDisabled(isTeleportationDisabled());
 
 			if (teleportToSelectedLocation.HasChanged()) {
-				TeleportPlayerTo(savedTeleportLocations[selectedTPLocation].pos);
+				TeleportPlayerTo(savedTeleportLocations[selectedTPLocation].pos, savedTeleportLocations[selectedTPLocation].orientation);
 				teleportToSelectedLocation.SetPrevValue(teleportToSelectedLocation.GetValue());
 			}
 			if (teleportToWaypoint.HasChanged()) {
@@ -184,7 +198,7 @@ namespace EGT::Menu {
 			}
 		}
 
-		static bool SaveTeleportLocation(const char* locationName) {
+		static bool SaveTeleportLocation(const char* locationName, bool overwrite = false) {
 			if (isTeleportationDisabled()) {
 				ImGui::CloseCurrentPopup();
 				ImGui::EndPopup();
@@ -192,17 +206,20 @@ namespace EGT::Menu {
 				return false;
 			}
 
-			auto savedLocIt = std::find_if(savedTeleportLocations.begin(), savedTeleportLocations.end(), [&locationName](const auto& loc) {
-				return loc.name == locationName;
-			});
-			if (savedLocIt != savedTeleportLocations.end()) {
-				ImGui::CloseCurrentPopup();
-				ImGui::EndPopup();
-				ImGui::OpenPopup("Location already exists");
-				return false;
+			if (!overwrite) {
+				auto savedLocIt = std::find_if(savedTeleportLocations.begin(), savedTeleportLocations.end(), [&locationName](const auto& loc) {
+					return loc.name == locationName;
+				});
+				if (savedLocIt != savedTeleportLocations.end()) {
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					ImGui::OpenPopup("Location with same name already exists");
+					return false;
+				}
 			}
 
 			EGSDK::Vec3 playerPos{};
+			EGSDK::Vec2 playerOrientation{};
 
 			if (Camera::freeCam.GetValue()) {
 				EGSDK::GamePH::FreeCamera* freeCam = EGSDK::GamePH::FreeCamera::Get();
@@ -210,44 +227,72 @@ namespace EGT::Menu {
 					ImGui::CloseCurrentPopup();
 					ImGui::EndPopup();
 					ImGui::OpenPopup("Couldn't add location");
+					SPDLOG_ERROR("Couldn't add location because FreeCamera was null");
 					return false;
 				}
 
 				EGSDK::Vec3 camPos{};
 				freeCam->GetPosition(&camPos);
-				if (camPos.isDefault()) {
+				EGSDK::Vec3 camForwardVec{};
+				freeCam->GetForwardVector(&camForwardVec);
+				if (camPos.isDefault() || camForwardVec.isDefault()) {
 					ImGui::CloseCurrentPopup();
 					ImGui::EndPopup();
 					ImGui::OpenPopup("Couldn't add location");
+					SPDLOG_ERROR("Couldn't add location because {} was null", camPos.isDefault() ? "camPos" : "camForwardVec");
 					return false;
 				}
 
 				playerPos = camPos;
+				playerOrientation = { EGSDK::Utils::Values::GetPitchDegreesRelativeTo(camForwardVec, { 1.0f, 0.0f, 0.0f }), EGSDK::Utils::Values::GetPitchDegreesRelativeTo(camForwardVec, { 0.0f, 1.0f, 0.0f }) };
 			} else {
 				EGSDK::Engine::CBulletPhysicsCharacter* playerCharacter = EGSDK::Engine::CBulletPhysicsCharacter::Get();
-				if (!playerCharacter) {
+				EGSDK::GamePH::PlayerDI_PH* playerDI_PH = EGSDK::GamePH::PlayerDI_PH::Get();
+				if (!playerCharacter || !playerDI_PH) {
 					ImGui::CloseCurrentPopup();
 					ImGui::EndPopup();
 					ImGui::OpenPopup("Couldn't add location");
+					SPDLOG_ERROR("Couldn't add location because {} was null", !playerCharacter ? "CBulletPhysicsCharacter" : "PlayerDI_PH");
 					return false;
 				}
 
 				playerPos = playerCharacter->playerPos;
+				playerOrientation = playerDI_PH->nextPlayerOrientation;
 			}
 			playerPos = playerPos.round(1);
+			playerOrientation = playerOrientation.round(1);
 
-			savedLocIt = std::find_if(savedTeleportLocations.begin(), savedTeleportLocations.end(), [&playerPos](const auto& loc) {
-				return loc.pos == playerPos;
-			});
-			if (savedLocIt != savedTeleportLocations.end() && savedLocIt->pos == playerPos) {
-				ImGui::CloseCurrentPopup();
-				ImGui::EndPopup();
-				ImGui::OpenPopup("Location already exists");
-				return false;
+			if (!overwrite) {
+				auto savedLocIt = std::find_if(savedTeleportLocations.begin(), savedTeleportLocations.end(), [&playerPos](const auto& loc) {
+					return loc.pos == playerPos;
+				});
+				if (savedLocIt != savedTeleportLocations.end() && savedLocIt->pos == playerPos) {
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					ImGui::OpenPopup("Location with same position already exists");
+					return false;
+				}
+
+				savedTeleportLocations.emplace_back(std::string(locationName), playerPos, playerOrientation);
+				UpdateTeleportLocationVisualNames();
+			} else {
+				auto savedLocIt = std::find_if(savedTeleportLocations.begin(), savedTeleportLocations.end(), [&locationName](const auto& loc) {
+					return loc.name == locationName;
+				});
+				if (savedLocIt == savedTeleportLocations.end()) {
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					ImGui::OpenPopup("Couldn't add location");
+					SPDLOG_ERROR("Couldn't overwrite location {} because it wasn't found in the list", locationName);
+					return false;
+				}
+
+				savedLocIt->name = locationName;
+				savedLocIt->pos = playerPos;
+				savedLocIt->orientation = playerOrientation;
+
+				UpdateTeleportLocationVisualNames();
 			}
-
-			savedTeleportLocations.emplace_back(std::string(locationName), playerPos);
-			UpdateTeleportLocationVisualNames();
 
 			ImGui::CloseCurrentPopup();
 			return true;
@@ -256,17 +301,36 @@ namespace EGT::Menu {
 			ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
 			if (ImGui::BeginPopupModal("Give the location a name", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 				bool tpSaveResult = true;
-				ImGui::PushItemWidth(510.0f * Menu::scale);
+
+				ImGui::SetNextItemWidth(510.0f * Menu::scale);
 				if (ImGui::InputTextWithHint("##TPLocationNameInputText", "Location name", newLocationName, IM_ARRAYSIZE(newLocationName), ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::Button("OK", ImVec2(250.0f, 0.0f) * Menu::scale) && newLocationName[0]) {
-					ImGui::PopItemWidth();
 					tpSaveResult = SaveTeleportLocation(newLocationName);
-					newLocationName[0] = 0;
-				} else if (ImGui::SameLine(); ImGui::Button("Cancel", ImVec2(250.0f, 0.0f) * Menu::scale))
+					if (tpSaveResult)
+						newLocationName[0] = 0;
+				}
+				else if (ImGui::SameLine(); ImGui::Button("Cancel", ImVec2(250.0f, 0.0f) * Menu::scale))
 					ImGui::CloseCurrentPopup();
 				if (tpSaveResult)
 					ImGui::EndPopup();
 			}
-			ImGui::DisplaySimplePopupMessageCentered(500.0f, Menu::scale, "Location already exists", "The location you have entered already exists. Either the name of the location, or the position of the location is already inside the list. If you want to change it then please remove it and add it again.", false);
+			ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, ImVec2(0.5f, 0.5f));
+			if (ImGui::BeginPopupModal("Location with same name already exists", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+				bool tpSaveResult = true;
+
+				ImGui::SetNextItemWidth(510.0f * Menu::scale);
+				ImGui::TextCentered("The location with name \"%s\" already exists. Would you like to overwrite that location with the new one?", newLocationName);
+
+				if (ImGui::Button("OK", ImVec2(250.0f, 0.0f) * Menu::scale)) {
+					tpSaveResult = SaveTeleportLocation(newLocationName, true);
+					newLocationName[0] = 0;
+				} else if (ImGui::SameLine(); ImGui::Button("Cancel", ImVec2(250.0f, 0.0f) * Menu::scale)) {
+					newLocationName[0] = 0;
+					ImGui::CloseCurrentPopup();
+				}
+				if (tpSaveResult)
+					ImGui::EndPopup();
+			}
+			ImGui::DisplaySimplePopupMessageCentered(500.0f, Menu::scale, "Location with same position already exists", "The location with the same position you have entered already exists. If you want to change it then please remove it and add it again.");
 			ImGui::DisplaySimplePopupMessageCentered(500.0f, Menu::scale, "Couldn't add location", "Something went wrong trying to add a location. Either the player class or camera class are not found, or you're in a place in the game where the character or camera isn't properly loaded. If this happens, even though you know it should work fine, please contact @EricPlayZ on NexusMods, GitHub or Discord.");
 		}
 
@@ -283,23 +347,28 @@ namespace EGT::Menu {
 
 			ImGui::BeginDisabled(isTeleportationDisabled() || selectedTPLocation < 0 || selectedTPLocation >= savedTeleportLocations.size());
 			if (ImGui::ButtonHotkey("Teleport to Selected Location", &teleportToSelectedLocation, "Teleports player to selected location from the saved locations list"))
-				TeleportPlayerTo(savedTeleportLocations[selectedTPLocation].pos);
+				TeleportPlayerTo(savedTeleportLocations[selectedTPLocation].pos, savedTeleportLocations[selectedTPLocation].orientation);
 			ImGui::EndDisabled();
 
 			ImGui::SameLine();
+			ImGui::BeginDisabled(isTeleportationDisabled());
+			ImGui::SameLine();
+			if (ImGui::Button("Save Current Location"))
+				ImGui::OpenPopup("Give the location a name");
+			ImGui::EndDisabled();
+
+			ImGui::SameLine();
+			ImGui::BeginDisabled(selectedTPLocation < 0 || selectedTPLocation >= savedTeleportLocations.size() || isTeleportationDisabled());
+			if (ImGui::Button("Overwrite Selected Location"))
+				SaveTeleportLocation(savedTeleportLocations[selectedTPLocation].name.c_str(), true);
+			ImGui::EndDisabled();
+
 			ImGui::BeginDisabled(selectedTPLocation < 0 || selectedTPLocation >= savedTeleportLocations.size());
 			if (ImGui::Button("Remove Selected Location")) {
 				savedTeleportLocations.erase(savedTeleportLocations.begin() + selectedTPLocation);
 				UpdateTeleportLocationVisualNames();
 				selectedTPLocation = -1;
 			}
-			ImGui::EndDisabled();
-
-			ImGui::BeginDisabled(isTeleportationDisabled());
-			ImGui::SameLine();
-			if (ImGui::Button("Save Current Location"))
-				ImGui::OpenPopup("Give the location a name");
-
 			ImGui::EndDisabled();
 
 			ImGui::SeparatorText("Custom##Teleport");
@@ -327,7 +396,7 @@ namespace EGT::Menu {
 				TeleportPlayerTo(teleportCoords);
 			ImGui::SameLine();
 			if (ImGui::Button("Get Player Coords"))
-				SyncTPCoordsToPlayer();
+				SyncPlayerCoordsToTPCoords();
 			ImGui::EndDisabled();
 
 			HandleDialogs();
