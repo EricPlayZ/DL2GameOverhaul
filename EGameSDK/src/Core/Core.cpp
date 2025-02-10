@@ -10,6 +10,7 @@
 #include <spdlog\sinks\rotating_file_sink.h>
 #include <DbgHelp.h>
 #include <thread>
+#include <ranges>
 
 namespace EGSDK::Core {
 	std::vector<spdlog::sink_ptr> spdlogSinks{};
@@ -51,6 +52,19 @@ namespace EGSDK::Core {
 		}
 		return localAppDataDir += "\\EGameSDK";
 	}
+	std::string GetSupportedGameVersionsStr() {
+		std::ostringstream oss{};
+
+		for (const auto& version : SUPPORTED_GAME_VERSIONS) {
+			if (&version != &SUPPORTED_GAME_VERSIONS.front())
+				oss << ", ";
+			oss << "v" << EGSDK::GamePH::GameVerToStr(version);
+		}
+		return oss.str();
+	}
+	bool IsGameVerCompatible() {
+		return std::ranges::contains(SUPPORTED_GAME_VERSIONS, gameVer);
+	}
 
 	void OnPostUpdate() {
 		GamePH::PlayerVariables::GetPlayerVars();
@@ -91,9 +105,9 @@ namespace EGSDK::Core {
 #endif
 	static void GameVersionCheck() {
 		try {
+			SPDLOG_INFO("EGSDK supported game versions: {}", GetSupportedGameVersionsStr());
 			SPDLOG_DEBUG("Attempting to get current game version");
 			gameVer = GamePH::GetCurrentGameVersion();
-			SPDLOG_DEBUG("Got game version: {}", gameVer);
 		} catch (const std::exception& e) {
 			std::string errorMsg = "Failed to get game version, EXCEPTION: " + std::string(e.what()) + "\n\nThis shouldn't happen! Contact developer.";
 			SPDLOG_ERROR(errorMsg);
@@ -103,11 +117,8 @@ namespace EGSDK::Core {
 
 		SPDLOG_INFO("Got game version: v{}", GamePH::GameVerToStr(gameVer));
 		SPDLOG_DEBUG("Comparing game version with compatible versions");
-		if (std::find(SUPPORTED_GAME_VERSIONS.begin(), SUPPORTED_GAME_VERSIONS.end(), Core::gameVer) == SUPPORTED_GAME_VERSIONS.end()) {
-			std::string warningMsg = "Unsupported game version v" + GamePH::GameVerToStr(gameVer) + ".\n\nPlease note that your game version has not been officially tested with this version of EGameSDK, therefore expect bugs, glitches or other mods to completely stop working.\n\nThe following game versions are officially supported: ";
-			for (const auto& version : SUPPORTED_GAME_VERSIONS)
-				warningMsg += "- v" + GamePH::GameVerToStr(version) + "\n";
-
+		if (!IsGameVerCompatible()) {
+			std::string warningMsg = "Unsupported game version v" + GamePH::GameVerToStr(gameVer) + ".\n\nPlease note that your game version has not been officially tested with this version of EGameSDK, therefore expect bugs, glitches or other mods to completely stop working.\n\nThe following game versions are officially supported: " + GetSupportedGameVersionsStr();
 			SPDLOG_WARN(warningMsg);
 			std::thread([warningMsg]() {
 				MessageBox(nullptr, warningMsg.c_str(), "EGameSDK unsupported game version", MB_ICONWARNING | MB_OK | MB_SETFOREGROUND);

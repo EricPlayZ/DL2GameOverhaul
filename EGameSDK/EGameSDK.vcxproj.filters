@@ -142,7 +142,7 @@
     <ClCompile Include="Offsets.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\RendererCVars.cpp">
+    <ClCompile Include="src\Engine\CVars.cpp">
       <Filter>src\Engine</Filter>
     </ClCompile>
     <ClCompile Include="WinMemory.cpp">
@@ -165,6 +165,15 @@
     </ClCompile>
     <ClCompile Include="src\Vec2.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="VarMapBase.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="VarManagerBase.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\VarBase.cpp">
+      <Filter>src\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,7 +374,7 @@
     <ClInclude Include="include\EGSDK\Core\SteamAPI.h">
       <Filter>include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="include\EGSDK\Engine\RendererCVars.h">
+    <ClInclude Include="include\EGSDK\Engine\CVars.h">
       <Filter>include\Engine</Filter>
     </ClInclude>
     <ClInclude Include="include\EGSDK\Utils\WinMemory.h">
@@ -400,6 +409,15 @@
     </ClInclude>
     <ClInclude Include="include\EGSDK\Vec2.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\VarMapBase.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\VarManagerBase.h">
+      <Filter>include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EGSDK\Engine\VarBase.h">
+      <Filter>include\Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

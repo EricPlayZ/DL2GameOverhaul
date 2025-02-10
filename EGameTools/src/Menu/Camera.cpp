@@ -21,18 +21,18 @@ namespace EGT::Menu {
 		EGSDK::Vec3 cameraOffset{};
 		float firstPersonFOV = baseFOV;
 		float originalFirstPersonFOVAfterZoomIn = firstPersonFOV;
-		ImGui::KeyBindOption firstPersonZoomIn{ 'Q' , false };
+		ImGui::KeyBindOption firstPersonZoomIn{ false, 'Q', false };
 		static bool isZoomingIn = false;
 
 		ImGui::Option photoMode{ false };
 
-		ImGui::KeyBindOption freeCam{ VK_F3 };
+		ImGui::KeyBindOption freeCam{ false, VK_F3 };
 		float freeCamFOV = baseFOV;
 		float freeCamSpeed = 2.0f;
-		ImGui::KeyBindOption teleportPlayerToCamera{ VK_F4 };
+		ImGui::KeyBindOption teleportPlayerToCamera{ false, VK_F4 };
 
-		ImGui::KeyBindOption thirdPersonCamera{ VK_F1 };
-		ImGui::KeyBindOption tpUseTPPModel{ VK_F2 };
+		ImGui::KeyBindOption thirdPersonCamera{ false, VK_F1 };
+		ImGui::KeyBindOption tpUseTPPModel{ false, VK_F2 };
 		float thirdPersonFOV = baseFOV;
 		float thirdPersonDistanceBehindPlayer = 2.0f;
 		float thirdPersonHeightAbovePlayer = 1.3f;
@@ -40,10 +40,10 @@ namespace EGT::Menu {
 
 		float lensDistortion = 20.0f;
 		static float altLensDistortion = lensDistortion;
-		ImGui::KeyBindOption goProMode{ VK_NONE };
-		ImGui::KeyBindOption disableSafezoneFOVReduction{ VK_NONE };
-		ImGui::KeyBindOption disablePhotoModeLimits{ VK_NONE };
-		ImGui::KeyBindOption disableHeadCorrection{ VK_NONE };
+		ImGui::KeyBindOption goProMode{ false, VK_NONE };
+		ImGui::KeyBindOption disableSafezoneFOVReduction{ false, VK_NONE };
+		ImGui::KeyBindOption disablePhotoModeLimits{ false, VK_NONE };
+		ImGui::KeyBindOption disableHeadCorrection{ false, VK_NONE };
 
 		static void CalculateBaseFOV() {
 			if (!EGSDK::Utils::Values::are_samef(baseFOV, 0.0f))

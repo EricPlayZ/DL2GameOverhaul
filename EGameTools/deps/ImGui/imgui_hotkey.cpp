@@ -4,6 +4,7 @@
 #include <ImGui\imgui_internal.h>
 #include <EGSDK\Utils\Time.h>
 #include <EGSDK\Utils\Values.h>
+#include <EGSDK\Core\Core.h>
 
 namespace ImGui {
     bool isAnyHotkeyBtnClicked = false;
@@ -13,10 +14,10 @@ namespace ImGui {
     VKey::VKey(std::string_view name, int code) : name(name), code(code) {}
 
 #pragma region Option
-    Option::Option() {
+    Option::Option(bool value) : value(value), previousValue(value) {
         GetInstances()->insert(this);
     };
-    Option::Option(bool value) : value(value) {
+    Option::Option(bool value, std::initializer_list<uint32_t> unsupportedGameVers) : value(value), previousValue(value), unsupportedGameVers(unsupportedGameVers) {
         GetInstances()->insert(this);
     };
     Option::~Option() {
@@ -33,6 +34,7 @@ namespace ImGui {
     bool Option::GetChangesAreDisabled() const {
         return changesAreDisabled;
     }
+
     void Option::Toggle() {
         previousValue = value;
         value = !value;
@@ -63,6 +65,11 @@ namespace ImGui {
     bool Option::HasChangedTo(bool toValue) const {
         return previousValue != value && value == toValue;
     }
+
+    uint32_t Option::IsUnsupportedGameVer() const {
+        auto it = unsupportedGameVers.find(EGSDK::Core::gameVer);
+        return it != unsupportedGameVers.end() ? EGSDK::Core::gameVer : 0;
+    }
 #pragma endregion
 
 #pragma region KeyBindOption
@@ -70,7 +77,7 @@ namespace ImGui {
     bool KeyBindOption::scrolledMouseWheelUp = false;
     bool KeyBindOption::scrolledMouseWheelDown = false;
 
-    KeyBindOption::KeyBindOption(int keyCode, bool isToggleableOption) : keyCode(keyCode), isToggleableOption(isToggleableOption) {
+    KeyBindOption::KeyBindOption(bool value, int keyCode, bool isToggleableOption, std::initializer_list<uint32_t> unsupportedGameVers) : keyCode(keyCode), isToggleableOption(isToggleableOption), Option(value, unsupportedGameVers) {
         GetInstances()->insert(this);
     };
     KeyBindOption::~KeyBindOption() {
@@ -452,29 +459,21 @@ namespace ImGui {
     });
 #pragma endregion
 
-    static void HotkeyDebugInfo(const std::string_view& label) {
-        ImGuiContext& g = *GImGui;
-        ImGui::Text("Hotkey Label: %s", label.data());
-        ImGui::Text("CurrentItemFlags: 0x%X", g.CurrentItemFlags);
-        ImGui::Text("DisabledStackSize: %d", g.DisabledStackSize);
-        ImGui::Text("ItemFlagsStack Size: %d", (int)g.ItemFlagsStack.size());
-        for (size_t i = 0; i < g.ItemFlagsStack.size(); ++i) {
-            ImGui::Text("  Stack[%d]: 0x%X", (int)i, g.ItemFlagsStack[i]);
-        }
-    }
     void Hotkey(const std::string_view& label, KeyBindOption* key) {
+        if (key->IsUnsupportedGameVer())
+            ImGui::BeginDisabled(key->IsUnsupportedGameVer());
+
         ImGuiContext& g = *GImGui;
         bool wasDisabled = (g.CurrentItemFlags & ImGuiItemFlags_Disabled) != 0;
 
-        //HotkeyDebugInfo(label);
-
-        if (wasDisabled)
-            ImGui::EndDisabled();
-
         ImGuiItemFlags backupFlags = g.CurrentItemFlags;
-        g.CurrentItemFlags &= ~ImGuiItemFlags_Disabled;
         float backupAlpha = g.Style.Alpha;
-        g.Style.Alpha = backupAlpha / g.Style.DisabledAlpha;
+
+        if (wasDisabled && !key->IsUnsupportedGameVer()) {
+            ImGui::EndDisabled();
+            g.CurrentItemFlags &= ~ImGuiItemFlags_Disabled;
+            g.Style.Alpha = backupAlpha / g.Style.DisabledAlpha;
+        }
 
         const ImGuiID id = GetID(label.data());
         PushID(label.data());
@@ -516,12 +515,13 @@ namespace ImGui {
 
         PopID();
 
-        g.CurrentItemFlags = backupFlags;
-        g.Style.Alpha = backupAlpha;
-
-        if (wasDisabled)
+        if (wasDisabled && !key->IsUnsupportedGameVer()) {
+            g.CurrentItemFlags = backupFlags;
+            g.Style.Alpha = backupAlpha;
             ImGui::BeginDisabled(true);
+        }
 
-        //HotkeyDebugInfo(label);
+        if (key->IsUnsupportedGameVer())
+            ImGui::EndDisabled();
     }
 }

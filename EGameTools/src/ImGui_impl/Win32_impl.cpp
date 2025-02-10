@@ -1,4 +1,5 @@
-﻿#include <Windows.h>
+﻿#define DIRECTINPUT_VERSION 0x0800
+#include <Windows.h>
 #include <dinput.h>
 #include <spdlog\spdlog.h>
 #include <ImGui\imgui_hotkey.h>

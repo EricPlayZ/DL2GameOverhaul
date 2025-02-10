@@ -160,6 +160,9 @@ namespace EGSDK::Utils {
 			auto ExecuteOriginal(Args... args) {
 				return pOriginal(args...);
 			}
+			auto ExecuteDetour(Args... args) {
+				return pDetour(args...);
+			}
 
 			void RegisterCallback(CallbackType callback) {
 				callbacks.push_back(callback);
@@ -224,6 +227,9 @@ namespace EGSDK::Utils {
 
 			auto ExecuteOriginal(Args... args) {
 				return pOriginal(args...);
+			}
+			auto ExecuteDetour(Args... args) {
+				return pDetour(args...);
 			}
 
 			void RegisterCallback(CallbackType callback) {

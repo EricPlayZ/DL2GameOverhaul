@@ -18,8 +18,8 @@ namespace EGT::Menu {
 		static bool isModifyingGameSpeed = false;
 		static float actualGameSpeed = gameSpeed;
 		static float gameSpeedBeforeSlowMo = gameSpeed;
-		ImGui::KeyBindOption freezeTime{ VK_NONE };
-		ImGui::KeyBindOption slowMotion{ '4' };
+		ImGui::KeyBindOption freezeTime{ false, VK_NONE };
+		ImGui::KeyBindOption slowMotion{ false, '4' };
 		float slowMotionSpeed = 0.4f;
 		static float slowMotionSpeedLerp = gameSpeed;
 		float slowMotionTransitionTime = 1.0f;

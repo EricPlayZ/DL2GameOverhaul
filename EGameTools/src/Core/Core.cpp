@@ -275,24 +275,12 @@ namespace EGT::Core {
 		exit(0);
 	}
 #endif
-	static void GameVersionCheck() {
-		SPDLOG_INFO("Game version: v{}", EGSDK::GamePH::GameVerToStr(EGSDK::Core::gameVer));
-		SPDLOG_DEBUG("Comparing game version with compatible version");
-		if (EGSDK::Core::gameVer != GAME_VER_COMPAT) {
-			SPDLOG_WARN("Game version is not compatible with mod");
-			SPDLOG_ERROR("Please note that your game version has not been officially tested with this mod, therefore expect bugs, glitches or the mod to completely stop working. If so, please {}", EGSDK::Core::gameVer > GAME_VER_COMPAT ? "wait for a new patch." : "upgrade your game version to one that the mod supports.");
-		} else
-			SPDLOG_DEBUG("Game version is compatible with mod");
-	}
 	DWORD64 WINAPI MainThread(HMODULE hModule) {
 		EGSDK::GamePH::Hooks::OnPostUpdateHook.RegisterCallback(OnPostUpdate);
 
 #ifndef EXCP_HANDLER_DISABLE_DEBUG
 		SetUnhandledExceptionFilter(CrashHandler);
 #endif
-
-		SPDLOG_INFO("Running game version checks");
-		GameVersionCheck();
 
 		SPDLOG_INFO("Initializing config");
 		Config::InitConfig();

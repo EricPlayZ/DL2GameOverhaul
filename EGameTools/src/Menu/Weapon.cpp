@@ -9,11 +9,11 @@
 namespace EGT::Menu {
 	namespace Weapon {
 		float currentWeaponDurability = 0.0f;
-		ImGui::KeyBindOption unlimitedDurability{ VK_NONE };
-		ImGui::KeyBindOption unlimitedAmmo{ VK_NONE };
-		ImGui::KeyBindOption noSpread{ VK_NONE };
-		ImGui::KeyBindOption noRecoil{ VK_NONE };
-		ImGui::KeyBindOption instantReload{ VK_NONE };
+		ImGui::KeyBindOption unlimitedDurability{ false, VK_NONE };
+		ImGui::KeyBindOption unlimitedAmmo{ false, VK_NONE };
+		ImGui::KeyBindOption noSpread{ false, VK_NONE };
+		ImGui::KeyBindOption noRecoil{ false, VK_NONE };
+		ImGui::KeyBindOption instantReload{ false, VK_NONE };
 
 		static constexpr float baseWeaponDurabilityMul = 1.0f;
 		static constexpr float baseWeaponAccuracyMul = 1.0f;

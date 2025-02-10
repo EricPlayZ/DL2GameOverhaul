@@ -1,6 +1,6 @@
 #include <ImGui\imgui_hotkey.h>
 #include <ImGui\imgui_internal.h>
-
+#include <EGSDK\GamePH\GamePH_Misc.h>
 namespace ImGui {
     static ImGuiStyle defImGuiStyle{};
     static size_t tabIndex = 1;
@@ -69,9 +69,13 @@ namespace ImGui {
         return checkbox;
     }
 	bool Checkbox(const char* label, Option* v) {
+        ImGui::BeginDisabled(v->IsUnsupportedGameVer());
+
         ImGuiWindow* window = GetCurrentWindow();
-        if (window->SkipItems)
+        if (window->SkipItems) {
+            ImGui::EndDisabled();
             return false;
+        }
 
         ImGuiContext& g = *GImGui;
         const ImGuiStyle& style = g.Style;
@@ -84,6 +88,7 @@ namespace ImGui {
         ItemSize(total_bb, style.FramePadding.y);
         if (!ItemAdd(total_bb, id)) {
             IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (v->GetValue() ? ImGuiItemStatusFlags_Checked : 0));
+            ImGui::EndDisabled();
             return false;
         }
 
@@ -116,17 +121,20 @@ namespace ImGui {
             RenderText(label_pos, label);
 
         IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (v->GetValue() ? ImGuiItemStatusFlags_Checked : 0));
+        ImGui::EndDisabled();
         return pressed;
 	}
     bool Checkbox(const char* label, Option* v, const char* tooltip) {
         bool checkbox = Checkbox(label, v);
-        SetItemTooltip(tooltip);
+
+        std::string finalTooltip = v->IsUnsupportedGameVer() ? "Option is disabled because it does not support v" + EGSDK::GamePH::GameVerToStr(v->IsUnsupportedGameVer()) : tooltip ? tooltip : "";
+        if (!finalTooltip.empty())
+            SetItemTooltip(finalTooltip.c_str());
+
         return checkbox;
     }
     bool CheckboxHotkey(const char* label, KeyBindOption* v, const char* tooltip) {
-        const bool checkbox = Checkbox(label, v);
-        if (tooltip)
-            SetItemTooltip(tooltip);
+        bool checkbox = Checkbox(label, v, tooltip);
         Hotkey(std::string(label + std::string("##ToggleKey")), v);
         return checkbox;
     }

@@ -108,7 +108,7 @@ namespace EGT::GamePH {
 #pragma endregion
 
 #pragma region ShowTPPModelFunc3
-		ImGui::Option wannaUseTPPModel{};
+		ImGui::Option wannaUseTPPModel{ false };
 		static bool prevUseTPPModel;
 
 		static EGSDK::Utils::Hook::MHook<void*, void(*)(uint64_t, bool), uint64_t, bool> ShowTPPModelFunc3Hook{ "ShowTPPModelFunc3", &EGSDK::OffsetManager::Get_ShowTPPModelFunc3, [](uint64_t tppFunc2Addr, bool showTPPModel) -> void {

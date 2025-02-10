@@ -61,14 +61,12 @@ namespace EGT::Menu {
             ImGui::TextCentered(thankYou.c_str());
             ImGui::Spacing(ImVec2(0.0f, 5.0f));
 
-            const std::string gameCompat = "This version of the mod is compatible with game version v" + EGSDK::GamePH::GameVerToStr(GAME_VER_COMPAT) + ".";
+            const std::string gameCompat = "This version of the mod is compatible with game versions: " + EGSDK::Core::GetSupportedGameVersionsStr() + ".";
             ImGui::TextCentered(gameCompat.c_str());
             const std::string gameVer = "The game version you are currently running is v" + EGSDK::GamePH::GameVerToStr(EGSDK::Core::gameVer) + ".";
             ImGui::TextCentered(gameVer.c_str());
-            if (EGSDK::Core::gameVer != GAME_VER_COMPAT) {
-                const std::string gameNotCompat = "Please note that your game version has not been officially tested with this mod, therefore expect bugs, glitches or the mod to completely stop working. If so, please " + std::string(EGSDK::Core::gameVer > GAME_VER_COMPAT ? "wait for a new patch." : "upgrade your game version to one that the mod supports.");
-                ImGui::TextCenteredColored(gameNotCompat.c_str(), IM_COL32(200, 0, 0, 255));
-            }
+            if (!EGSDK::Core::IsGameVerCompatible())
+                ImGui::TextCenteredColored("Please note that your game version has not been officially tested with this mod, therefore expect bugs, glitches or the mod to completely stop working. If so, please upgrade or downgrade your game version to one that the mod supports.", IM_COL32(200, 0, 0, 255));
             ImGui::Spacing(ImVec2(0.0f, 5.0f));
             ImGui::TextCentered("I will not bore you with what this mod is about, so let's get right to teaching you how to use it!");
 

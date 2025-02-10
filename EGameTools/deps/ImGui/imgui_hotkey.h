@@ -30,15 +30,16 @@ namespace ImGui {
 
     class Option {
     public:
-        Option();
+        bool value = false;
+
         Option(bool value);
+        Option(bool value, std::initializer_list<uint32_t> unsupportedGameVers);
         ~Option();
         static std::set<Option*>* GetInstances();
 
-        bool value = false;
-
         void SetChangesAreDisabled(bool newValue);
         bool GetChangesAreDisabled() const;
+
         void Toggle();
         void Set(bool newValue);
         void SetBothValues(bool newValue);
@@ -48,9 +49,12 @@ namespace ImGui {
         bool GetPrevValue() const;
         bool HasChanged() const;
         bool HasChangedTo(bool toValue) const;
+
+        uint32_t IsUnsupportedGameVer() const;
     private:
         bool changesAreDisabled = false;
         bool previousValue = false;
+        std::set<uint32_t> unsupportedGameVers{};
     };
     class KeyBindOption : public Option {
     public:
@@ -58,7 +62,7 @@ namespace ImGui {
         static bool scrolledMouseWheelUp;
         static bool scrolledMouseWheelDown;
 
-        KeyBindOption(int keyCode, bool isToggleableOption = true);
+        KeyBindOption(bool value, int keyCode, bool isToggleableOption = true, std::initializer_list<uint32_t> unsupportedGameVers = {});
         ~KeyBindOption();
         static std::set<KeyBindOption*>* GetInstances();
 

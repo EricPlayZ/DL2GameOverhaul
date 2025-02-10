@@ -30,18 +30,18 @@ namespace EGT::Menu {
 		float playerImmunity = 80.0f;
 		float playerMaxImmunity = 80.0f;
 		int oldWorldMoney = 0;
-		ImGui::KeyBindOption godMode{ VK_F6 };
-		ImGui::KeyBindOption freezePlayer{ VK_NONE };
-		ImGui::KeyBindOption unlimitedImmunity{ VK_NONE };
-		ImGui::KeyBindOption unlimitedStamina{ VK_NONE };
-		ImGui::KeyBindOption unlimitedItems{ VK_NONE };
-		ImGui::KeyBindOption oneHitKill{ VK_NONE };
-		ImGui::KeyBindOption invisibleToEnemies{ VK_NONE };
-		ImGui::KeyBindOption disableOutOfBoundsTimer{ VK_NONE };
-		ImGui::KeyBindOption nightrunnerMode{ VK_F7 };
-		ImGui::KeyBindOption oneHandedMode{ VK_NONE };
-		ImGui::KeyBindOption disableSafezoneRestrictions{ VK_NONE };
-		ImGui::KeyBindOption disableAirControl{ VK_NONE };
+		ImGui::KeyBindOption godMode{ false, VK_F6 };
+		ImGui::KeyBindOption freezePlayer{ false, VK_NONE };
+		ImGui::KeyBindOption unlimitedImmunity{ false, VK_NONE };
+		ImGui::KeyBindOption unlimitedStamina{ false, VK_NONE };
+		ImGui::KeyBindOption unlimitedItems{ false, VK_NONE };
+		ImGui::KeyBindOption oneHitKill{ false, VK_NONE, true, { 11200 } };
+		ImGui::KeyBindOption invisibleToEnemies{ false, VK_NONE };
+		ImGui::KeyBindOption disableOutOfBoundsTimer{ false, VK_NONE };
+		ImGui::KeyBindOption nightrunnerMode{ false, VK_F7 };
+		ImGui::KeyBindOption oneHandedMode{ false, VK_NONE };
+		ImGui::KeyBindOption disableSafezoneRestrictions{ false, VK_NONE };
+		ImGui::KeyBindOption disableAirControl{ false, VK_NONE };
 		ImGui::Option playerVariables{ false };
 
 		std::string saveSCRPath{};
@@ -559,7 +559,9 @@ namespace EGT::Menu {
 			ImGui::CheckboxHotkey("Unlimited Stamina", &unlimitedStamina, "Stops stamina from draining");
 			ImGui::CheckboxHotkey("Unlimited Items", &unlimitedItems, "Stops the game from lowering the amount of items such as consumables / throwables when using them, alongside other inventory items such as ammo, lockpicks and other items;\nWARNING: This will not stop the item from getting removed from your inventory if you drop the entire amount\nCurrently, if the amount of item is 1, it will still drop from your inventory unfortunately");
 			ImGui::SameLine();
+
 			ImGui::CheckboxHotkey("One-Hit Kill", &oneHitKill, "Makes the player one-hit kill EVERYTHING and EVERYONE RAWRRR");
+
 			ImGui::CheckboxHotkey("Invisible to Enemies", &invisibleToEnemies, "Makes the player invisible to the enemies");
 			ImGui::SameLine();
 			ImGui::CheckboxHotkey("Disable Out of Bounds Timer", &disableOutOfBoundsTimer, "Disables the timer that runs when out of map bounds or mission bounds");

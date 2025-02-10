@@ -13,7 +13,6 @@
 #endif
 
 namespace EGSDK {
-    static constexpr uint32_t GAME_VER_COMPAT = 12001;
     static constexpr std::array<uint32_t, 2> SUPPORTED_GAME_VERSIONS = { 11200, 12001 };
 
     namespace Core {
@@ -31,6 +30,8 @@ namespace EGSDK {
 #endif
 
         extern EGameSDK_API std::string GetSDKStoragePath();
+        extern EGameSDK_API std::string GetSupportedGameVersionsStr();
+        extern EGameSDK_API bool IsGameVerCompatible();
 
 #ifdef EGameSDK_EXPORTS
         extern void OnPostUpdate();

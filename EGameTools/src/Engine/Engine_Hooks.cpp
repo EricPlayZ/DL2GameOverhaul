@@ -4,7 +4,7 @@
 #include <EGSDK\Utils\Time.h>
 #include <EGSDK\Utils\WinMemory.h>
 #include <EGSDK\GamePH\LevelDI.h>
-#include <EGSDK\Engine\RendererCVars.h>
+#include <EGSDK\Engine\CVars.h>
 #include <EGSDK\Engine\CBaseCamera.h>
 #include <EGSDK\Engine\Engine_Misc.h>
 #include <EGSDK\GamePH\FreeCamera.h>
@@ -269,20 +269,71 @@ namespace EGT::Engine {
 		} };
 #pragma endregion
 
-#pragma region UpdateVarFloat
-		static EGSDK::Utils::Hook::MHook<void*, void(*)(uint64_t, uint64_t, float*, uint64_t, uint64_t), uint64_t, uint64_t, float*, uint64_t, uint64_t> UpdateCVarFloatHook{ "UpdateCVarFloat", &EGSDK::OffsetManager::Get_UpdateCVarFloat, [](uint64_t a1, uint64_t a2, float* varValue, uint64_t a4, uint64_t a5) -> void {
-			UpdateCVarFloatHook.ExecuteOriginal(a1, a2, varValue, a4, a5);
-			const char* name = reinterpret_cast<const char*>(a1 - 0x60);
+#pragma region GetCVarT
+		EGSDK::Utils::Hook::MHook<void*, EGSDK::Engine::CVar*(*)(uint64_t, const char*, uint64_t, int), uint64_t, const char*, uint64_t, int> GetCVarTHook{ "GetCVarT", &EGSDK::OffsetManager::Get_GetCVarT, [](uint64_t pEvent, const char* name, uint64_t eventType, int someFlag) -> EGSDK::Engine::CVar* {
+			EGSDK::Engine::CVar* cVarPtr = GetCVarTHook.ExecuteOriginal(pEvent, name, eventType, someFlag);
+			if (!cVarPtr)
+				return cVarPtr;
+			if (EGSDK::Engine::CVars::vars.Find(name))
+				return cVarPtr;
 
-			auto floatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::rendererCVars.Find(a1));
-			if (!floatRendererCVar)
-				floatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::rendererCVars.try_emplace(std::make_unique<EGSDK::Engine::FloatRendererCVar>(name, a1)).get());
+			switch (eventType - pEvent) {
+				case 0x1A8:
+				{
+					cVarPtr->SetName(name);
+					cVarPtr->SetType(EGSDK::Engine::VarType::Float);
+					EGSDK::Engine::CVars::vars.try_emplace(std::unique_ptr<EGSDK::Engine::CVar>(cVarPtr));
+					break;
+				}
+				case 0x198:
+				{
+					cVarPtr->SetName(name);
+					cVarPtr->SetType(EGSDK::Engine::VarType::Int);
+					EGSDK::Engine::CVars::vars.try_emplace(std::unique_ptr<EGSDK::Engine::CVar>(cVarPtr));
+					break;
+				}
+				default:
+					break;
+			}
 
-			auto customFloatRendererCVar = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(EGSDK::Engine::RendererCVars::customRendererCVars.Find(a1));
-			if (customFloatRendererCVar)
-				*varValue = customFloatRendererCVar->GetValue();
-			else if (floatRendererCVar)
-				floatRendererCVar->SetValue(*varValue);
+			return cVarPtr;
+		} };
+#pragma endregion
+
+#pragma region GetCVarValue
+		static std::unordered_map<uint32_t, uint64_t*> cVarValuePtrs;
+		static EGSDK::Utils::Hook::MHook<void*, uint64_t*(*)(uint64_t, uint32_t, int), uint64_t, uint32_t, int> GetCVarValueHook{ "GetCVarValue", &EGSDK::OffsetManager::Get_GetCVarValue, [](uint64_t a1, uint32_t valueOffset, int a3) -> uint64_t* {
+			uint64_t* varValuePtr = GetCVarValueHook.ExecuteOriginal(a1, valueOffset, a3);
+			if (!varValuePtr)
+				return varValuePtr;
+
+			EGSDK::Engine::CVar* cVar = EGSDK::Engine::CVars::vars.Find(valueOffset);
+			if (!cVar)
+				return varValuePtr;
+			cVar->AddValuePtr(varValuePtr);
+
+			EGSDK::Engine::CVar* customCVar = EGSDK::Engine::CVars::customVars.Find(cVar->GetName());
+			if (!customCVar)
+				return varValuePtr;
+
+			switch (cVar->GetType()) {
+				case EGSDK::Engine::VarType::Float:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<float>(customCVar);
+					if (value)
+						cVar->SetValue(*value);
+					break;
+				}
+				case EGSDK::Engine::VarType::Int:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<int>(customCVar);
+					if (value)
+						cVar->SetValue(*value);
+					break;
+				}
+			}
+
+			return varValuePtr;
 		} };
 #pragma endregion
 

@@ -1,7 +1,7 @@
 #include <ImGui\imgui_hotkey.h>
 #include <ImGui\imguiex.h>
 #include <EGSDK\Utils\Hook.h>
-#include <EGSDK\Engine\RendererCVars.h>
+#include <EGSDK\Engine\CVars.h>
 #include <EGSDK\GamePH\GameDI_PH.h>
 #include <EGSDK\GamePH\LevelDI.h>
 #include <EGT\ImGui_impl\DeferredActions.h>
@@ -10,8 +10,8 @@
 
 namespace EGT::Menu {
 	namespace Misc {
-		ImGui::KeyBindOption disableGamePauseWhileAFK{ VK_NONE };
-		ImGui::KeyBindOption disableHUD{ VK_F8 };
+		ImGui::KeyBindOption disableGamePauseWhileAFK{ false, VK_NONE };
+		ImGui::KeyBindOption disableHUD{ false, VK_F8 };
 		ImGui::Option disableSavegameCRCCheck{ false };
 		ImGui::Option disableDataPAKsCRCCheck{ false };
 		ImGui::Option increaseDataPAKsLimit{ false };
@@ -23,57 +23,105 @@ namespace EGT::Menu {
 			disableHUD.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded());
 		}
 
-		static bool ShouldDisplayVariable(const std::unique_ptr<EGSDK::Engine::RendererCVar>& rendererCVarPtr, const std::string& searchFilter) {
-			if (rendererCVarPtr->GetType() == EGSDK::Engine::RendererCVarType::NONE)
-				return false;
-			if (EGSDK::Utils::Values::are_samef(reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(rendererCVarPtr.get())->GetValue(), -404.0f))
+		static bool ShouldDisplayVariable(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr, const std::string& searchFilter) {
+			if (cVarPtr->GetType() == EGSDK::Engine::VarType::NONE)
 				return false;
 			if (searchFilter.empty())
 				return true;
 
 			// Convert searchFilter and variable name to lowercase
 			std::string lowerFilter = EGSDK::Utils::Values::to_lower(searchFilter);
-			std::string lowerKey = EGSDK::Utils::Values::to_lower(rendererCVarPtr->GetName());
+			std::string lowerKey = EGSDK::Utils::Values::to_lower(cVarPtr->GetName());
 			return lowerKey.find(lowerFilter) != std::string::npos;
 		}
-		static void RestoreVariableToDefault(const std::string& name) {
-			ImGui_impl::DeferredActions::Add([name]() {
-				auto defRendererCVar = EGSDK::Engine::RendererCVars::defaultRendererCVars.Find(name);
-				if (!defRendererCVar)
-					return;
+		static void RestoreVariableToDefault(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
+			auto cVar = cVarPtr.get();
 
-				EGSDK::Engine::RendererCVars::ChangeRendererCVar(name, reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(defRendererCVar)->GetValue());
+			ImGui_impl::DeferredActions::Add([cVar]() {
+				switch (cVar->GetType()) {
+					case EGSDK::Engine::VarType::Float:
+					{
+						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<float>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
+						if (!defValue)
+							return;
 
-				EGSDK::Engine::RendererCVars::defaultRendererCVars.Erase(name);
-				EGSDK::Engine::RendererCVars::customRendererCVars.Erase(name);
+						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						break;
+					}
+					case EGSDK::Engine::VarType::Int:
+					{
+						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<int>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
+						if (!defValue)
+							return;
+						
+						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						break;
+					}
+				}
+
+				EGSDK::Engine::CVars::defaultVars.Erase(cVar->GetName());
+				EGSDK::Engine::CVars::customVars.Erase(cVar->GetName());
 			});
 		}
-		static void RenderRendererCVar(const std::unique_ptr<EGSDK::Engine::RendererCVar>& rendererCVarPtr) {
-			auto rendererCVar = rendererCVarPtr.get();
+		static void RestoreVariablesToDefault() {
+			EGSDK::Engine::CVars::customVars.ForEach([](const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
+				RestoreVariableToDefault(cVarPtr);
+			});
+		}
+		static void RenderRendererCVar(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
+			auto cVar = cVarPtr.get();
 
-			float newValue = reinterpret_cast<EGSDK::Engine::FloatRendererCVar*>(rendererCVar)->GetValue();
-			if (ImGui::InputFloat(rendererCVar->GetName(), &newValue))
-				EGSDK::Engine::RendererCVars::ChangeRendererCVarFromList(rendererCVar->GetName(), newValue, rendererCVar);
+			switch (cVar->GetType()) {
+				case EGSDK::Engine::VarType::Float:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<float>(cVar);
+					if (!value)
+						return;
+
+					auto newValue = *value;
+					if (ImGui::InputFloat(cVar->GetName(), &newValue))
+						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
+					break;
+				}
+				case EGSDK::Engine::VarType::Int:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<int>(cVar);
+					if (!value)
+						return;
+
+					auto newValue = *value;
+					if (ImGui::InputInt(cVar->GetName(), &newValue))
+						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
+					break;
+				}
+				default:
+					break;
+			}
 
 			ImGui::SameLine();
-			std::string restoreBtnName = "Restore##" + std::string(rendererCVarPtr->GetName());
+			std::string restoreBtnName = "Restore##" + std::string(cVar->GetName());
 
-			ImGui::BeginDisabled(EGSDK::Engine::RendererCVars::customRendererCVars.none_of(rendererCVarPtr->GetName()));
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.none_of(cVar->GetName()));
 			if (ImGui::Button(restoreBtnName.c_str(), "Restores renderer cvar to default"))
-				RestoreVariableToDefault(rendererCVarPtr->GetName());
+				RestoreVariableToDefault(cVarPtr);
 			ImGui::EndDisabled();
 		}
 		static void HandleRendererCVarsList() {
-			ImGui::BeginDisabled(EGSDK::Engine::RendererCVars::rendererCVars.empty());
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::vars.empty());
 			if (ImGui::CollapsingHeader("Renderer CVars list", ImGuiTreeNodeFlags_None)) {
 				ImGui::Indent();
+
+				ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.empty());
+				if (ImGui::Button("Restore variables to default"))
+					RestoreVariablesToDefault();
+				ImGui::EndDisabled();
 
 				ImGui::Separator();
 				ImGui::InputTextWithHint("##RendererCVarsSearch", "Search variables", rendererCVarsSearchFilter, 64);
 
-				EGSDK::Engine::RendererCVars::rendererCVars.ForEach([](std::unique_ptr<EGSDK::Engine::RendererCVar>& rendererCVarPtr) {
-					if (ShouldDisplayVariable(rendererCVarPtr, rendererCVarsSearchFilter))
-						RenderRendererCVar(rendererCVarPtr);
+				EGSDK::Engine::CVars::vars.ForEach([](std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
+					if (ShouldDisplayVariable(cVarPtr, rendererCVarsSearchFilter))
+						RenderRendererCVar(cVarPtr);
 				});
 
 				ImGui::Unindent();

@@ -108,6 +108,7 @@
     <GenerateManifest>true</GenerateManifest>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>EGameTools</TargetName>
@@ -147,7 +148,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>DbgHelp.lib;Version.lib;EGameSDK.lib;libMinHook-x64-v141-mdd.lib;freetype-mdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>
@@ -187,7 +188,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>..\EGameSDK\deps\MinHook\lib;deps\freetype\lib;..\$(PlatformShortName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DbgHelp.lib;Version.lib;EGameSDK.lib;libMinHook-x64-v141-mdd.lib;freetype-md.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>

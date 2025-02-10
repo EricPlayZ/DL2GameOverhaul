@@ -24,9 +24,9 @@ namespace EGT::Menu {
 		bool justTeleportedToWaypoint = false;
 		static EGSDK::Vec3 teleportCoords{};
 
-		ImGui::KeyBindOption teleportToSelectedLocation{ VK_F9 };
-		ImGui::KeyBindOption teleportToCoords{ VK_NONE };
-		ImGui::KeyBindOption teleportToWaypoint{ VK_F10 };
+		ImGui::KeyBindOption teleportToSelectedLocation{ false, VK_F9 };
+		ImGui::KeyBindOption teleportToCoords{ false, VK_NONE };
+		ImGui::KeyBindOption teleportToWaypoint{ false, VK_F10 };
 
 		void UpdateTeleportLocationVisualNames() {
 			savedTeleportLocationNames.clear();
