@@ -33,6 +33,14 @@ namespace EGSDK::Engine {
 	public:
 		explicit IntCVar(const std::string& name);
 	};
+	class EGameSDK_API Vec3CVar : public CVar {
+	public:
+		explicit Vec3CVar(const std::string& name);
+	};
+	class EGameSDK_API Vec4CVar : public CVar {
+	public:
+		explicit Vec4CVar(const std::string& name);
+	};
 
 	class EGameSDK_API CVarMap : public VarMapBase<CVar> {
 	public:

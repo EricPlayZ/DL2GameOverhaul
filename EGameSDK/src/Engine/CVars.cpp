@@ -29,6 +29,26 @@ namespace EGSDK::Engine {
 
 				it->second.value = *reinterpret_cast<int*>(it->second.valuePtrs[0]);
 				return it->second.value;
+			case VarType::Vec3:
+				if (it == varValues.end())
+					return varValues[this].value = Vec3();
+				if (!it->second.valuePtrs.size())
+					return it->second.value;
+				if (!it->second.valuePtrs[0])
+					return it->second.value;
+
+				it->second.value = *reinterpret_cast<Vec3*>(it->second.valuePtrs[0]);
+				return it->second.value;
+			case VarType::Vec4:
+				if (it == varValues.end())
+					return varValues[this].value = Vec4();
+				if (!it->second.valuePtrs.size())
+					return it->second.value;
+				if (!it->second.valuePtrs[0])
+					return it->second.value;
+
+				it->second.value = *reinterpret_cast<Vec4*>(it->second.valuePtrs[0]);
+				return it->second.value;
 			default:
 				if (it == varValues.end())
 					return varValues[this].value = 0;
@@ -40,23 +60,45 @@ namespace EGSDK::Engine {
 		switch (GetType()) {
 			case VarType::Float:
 			{
-				if (auto floatVal = std::get_if<float>(&value)) {
+				if (auto actualValue = std::get_if<float>(&value)) {
 					for (const auto& ptr : varValues[this].valuePtrs) {
 						if (ptr)
-							*reinterpret_cast<float*>(ptr) = *floatVal;
+							*reinterpret_cast<float*>(ptr) = *actualValue;
 					}
-					varValues[this].value = *floatVal;
+					varValues[this].value = *actualValue;
 				}
 				break;
 			}
 			case VarType::Int:
 			{
-				if (auto intVal = std::get_if<int>(&value)) {
+				if (auto actualValue = std::get_if<int>(&value)) {
 					for (const auto& ptr : varValues[this].valuePtrs) {
 						if (ptr)
-							*reinterpret_cast<int*>(ptr) = *intVal;
+							*reinterpret_cast<int*>(ptr) = *actualValue;
 					}
-					varValues[this].value = *intVal;
+					varValues[this].value = *actualValue;
+				}
+				break;
+			}
+			case VarType::Vec3:
+			{
+				if (auto actualValue = std::get_if<Vec3>(&value)) {
+					for (const auto& ptr : varValues[this].valuePtrs) {
+						if (ptr)
+							*reinterpret_cast<Vec3*>(ptr) = *actualValue;
+					}
+					varValues[this].value = *actualValue;
+				}
+				break;
+			}
+			case VarType::Vec4:
+			{
+				if (auto actualValue = std::get_if<Vec4>(&value)) {
+					for (const auto& ptr : varValues[this].valuePtrs) {
+						if (ptr)
+							*reinterpret_cast<Vec4*>(ptr) = *actualValue;
+					}
+					varValues[this].value = *actualValue;
 				}
 				break;
 			}
@@ -72,6 +114,12 @@ namespace EGSDK::Engine {
 	}
 	IntCVar::IntCVar(const std::string& name) : CVar(name) {
 		SetType(VarType::Int);
+	}
+	Vec3CVar::Vec3CVar(const std::string& name) : CVar(name) {
+		SetType(VarType::Vec3);
+	}
+	Vec4CVar::Vec4CVar(const std::string& name) : CVar(name) {
+		SetType(VarType::Vec4);
 	}
 
 	std::unique_ptr<CVar>& CVarMap::try_emplace(std::unique_ptr<CVar> cVar) {

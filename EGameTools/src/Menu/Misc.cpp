@@ -12,15 +12,16 @@ namespace EGT::Menu {
 	namespace Misc {
 		ImGui::KeyBindOption disableGamePauseWhileAFK{ false, VK_NONE };
 		ImGui::KeyBindOption disableHUD{ false, VK_F8 };
+		ImGui::KeyBindOption disableTAA{ false, VK_NONE };
 		ImGui::Option disableSavegameCRCCheck{ false };
 		ImGui::Option disableDataPAKsCRCCheck{ false };
 		ImGui::Option increaseDataPAKsLimit{ false };
 
 		static char rendererCVarsSearchFilter[64];
 
-		static void UpdateDisabledOptions() {
-			auto iLevel = EGSDK::GamePH::LevelDI::Get();
-			disableHUD.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded());
+		static void RendererCVarsUpdate() {
+			EGSDK::Engine::CVars::ManageVarByBool("i_pp_taa_on", 0, 1, disableTAA.GetValue());
+			EGSDK::Engine::CVars::ManageVarByBool("i_pp_jitter_on", 0, 1, disableTAA.GetValue());
 		}
 
 		static bool ShouldDisplayVariable(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr, const std::string& searchFilter) {
@@ -57,6 +58,24 @@ namespace EGT::Menu {
 						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
 						break;
 					}
+					case EGSDK::Engine::VarType::Vec3:
+					{
+						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<EGSDK::Vec3>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
+						if (!defValue)
+							return;
+
+						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						break;
+					}
+					case EGSDK::Engine::VarType::Vec4:
+					{
+						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<EGSDK::Vec4>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
+						if (!defValue)
+							return;
+
+						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						break;
+					}
 				}
 
 				EGSDK::Engine::CVars::defaultVars.Erase(cVar->GetName());
@@ -71,6 +90,7 @@ namespace EGT::Menu {
 		static void RenderRendererCVar(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
 			auto cVar = cVarPtr.get();
 
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::IsVarManagedByBool(cVar->GetName()));
 			switch (cVar->GetType()) {
 				case EGSDK::Engine::VarType::Float:
 				{
@@ -94,14 +114,37 @@ namespace EGT::Menu {
 						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
 					break;
 				}
+				case EGSDK::Engine::VarType::Vec3:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec3>(cVar);
+					if (!value)
+						return;
+
+					auto newValue = *value;
+					if (ImGui::InputFloat3(cVar->GetName(), reinterpret_cast<float*>(&newValue)))
+						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
+					break;
+				}
+				case EGSDK::Engine::VarType::Vec4:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec4>(cVar);
+					if (!value)
+						return;
+
+					auto newValue = *value;
+					if (ImGui::InputFloat4(cVar->GetName(), reinterpret_cast<float*>(&newValue)))
+						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
+					break;
+				}
 				default:
 					break;
 			}
+			ImGui::EndDisabled();
 
 			ImGui::SameLine();
 			std::string restoreBtnName = "Restore##" + std::string(cVar->GetName());
 
-			ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.none_of(cVar->GetName()));
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.none_of(cVar->GetName()) || EGSDK::Engine::CVars::IsVarManagedByBool(cVar->GetName()));
 			if (ImGui::Button(restoreBtnName.c_str(), "Restores renderer cvar to default"))
 				RestoreVariableToDefault(cVarPtr);
 			ImGui::EndDisabled();
@@ -129,10 +172,17 @@ namespace EGT::Menu {
 			ImGui::EndDisabled();
 		}
 
+		static void UpdateDisabledOptions() {
+			auto iLevel = EGSDK::GamePH::LevelDI::Get();
+			disableHUD.SetChangesAreDisabled(!iLevel || !iLevel->IsLoaded());
+		}
+
 		Tab Tab::instance{};
 		void Tab::Init() {}
 		void Tab::Update() {
 			UpdateDisabledOptions();
+
+			RendererCVarsUpdate();
 
 			auto iLevel = EGSDK::GamePH::LevelDI::Get();
 			if (!iLevel)
@@ -156,10 +206,11 @@ namespace EGT::Menu {
 			ImGui::SeparatorText("Misc##Misc");
 			ImGui::CheckboxHotkey("Disable Game Pause While AFK", &disableGamePauseWhileAFK, "Prevents the game from pausing while you're afk");
 			ImGui::SameLine();
-
 			ImGui::BeginDisabled(disableHUD.GetChangesAreDisabled());
 			ImGui::CheckboxHotkey("Disable HUD", &disableHUD, "Disables the entire HUD, including any sort of menus like the pause menu");
 			ImGui::EndDisabled();
+
+			ImGui::CheckboxHotkey("Disable TAA", &disableTAA, "Disables the TAA/anti-aliasing (only works if you have upscaling disabled)");
 
 			ImGui::SeparatorText("Scripting##Misc");
 			HandleRendererCVarsList();

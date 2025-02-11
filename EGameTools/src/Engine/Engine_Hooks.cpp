@@ -292,6 +292,20 @@ namespace EGT::Engine {
 					EGSDK::Engine::CVars::vars.try_emplace(std::unique_ptr<EGSDK::Engine::CVar>(cVarPtr));
 					break;
 				}
+				case 0x1C8:
+				{
+					cVarPtr->SetName(name);
+					cVarPtr->SetType(EGSDK::Engine::VarType::Vec3);
+					EGSDK::Engine::CVars::vars.try_emplace(std::unique_ptr<EGSDK::Engine::CVar>(cVarPtr));
+					break;
+				}
+				case 0x1D8:
+				{
+					cVarPtr->SetName(name);
+					cVarPtr->SetType(EGSDK::Engine::VarType::Vec4);
+					EGSDK::Engine::CVars::vars.try_emplace(std::unique_ptr<EGSDK::Engine::CVar>(cVarPtr));
+					break;
+				}
 				default:
 					break;
 			}
@@ -327,6 +341,20 @@ namespace EGT::Engine {
 				case EGSDK::Engine::VarType::Int:
 				{
 					auto value = EGSDK::Engine::CVars::GetVarValue<int>(customCVar);
+					if (value)
+						cVar->SetValue(*value);
+					break;
+				}
+				case EGSDK::Engine::VarType::Vec3:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec3>(customCVar);
+					if (value)
+						cVar->SetValue(*value);
+					break;
+				}
+				case EGSDK::Engine::VarType::Vec4:
+				{
+					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec4>(customCVar);
 					if (value)
 						cVar->SetValue(*value);
 					break;
