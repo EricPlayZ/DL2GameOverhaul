@@ -36,50 +36,28 @@ namespace EGT::Menu {
 			return lowerKey.find(lowerFilter) != std::string::npos;
 		}
 		static void RestoreVariableToDefault(const std::unique_ptr<EGSDK::Engine::CVar>& cVarPtr) {
+			if (EGSDK::Engine::CVars::IsVarManagedByBool(cVarPtr->GetName()))
+				return;
+
 			auto cVar = cVarPtr.get();
 
 			ImGui_impl::DeferredActions::Add([cVar]() {
 				switch (cVar->GetType()) {
 					case EGSDK::Engine::VarType::Float:
-					{
-						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<float>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
-						if (!defValue)
-							return;
-
-						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						EGSDK::Engine::CVars::RestoreVariableToDefault<float>(cVar);
 						break;
-					}
 					case EGSDK::Engine::VarType::Int:
-					{
-						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<int>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
-						if (!defValue)
-							return;
-						
-						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						EGSDK::Engine::CVars::RestoreVariableToDefault<int>(cVar);
 						break;
-					}
 					case EGSDK::Engine::VarType::Vec3:
-					{
-						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<EGSDK::Vec3>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
-						if (!defValue)
-							return;
-
-						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						EGSDK::Engine::CVars::RestoreVariableToDefault<EGSDK::Vec3>(cVar);
 						break;
-					}
 					case EGSDK::Engine::VarType::Vec4:
-					{
-						auto defValue = EGSDK::Engine::CVars::GetVarValueFromMap<EGSDK::Vec4>(cVar->GetName(), EGSDK::Engine::CVars::defaultVars);
-						if (!defValue)
-							return;
-
-						EGSDK::Engine::CVars::ChangeVar(cVar->GetName(), *defValue);
+						EGSDK::Engine::CVars::RestoreVariableToDefault<EGSDK::Vec4>(cVar);
 						break;
-					}
+					default:
+						break;
 				}
-
-				EGSDK::Engine::CVars::defaultVars.Erase(cVar->GetName());
-				EGSDK::Engine::CVars::customVars.Erase(cVar->GetName());
 			});
 		}
 		static void RestoreVariablesToDefault() {
@@ -97,7 +75,6 @@ namespace EGT::Menu {
 					auto value = EGSDK::Engine::CVars::GetVarValue<float>(cVar);
 					if (!value)
 						return;
-
 					auto newValue = *value;
 					if (ImGui::InputFloat(cVar->GetName(), &newValue))
 						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
@@ -108,7 +85,6 @@ namespace EGT::Menu {
 					auto value = EGSDK::Engine::CVars::GetVarValue<int>(cVar);
 					if (!value)
 						return;
-
 					auto newValue = *value;
 					if (ImGui::InputInt(cVar->GetName(), &newValue))
 						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
@@ -119,7 +95,6 @@ namespace EGT::Menu {
 					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec3>(cVar);
 					if (!value)
 						return;
-
 					auto newValue = *value;
 					if (ImGui::InputFloat3(cVar->GetName(), reinterpret_cast<float*>(&newValue)))
 						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
@@ -130,7 +105,6 @@ namespace EGT::Menu {
 					auto value = EGSDK::Engine::CVars::GetVarValue<EGSDK::Vec4>(cVar);
 					if (!value)
 						return;
-
 					auto newValue = *value;
 					if (ImGui::InputFloat4(cVar->GetName(), reinterpret_cast<float*>(&newValue)))
 						EGSDK::Engine::CVars::ChangeVarFromList(cVar, newValue);
@@ -144,17 +118,17 @@ namespace EGT::Menu {
 			ImGui::SameLine();
 			std::string restoreBtnName = "Restore##" + std::string(cVar->GetName());
 
-			ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.none_of(cVar->GetName()) || EGSDK::Engine::CVars::IsVarManagedByBool(cVar->GetName()));
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::DoesVarHaveCustomValue(cVar->GetName()) || EGSDK::Engine::CVars::IsVarManagedByBool(cVar->GetName()));
 			if (ImGui::Button(restoreBtnName.c_str(), "Restores renderer cvar to default"))
 				RestoreVariableToDefault(cVarPtr);
 			ImGui::EndDisabled();
 		}
 		static void HandleRendererCVarsList() {
-			ImGui::BeginDisabled(EGSDK::Engine::CVars::vars.empty());
+			ImGui::BeginDisabled(EGSDK::Engine::CVars::AreAnyVarsPresent());
 			if (ImGui::CollapsingHeader("Renderer CVars list", ImGuiTreeNodeFlags_None)) {
 				ImGui::Indent();
 
-				ImGui::BeginDisabled(EGSDK::Engine::CVars::customVars.empty());
+				ImGui::BeginDisabled(EGSDK::Engine::CVars::AreAnyCustomVarsPresent() || !EGSDK::Engine::CVars::AreAllCustomVarsManagedByBool());
 				if (ImGui::Button("Restore variables to default"))
 					RestoreVariablesToDefault();
 				ImGui::EndDisabled();

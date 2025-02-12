@@ -8,101 +8,66 @@ namespace EGSDK::Engine {
 	VarValueType& CVar::GetValue() {
 		std::lock_guard<decltype(mutex)> lock(mutex);
 		auto it = varValues.find(this);
+		if (it == varValues.end()) {
+			switch (GetType()) {
+				case VarType::Float:
+					return varValues[this].value = 0.0f;
+					break;
+				case VarType::Int:
+					return varValues[this].value = 0;
+					break;
+				case VarType::Vec3:
+					return varValues[this].value = Vec3();
+					break;
+				case VarType::Vec4:
+					return varValues[this].value = Vec4();
+					break;
+				default:
+					return varValues[this].value = 0;
+					break;
+			}
+		}
+		auto& varData = it->second;
+		if (varData.valuePtrs.empty())
+			return varData.value;
+		auto ptr = varData.valuePtrs[0];
+		if (!ptr)
+			return varData.value;
 		switch (GetType()) {
 			case VarType::Float:
-				if (it == varValues.end())
-					return varValues[this].value = 0.0f;
-				if (!it->second.valuePtrs.size())
-					return it->second.value;
-				if (!it->second.valuePtrs[0])
-					return it->second.value;
-
-				it->second.value = *reinterpret_cast<float*>(it->second.valuePtrs[0]);
-				return it->second.value;
+				return varData.value = *reinterpret_cast<float*>(ptr);
 			case VarType::Int:
-				if (it == varValues.end())
-					return varValues[this].value = 0;
-				if (!it->second.valuePtrs.size())
-					return it->second.value;
-				if (!it->second.valuePtrs[0])
-					return it->second.value;
-
-				it->second.value = *reinterpret_cast<int*>(it->second.valuePtrs[0]);
-				return it->second.value;
+				return varData.value = *reinterpret_cast<int*>(ptr);
 			case VarType::Vec3:
-				if (it == varValues.end())
-					return varValues[this].value = Vec3();
-				if (!it->second.valuePtrs.size())
-					return it->second.value;
-				if (!it->second.valuePtrs[0])
-					return it->second.value;
-
-				it->second.value = *reinterpret_cast<Vec3*>(it->second.valuePtrs[0]);
-				return it->second.value;
+				return varData.value = *reinterpret_cast<Vec3*>(ptr);
 			case VarType::Vec4:
-				if (it == varValues.end())
-					return varValues[this].value = Vec4();
-				if (!it->second.valuePtrs.size())
-					return it->second.value;
-				if (!it->second.valuePtrs[0])
-					return it->second.value;
-
-				it->second.value = *reinterpret_cast<Vec4*>(it->second.valuePtrs[0]);
-				return it->second.value;
+				return varData.value = *reinterpret_cast<Vec4*>(ptr);
 			default:
-				if (it == varValues.end())
-					return varValues[this].value = 0;
 				return it->second.value;
 		}
 	}
 	void CVar::SetValue(const VarValueType& value) {
-		std::lock_guard<decltype(mutex)> lock(mutex);
-		switch (GetType()) {
-			case VarType::Float:
-			{
-				if (auto actualValue = std::get_if<float>(&value)) {
-					for (const auto& ptr : varValues[this].valuePtrs) {
-						if (ptr)
-							*reinterpret_cast<float*>(ptr) = *actualValue;
+		std::lock_guard lock(mutex);
+		auto& varData = varValues[this];
+
+		std::visit([&](auto&& val) {
+			using T = std::decay_t<decltype(val)>;
+			if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int> || std::is_same_v<T, Vec3> || std::is_same_v<T, Vec4>) {
+				for (auto* ptr : varData.valuePtrs) {
+					if (ptr) {
+						if constexpr (std::is_same_v<T, float>)
+							*reinterpret_cast<float*>(ptr) = val;
+						else if constexpr (std::is_same_v<T, int>)
+							*reinterpret_cast<int*>(ptr) = val;
+						else if constexpr (std::is_same_v<T, Vec3>)
+							*reinterpret_cast<Vec3*>(ptr) = val;
+						else if constexpr (std::is_same_v<T, Vec4>)
+							*reinterpret_cast<Vec4*>(ptr) = val;
 					}
-					varValues[this].value = *actualValue;
 				}
-				break;
+				varData.value = val;
 			}
-			case VarType::Int:
-			{
-				if (auto actualValue = std::get_if<int>(&value)) {
-					for (const auto& ptr : varValues[this].valuePtrs) {
-						if (ptr)
-							*reinterpret_cast<int*>(ptr) = *actualValue;
-					}
-					varValues[this].value = *actualValue;
-				}
-				break;
-			}
-			case VarType::Vec3:
-			{
-				if (auto actualValue = std::get_if<Vec3>(&value)) {
-					for (const auto& ptr : varValues[this].valuePtrs) {
-						if (ptr)
-							*reinterpret_cast<Vec3*>(ptr) = *actualValue;
-					}
-					varValues[this].value = *actualValue;
-				}
-				break;
-			}
-			case VarType::Vec4:
-			{
-				if (auto actualValue = std::get_if<Vec4>(&value)) {
-					for (const auto& ptr : varValues[this].valuePtrs) {
-						if (ptr)
-							*reinterpret_cast<Vec4*>(ptr) = *actualValue;
-					}
-					varValues[this].value = *actualValue;
-				}
-				break;
-			}
-		}
+		}, value);
 	}
 	void CVar::AddValuePtr(uint64_t* ptr) {
 		std::lock_guard<decltype(mutex)> lock(mutex);
